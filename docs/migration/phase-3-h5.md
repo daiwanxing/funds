@@ -22,42 +22,30 @@
 
 ## Step 1：响应式基础设施
 
-### 1.1 CSS 变量 + 媒体查询
+### 1.1 UnoCSS 断点响应式
 
-```scss
-// src/styles/variables.scss
-:root {
-  --font-size-base: 14px;
-  --font-size-sm: 12px;
-  --content-max-width: 800px;
-  --spacing-sm: 4px;
-  --spacing-md: 8px;
-  --spacing-lg: 16px;
-}
+UnoCSS 内置断点前缀（基于 presetWind3）：
 
-@media (max-width: 768px) {
-  :root {
-    --font-size-base: 16px;
-    --font-size-sm: 14px;
-    --content-max-width: 100%;
-    --spacing-sm: 6px;
-    --spacing-md: 12px;
-    --spacing-lg: 20px;
-  }
-}
+| 前缀 | 最小宽度 |
+|---|---|
+| `sm:` | 640px |
+| `md:` | 768px |
+| `lg:` | 1024px |
+
+示例：
+
+```html
+<!-- 移动端全宽，PC 端限宽 -->
+<div class="w-full max-w-800px mx-auto px-3">
+  ...
+</div>
 ```
 
 ### 1.2 移除固定宽度
 
 ```diff
-  .container {
--   min-width: 630px;
-+   max-width: var(--content-max-width);
-+   width: 100%;
-+   margin: 0 auto;
-+   padding: 0 var(--spacing-md);
-+   box-sizing: border-box;
-  }
+- <div style="min-width: 630px">
++ <div class="w-full max-w-800px mx-auto px-2 md:px-4">
 ```
 
 ---
@@ -66,23 +54,16 @@
 
 PC 端横排展示 → 移动端可横向滑动：
 
-```scss
-.tab-row {
-  display: flex;
-  gap: var(--spacing-md);
-
-  @media (max-width: 768px) {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scroll-snap-type: x mandatory;
-
-    .tab-col {
-      flex-shrink: 0;
-      min-width: 120px;
-      scroll-snap-align: start;
-    }
-  }
-}
+```html
+<div class="flex gap-2 md:gap-4 overflow-x-auto snap-x snap-mandatory">
+  <div
+    v-for="item in seciList"
+    :key="item"
+    class="shrink-0 min-w-30 snap-start md:(shrink min-w-auto)"
+  >
+    <!-- 指数卡片内容 -->
+  </div>
+</div>
 ```
 
 ---
@@ -101,21 +82,24 @@ PC 端横排展示 → 移动端可横向滑动：
   </table>
 
   <!-- 移动端使用卡片 -->
-  <div v-else class="fund-cards">
-    <div v-for="el in dataList" :key="el.fundcode" class="fund-card"
-         @click="fundDetail(el)">
-      <div class="card-header">
-        <span class="fund-name">{{ el.name }}</span>
-        <span :class="el.gszzl >= 0 ? 'up' : 'down'">{{ el.gszzl }}%</span>
+  <div v-else class="flex flex-col gap-2">
+    <div
+      v-for="el in dataList"
+      :key="el.fundcode"
+      class="border border-gray-200 rounded-lg p-3 dark:border-gray-600"
+      @click="fundDetail(el)"
+    >
+      <div class="flex justify-between items-center mb-1">
+        <span class="text-sm font-medium">{{ el.name }}</span>
+        <span :class="el.gszzl >= 0 ? 'text-up' : 'text-down'">
+          {{ el.gszzl }}%
+        </span>
       </div>
-      <div class="card-body">
-        <div v-if="showGains" class="card-item">
-          <label>估算收益</label>
-          <span :class="el.gains >= 0 ? 'up' : 'down'">
-            {{ parseFloat(el.gains).toLocaleString('zh', { minimumFractionDigits: 2 }) }}
-          </span>
-        </div>
-        <!-- 更多字段... -->
+      <div v-if="showGains" class="flex justify-between text-xs text-gray-500">
+        <span>估算收益</span>
+        <span :class="el.gains >= 0 ? 'text-up' : 'text-down'">
+          {{ parseFloat(el.gains).toLocaleString('zh', { minimumFractionDigits: 2 }) }}
+        </span>
       </div>
     </div>
   </div>
@@ -132,40 +116,20 @@ export default {
 </script>
 ```
 
-```scss
-.fund-cards {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
-}
 
-.fund-card {
-  border: 1px solid #eee;
-  border-radius: 8px;
-  padding: var(--spacing-md);
-}
-```
 
 ---
 
 ## Step 4：弹窗/详情页适配
 
-```scss
-// 详情弹窗在移动端全屏
-.detail-container {
-  @media (max-width: 768px) {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: 100;
-    overflow-y: auto;
-  }
-}
-```
+详情弹窗在移动端全屏，使用 UnoCSS 断点前缀：
 
-ECharts 图表需设置响应式：
+```html
+<!-- 详情弹窗 -->
+<div class="md:relative fixed inset-0 z-100 overflow-y-auto md:(inset-auto z-auto overflow-visible)">
+  <!-- 弹窗内容 -->
+</div>
+```
 
 ```ts
 window.addEventListener('resize', () => {
@@ -203,28 +167,21 @@ import { VueDraggable } from 'vue-draggable-plus'
 
 移动端将底部按钮改为固定底栏：
 
-```scss
-.action-row {
-  @media (max-width: 768px) {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    display: flex;
-    justify-content: space-around;
-    padding: var(--spacing-md);
-    background: white;
-    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
-    z-index: 50;
-  }
-}
+```html
+<!-- 底部操作栏：移动端固定，PC 端正常流 -->
+<div class="
+  md:flex md:justify-end md:gap-2 md:py-2
+  fixed bottom-0 left-0 w-full flex justify-around p-3
+  bg-white shadow-[0_-2px_8px_rgba(0,0,0,0.1)] z-50
+  md:(static w-auto bg-transparent shadow-none z-auto)
+">
+  <!-- 按钮 -->
+</div>
 
-// 为固定底栏留出空间
-.container {
-  @media (max-width: 768px) {
-    padding-bottom: 60px;
-  }
-}
+<!-- 给固定底栏留出空间 -->
+<div class="pb-15 md:pb-0">
+  <!-- 主内容 -->
+</div>
 ```
 
 ---
