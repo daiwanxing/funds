@@ -1,1 +1,1 @@
-export { default as HolidayInfo } from './HolidayInfo.vue'
+export { default as HolidayInfo } from "./HolidayInfo.vue";

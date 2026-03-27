@@ -1,2 +1,2 @@
-export { useFundData } from './useFundData'
-export { useTableSort } from './useTableSort'
+export { useFundData } from "./useFundData";
+export { useTableSort } from "./useTableSort";

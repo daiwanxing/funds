@@ -1,2 +1,2 @@
-export { useSettings } from './useSettings'
-export type { SettingsState } from './useSettings'
+export { useSettings } from "./useSettings";
+export type { SettingsState } from "./useSettings";

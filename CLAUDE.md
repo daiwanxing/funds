@@ -4,61 +4,85 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 项目概述
 
-"自选基金助手" — 一个 Chrome/Edge 浏览器扩展插件，用于实时查看自选基金的估值涨跌幅、收益等信息。基于 Manifest V2 构建。
+"自选基金助手" — 一个基金行情查看应用，用于实时查看自选基金的估值涨跌幅、收益等信息。这是从 Chrome 扩展（Manifest V2）迁移到 Web 应用的版本。基于 Vue 3 + Vite 构建。
 
 ## 常用命令
 
 ```bash
-npm i                # 安装依赖
-npm run watch:dev    # 开发调试（HMR 热重载），生成 dist/ 后在浏览器加载"已解压的扩展程序"
-npm run build        # 生产构建，输出到 dist/
-npm run build-zip    # 将 dist/ 打包为 dist-zip/{name}-v{version}.zip
-npm run prettier:write  # 格式化 src/ 下的 js/vue 文件
+npm install              # 安装依赖
+npm run dev              # 开发调试，启动 Vite 开发服务器（端口 3000）
+npm run build            # 生产构建，输出到 dist/
+npm run preview          # 预览生产构建
+npm run test             # 运行测试（watch 模式）
+npm run test:run         # 运行测试一次
+npm run test:coverage    # 生成测试覆盖率报告
+npm run lint             # 使用 oxlint 检查代码
+npm run lint:fix         # 自动修复 lint 问题
+npm run type-check       # 运行 TypeScript 类型检查
+npm run fmt              # 使用 oxfmt 格式化代码
+npm run fmt:check        # 检查代码格式
 ```
-
-没有测试框架和 lint 命令。
 
 ## 架构
 
-这是一个 Vue 2 + Webpack 4 的 Chrome 扩展项目，使用 [vue-web-extension](https://github.com/Kocal/vue-web-extension/tree/v1) 模板。
+### 技术栈
 
-### Webpack 入口（webpack.config.js）
+- **框架**: Vue 3 + TypeScript
+- **构建**: Vite
+- **样式**: UnoCSS（Tailwind CSS 兼容）
+- **UI 组件**: Element Plus（按需引入）
+- **图表**: ECharts 5
+- **测试**: Vitest + jsdom
+- **代码质量**: oxlint + oxfmt
+- **HTTP 客户端**: axios
 
-三个入口点，构建输出到 `dist/`：
+### 项目结构
 
-- `src/background.js` — 扩展 background script，负责角标（badge）更新、定时轮询基金数据、节假日/休市判断、右键菜单、消息监听
-- `src/popup/popup.js` → `popup/App.vue` — 弹窗主界面，基金列表展示、编辑、排序、分组、搜索等核心交互
-- `src/options/options.js` → `options/App.vue` — 设置页面，主题切换、角标配置、导入导出、账号同步等
+```
+src/
+├── components/          # 可复用组件（按功能分组）
+│   ├── FundTable/       # 基金表格
+│   ├── FundSearch/      # 基金搜索
+│   ├── IndexBar/        # 指数行情栏
+│   ├── ActionBar/       # 操作栏
+│   ├── ConfigBox/       # 配置导入导出
+│   ├── settings/        # 设置相关组件
+│   └── ...
+├── composables/         # 逻辑复用（Vue 3 Composition API）
+│   ├── fund/            # 基金数据管理
+│   ├── importExport/    # 导入导出逻辑
+│   ├── drag/            # 拖拽排序
+│   └── ...
+├── pages/               # 页面级组件
+│   ├── Home.vue         # 主页
+│   └── Settings.vue     # 设置页
+├── App.vue              # 根组件
+└── main.ts              # 应用入口
+```
 
-### 共享组件（src/common/）
+### 核心模式
 
-- `charts.vue` / `charts2.vue` — ECharts 图表（估值走势、净值走势等）
-- `fundDetail.vue` / `fundInfo.vue` — 基金详情与基本信息
-- `indDetail.vue` — 指数详情
-- `market.vue` / `marketBar.vue` / `marketLine.vue` / `marketN2S.vue` / `marketS2N.vue` — 行情中心（大盘资金、行业板块、北向/南向资金）
-- `positionDetail.vue` — 持仓明细
-- `managerDetail.vue` — 基金经理信息
-- `configBox.vue` — 配置导入导出
-- `js/customed.js` / `js/dark.js` — ECharts 自定义主题（标准/暗色）
+**Composables（组合式函数）** — 业务逻辑通过 composables 实现，而非 mixins 或 class 组件。例如 `useFundData()` 管理基金数据获取和缓存。
 
-### 关键技术栈
+**组件组织** — 每个组件在独立文件夹中，包含 `.vue` 文件和 `index.ts` 导出。
 
-- Vue 2 + Element UI（按需引入）
-- ECharts 4 图表
-- axios 请求
-- chrome.storage.sync 存储用户数据
-- chrome.browserAction API 控制角标
+**API 代理** — 开发环境通过 Vite 代理访问东方财富 API（见 vite.config.ts）：
+- `/api/fund` → `https://fundmobapi.eastmoney.com`
+- `/api/search` → `https://fundsuggest.eastmoney.com`
+- `/api/index` → `https://push2.eastmoney.com`
+- `/api/kline` → `https://push2his.eastmoney.com`
+
+### 测试
+
+测试文件位于 `src/**/*.test.ts`，使用 Vitest + jsdom。运行 `npm run test:run` 执行单次测试。
 
 ### 数据来源
 
-基金和指数数据主要来自东方财富（eastmoney.com）API。`background.js` 中通过定时轮询获取实时数据并更新角标。
-
-### 消息通信
-
-popup/options 页面通过 `chrome.runtime.sendMessage` 与 background script 通信，消息类型包括：`DuringDate`（查询是否交易时间）、`refresh`（刷新数据）、`refreshBadge`（更新角标）、`refreshOption`（更新设置）等。
+基金和指数数据来自东方财富（eastmoney.com）API。
 
 ## 注意事项
 
-- `src/manifest.json` 中 version 字段为 null，构建时由 webpack 从 package.json 读取版本号注入
-- `holiday.json` 存放节假日数据，用于判断休市状态
-- `docs/` 目录是项目文档站的构建产物，不要修改
+- 项目正在从 Vue 2 + Webpack 迁移到 Vue 3 + Vite，部分旧文件仍在 git 中标记为删除
+- 使用 TypeScript，确保类型检查通过（`npm run type-check`）
+- UnoCSS 提供原子化 CSS，避免手写 CSS；使用 `uno.config.ts` 中定义的快捷类（如 `text-up`、`text-down`、`btn`）
+- oxlint 和 oxfmt 是 Rust 实现的高性能工具，比传统 ESLint/Prettier 更快

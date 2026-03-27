@@ -1,1 +1,1 @@
-export { default as AppearanceControls } from './AppearanceControls.vue'
+export { default as AppearanceControls } from "./AppearanceControls.vue";

@@ -1,1 +1,1 @@
-export { useAutoRefresh } from './useAutoRefresh'
+export { useAutoRefresh } from "./useAutoRefresh";

@@ -1,1 +1,1 @@
-export { default as FundTable } from './FundTable.vue'
+export { default as FundTable } from "./FundTable.vue";

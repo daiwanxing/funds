@@ -1,1 +1,1 @@
-export { useHoliday } from './useHoliday'
+export { useHoliday } from "./useHoliday";

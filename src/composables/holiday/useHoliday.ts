@@ -1,38 +1,40 @@
-import { ref } from 'vue'
-import axios from 'axios'
-import { storage } from '@/utils/storage'
-import { setHolidayData } from '@/utils/marketStatus'
+import { ref } from "vue";
+import axios from "axios";
+import { storage } from "@/utils/storage";
+import { setHolidayData } from "@/utils/marketStatus";
 
 interface HolidayInfo {
-  version?: string
-  lastDate?: string
-  data?: Record<string, any>
+  version?: string;
+  lastDate?: string;
+  data?: Record<string, any>;
 }
 
 export function useHoliday() {
-  const holiday = ref<HolidayInfo | null>(null)
-  const updating = ref(false)
+  const holiday = ref<HolidayInfo | null>(null);
+  const updating = ref(false);
 
   function loadFromStorage(): void {
-    storage.get(['holiday'], (res: Record<string, any>) => {
+    storage.get(["holiday"], (res: Record<string, any>) => {
       if (res.holiday) {
-        holiday.value = res.holiday
-        setHolidayData(res.holiday)
+        holiday.value = res.holiday;
+        setHolidayData(res.holiday);
       } else {
-        fetchHoliday()
+        fetchHoliday();
       }
-    })
+    });
   }
 
   async function fetchHoliday(): Promise<void> {
-    updating.value = true
+    updating.value = true;
     try {
-      const res = await axios.get<HolidayInfo>('https://x2rr.github.io/funds/holiday.json')
-      holiday.value = res.data
-      setHolidayData(res.data)
-      storage.set({ holiday: res.data })
+      const res = await axios.get<HolidayInfo>(
+        "https://x2rr.github.io/funds/holiday.json",
+      );
+      holiday.value = res.data;
+      setHolidayData(res.data);
+      storage.set({ holiday: res.data });
     } finally {
-      updating.value = false
+      updating.value = false;
     }
   }
 
@@ -41,5 +43,5 @@ export function useHoliday() {
     updating,
     loadFromStorage,
     fetchHoliday,
-  }
+  };
 }

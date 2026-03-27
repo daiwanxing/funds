@@ -1,1 +1,1 @@
-export { default as IndexBar } from './IndexBar.vue'
+export { default as IndexBar } from "./IndexBar.vue";

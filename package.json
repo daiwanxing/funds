@@ -16,8 +16,9 @@
     "test": "vitest",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "lint": "oxlint",
-    "lint:fix": "oxlint --fix",
+    "lint": "oxlint --config oxlintrc.json",
+    "lint:fix": "oxlint --fix --config oxlintrc.json",
+    "type-check": "vue-tsc --noEmit",
     "fmt": "oxfmt",
     "fmt:check": "oxfmt --check"
   },

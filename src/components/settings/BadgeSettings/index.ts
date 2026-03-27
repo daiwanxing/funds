@@ -1,1 +1,1 @@
-export { default as BadgeSettings } from './BadgeSettings.vue'
+export { default as BadgeSettings } from "./BadgeSettings.vue";

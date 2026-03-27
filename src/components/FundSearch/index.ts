@@ -1,1 +1,1 @@
-export { default as FundSearch } from './FundSearch.vue'
+export { default as FundSearch } from "./FundSearch.vue";

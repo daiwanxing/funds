@@ -22,8 +22,8 @@ const props = defineProps<{
   darkMode: boolean
   seciList: string[]
   allSeciList: SeciOption[]
-  BadgeContent: number
-  RealtimeIndcode: string | null
+  badgeContent: number
+  realtimeIndcode: string | null
 }>()
 
 const emit = defineEmits<{
@@ -81,9 +81,9 @@ function saveSeci() {
       <p :class="el.f3 >= 0 ? 'text-red-500' : 'text-green-600'" class="m-0 font-bold text-xs">
         {{ el.f2 }}
         <input
-          v-if="isEdit && BadgeContent === 3"
+          v-if="isEdit && badgeContent === 3"
           class="ml-1 cursor-pointer text-xs border border-gray-300 rounded px-1"
-          :class="el.f13 + '.' + el.f12 === RealtimeIndcode ? 'bg-blue-100' : ''"
+          :class="el.f13 + '.' + el.f12 === realtimeIndcode ? 'bg-blue-100' : ''"
           type="button"
           value="✔"
           @click.stop="$emit('selectIndex', el)"

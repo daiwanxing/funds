@@ -1,1 +1,1 @@
-export { default as ThemeSettings } from './ThemeSettings.vue'
+export { default as ThemeSettings } from "./ThemeSettings.vue";

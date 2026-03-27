@@ -1,1 +1,1 @@
-export { default as Reward } from './Reward.vue'
+export { default as Reward } from "./Reward.vue";

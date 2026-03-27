@@ -1,8 +1,8 @@
 <script setup lang="ts">
 defineProps<{
   showBadge: number
-  BadgeContent: number
-  BadgeType: number
+  badgeContent: number
+  badgeType: number
 }>()
 
 const emit = defineEmits<{
@@ -22,15 +22,15 @@ const emit = defineEmits<{
     </div>
     <div v-if="showBadge === 1" class="pl-5 leading-9">
       角标内容：
-      <el-radio-group :model-value="BadgeContent" @update:model-value="$emit('change', $event, 'BadgeContent')">
+      <el-radio-group :model-value="badgeContent" @update:model-value="$emit('change', $event, 'BadgeContent')">
         <el-radio border :value="1">单个基金</el-radio>
         <el-radio border :value="2">所有基金</el-radio>
         <el-radio border :value="3">单个指数</el-radio>
       </el-radio-group>
     </div>
-    <div v-if="showBadge === 1 && BadgeContent !== 3" class="pl-5 leading-9">
+    <div v-if="showBadge === 1 && badgeContent !== 3" class="pl-5 leading-9">
       角标类型：
-      <el-radio-group :model-value="BadgeType" @update:model-value="$emit('change', $event, 'BadgeType')">
+      <el-radio-group :model-value="badgeType" @update:model-value="$emit('change', $event, 'BadgeType')">
         <el-radio border :value="1">日收益率</el-radio>
         <el-radio border :value="2">日收益额</el-radio>
       </el-radio-group>

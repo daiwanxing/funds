@@ -1,5 +1,6 @@
 {
-  "plugins": ["typescript", "unicorn", "oxc"],
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "unicorn", "oxc", "import"],
   "categories": {
     "correctness": "error",
     "suspicious": "warn",
@@ -10,10 +11,13 @@
   "rules": {
     "no-unused-vars": "warn",
     "no-console": "warn",
-    "eqeqeq": "error"
+    "eqeqeq": "error",
+    "import/no-unassigned-import": "off"
   },
   "ignorePatterns": [
     "dist/",
+    "docs/",
+    "lib/",
     "node_modules/",
     "src/icons/",
     "*.config.ts",
