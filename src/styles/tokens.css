@@ -1,0 +1,81 @@
+/**
+ * FundStation Design Tokens
+ * 全局 CSS 变量定义，供 ECharts、复杂渐变等非 UnoCSS 场景使用。
+ * UnoCSS 原子类优先；此文件作为补充。
+ */
+
+:root {
+  /* ── Backgrounds ──────────────────────────────── */
+  --bg-0: #0a0b0d;
+  --bg-1: #111317;
+  --bg-2: #171a1f;
+  --bg-3: #1d2128;
+  --bg-4: #252a33;
+
+  /* ── Borders ─────────────────────────────────── */
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --border-default: rgba(255, 255, 255, 0.1);
+  --border-strong: rgba(255, 255, 255, 0.16);
+  --border-focus: rgba(75, 146, 255, 0.55);
+
+  /* ── Text ────────────────────────────────────── */
+  --text-primary: rgba(255, 255, 255, 0.92);
+  --text-secondary: rgba(255, 255, 255, 0.68);
+  --text-tertiary: rgba(255, 255, 255, 0.44);
+  --text-disabled: rgba(255, 255, 255, 0.24);
+
+  /* ── Accent ──────────────────────────────────── */
+  --accent-primary: #2f81f7;
+  --accent-hover: #4b92ff;
+  --accent-active: #1f6fe0;
+  --accent-soft-bg: rgba(47, 129, 247, 0.14);
+  --accent-soft-border: rgba(75, 146, 255, 0.42);
+
+  /* ── Rise (上涨 / 红) ────────────────────────── */
+  --rise-primary: #ff5a52;
+  --rise-strong: #ff453a;
+  --rise-deep: #d93a32;
+  --rise-soft-bg: rgba(255, 90, 82, 0.14);
+  --rise-soft-fill: rgba(255, 90, 82, 0.24);
+  --rise-line-glow: rgba(255, 90, 82, 0.32);
+
+  /* ── Fall (下跌 / 绿) ────────────────────────── */
+  --fall-primary: #30d158;
+  --fall-strong: #32c759;
+  --fall-deep: #1fa346;
+  --fall-soft-bg: rgba(48, 209, 88, 0.14);
+  --fall-soft-fill: rgba(48, 209, 88, 0.22);
+  --fall-line-glow: rgba(48, 209, 88, 0.28);
+
+  /* ── Utility ─────────────────────────────────── */
+  --warning-primary: #ff9f0a;
+  --warning-soft-bg: rgba(255, 159, 10, 0.14);
+  --danger-primary: #ff443a;
+  --danger-soft-bg: rgba(255, 68, 58, 0.14);
+  --success-primary: #30d158;
+  --success-soft-bg: rgba(48, 209, 88, 0.14);
+  --info-primary: #64d2ff;
+  --info-soft-bg: rgba(100, 210, 255, 0.14);
+
+  /* ── Typography ──────────────────────────────── */
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+/* ── ECharts 图表配色参考 ──────────────────────────
+ * 在 JS 中通过 getComputedStyle(document.documentElement)
+ * .getPropertyValue('--rise-primary') 读取使用
+ * ─────────────────────────────────────────────── */
+
+/* ── 涨跌面积图渐变（在 ECharts areaStyle 中引用） ──── */
+/* 上涨:
+   rgba(255,90,82,0.32) 0% → rgba(255,90,82,0.12) 45% → rgba(255,90,82,0.02) 100%
+   下跌:
+   rgba(48,209,88,0.30) 0% → rgba(48,209,88,0.10) 45% → rgba(48,209,88,0.02) 100%
+*/
+
+/* ── 卡片选中光感（可用 @apply shadow-[...] 或通过 JS 设置）
+   box-shadow:
+     0 0 0 1px rgba(75,146,255,0.55),
+     0 0 0 4px rgba(47,129,247,0.10);
+*/

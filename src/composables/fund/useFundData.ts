@@ -101,10 +101,10 @@ export function useFundData(
           fundcode: val.FCODE,
           name: val.SHORTNAME,
           jzrq: val.PDATE,
-          dwjz: isNaN(val.NAV) ? null : parseFloat(val.NAV),
-          gsz: isNaN(val.GSZ) ? null : parseFloat(val.GSZ),
-          gszzl: isNaN(val.GSZZL) ? 0 : parseFloat(val.GSZZL),
-          gztime: val.GZTIME,
+          dwjz: Number.isFinite(Number(val.NAV)) ? parseFloat(val.NAV) : null,
+          gsz: Number.isFinite(Number(val.GSZ)) ? parseFloat(val.GSZ) : null,
+          gszzl: Number.isFinite(Number(val.GSZZL)) ? parseFloat(val.GSZZL) : 0,
+          gztime: val.GZTIME ?? '',
           num: 0,
           cost: 0,
           amount: 0,
@@ -114,8 +114,8 @@ export function useFundData(
         };
 
         if (val.PDATE !== "--" && val.PDATE === val.GZTIME?.substr(0, 10)) {
-          item.gsz = isNaN(val.NAV) ? null : parseFloat(val.NAV);
-          item.gszzl = isNaN(val.NAVCHGRT) ? 0 : parseFloat(val.NAVCHGRT);
+          item.gsz = Number.isFinite(Number(val.NAV)) ? parseFloat(val.NAV) : null;
+          item.gszzl = Number.isFinite(Number(val.NAVCHGRT)) ? parseFloat(val.NAVCHGRT) : 0;
           item.hasReplace = true;
         }
 
