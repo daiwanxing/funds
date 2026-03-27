@@ -1,4 +1,4 @@
-import { ref, computed, type Ref } from "vue";
+import { ref, computed, watch, type Ref } from "vue";
 import axios from "axios";
 import { storage } from "@/utils/storage";
 
@@ -67,32 +67,34 @@ function compareFn(property: string, type: string) {
   };
 }
 
+import { useQuery } from "@tanstack/vue-query";
+import { useSettings } from "@/composables/settings";
+import { isDuringDate } from "@/utils/marketStatus";
+// Ensure imports above are valid, assuming they are placed near other imports.
+
 export function useFundData(
   fundListM: Ref<FundListMItem[]>,
   userId: Ref<string>,
   sortTypeObj: Ref<{ name: string | null; type: string | null }>,
 ) {
+  const settings = useSettings();
   const dataList = ref<FundItem[]>([]);
   const dataListDft = ref<FundItem[]>([]);
   const loading = ref(false);
-  const loadingList = ref(true);
 
-  async function fetchData(type?: string): Promise<void> {
-    const fundlist = fundListM.value.map((v) => v.code).join(",");
-    if (!fundlist) {
-      loadingList.value = false;
-      return;
-    }
+  const fundListQuery = useQuery({
+    queryKey: ["fundData", computed(() => fundListM.value.map(f => f.code).join(",")), userId],
+    queryFn: async () => {
+      const fundlist = fundListM.value.map((v) => v.code).join(",");
+      if (!fundlist) return [];
 
-    const url =
-      "/api/fund/FundMNewApi/FundMNFInfo?pageIndex=1&pageSize=200&plat=Android&appType=ttjj&product=EFund&Version=1&deviceid=" +
-      userId.value +
-      "&Fcodes=" +
-      fundlist;
+      const url =
+        "/api/fund/FundMNewApi/FundMNFInfo?pageIndex=1&pageSize=200&plat=Android&appType=ttjj&product=EFund&Version=1&deviceid=" +
+        userId.value +
+        "&Fcodes=" +
+        fundlist;
 
-    try {
       const res = await axios.get(url);
-      loadingList.value = false;
       const rawData = res.data.Datas ?? [];
       const list: FundItem[] = [];
 
@@ -133,24 +135,34 @@ export function useFundData(
         list.push(item);
       });
 
-      dataListDft.value = [...list];
+      return list;
+    },
+    refetchInterval: computed(() => 
+      settings.isLiveUpdate.value && isDuringDate() && !settings.isEdit.value ? 60_000 : false
+    ),
+  });
 
-      if (type === "add") {
-        dataList.value = list;
-      } else if (
-        sortTypeObj.value.type &&
-        sortTypeObj.value.type !== "none" &&
-        sortTypeObj.value.name
-      ) {
-        dataList.value = [...list].sort(
-          compareFn(sortTypeObj.value.name, sortTypeObj.value.type),
-        );
-      } else {
-        dataList.value = list;
-      }
-    } catch {
-      loadingList.value = false;
+  const loadingList = computed(() => fundListQuery.isLoading.value);
+
+  watch(() => fundListQuery.data.value, (newList: FundItem[] | undefined) => {
+    if (!newList) return;
+    dataListDft.value = [...newList];
+
+    if (
+      sortTypeObj.value.type &&
+      sortTypeObj.value.type !== "none" &&
+      sortTypeObj.value.name
+    ) {
+      dataList.value = [...newList].sort(
+        compareFn(sortTypeObj.value.name, sortTypeObj.value.type),
+      );
+    } else {
+      dataList.value = [...newList];
     }
+  }, { immediate: true });
+
+  async function fetchData(type?: string): Promise<void> {
+    await fundListQuery.refetch();
   }
 
   function addFund(codes: string[]): void {

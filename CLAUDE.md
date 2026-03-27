@@ -4,85 +4,87 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 项目概述
 
-"自选基金助手" — 一个基金行情查看应用，用于实时查看自选基金的估值涨跌幅、收益等信息。这是从 Chrome 扩展（Manifest V2）迁移到 Web 应用的版本。基于 Vue 3 + Vite 构建。
+"自选基金助手" — 一个基金行情查看应用，用于实时查看自选基金的估值涨跌幅、收益等信息。从 Chrome 扩展（Manifest V2）迁移到 Web 应用的版本。基于 Vue 3 + Vite 构建，暗色主题金融终端风格。
+
+项目正在分阶段开发（Phase 2–4），Home.vue 中有多处占位标记。
 
 ## 常用命令
 
 ```bash
-npm install              # 安装依赖
-npm run dev              # 开发调试，启动 Vite 开发服务器（端口 3000）
-npm run build            # 生产构建，输出到 dist/
-npm run preview          # 预览生产构建
-npm run test             # 运行测试（watch 模式）
-npm run test:run         # 运行测试一次
-npm run test:coverage    # 生成测试覆盖率报告
-npm run lint             # 使用 oxlint 检查代码
-npm run lint:fix         # 自动修复 lint 问题
-npm run type-check       # 运行 TypeScript 类型检查
-npm run fmt              # 使用 oxfmt 格式化代码
-npm run fmt:check        # 检查代码格式
+pnpm install             # 安装依赖（项目使用 pnpm）
+pnpm dev                 # 启动 Vite 开发服务器（端口 3000）
+pnpm build               # vue-tsc 类型检查 + Vite 生产构建
+pnpm test:run            # 运行测试一次（Vitest）
+pnpm test:coverage       # 生成测试覆盖率报告
+pnpm lint                # oxlint 检查代码
+pnpm lint:fix            # 自动修复 lint 问题
+pnpm type-check          # TypeScript 类型检查（vue-tsc --noEmit）
+pnpm fmt                 # oxfmt 格式化代码
 ```
+
+运行单个测试文件：`pnpm vitest run src/__tests__/utils/formatters.test.ts`
 
 ## 架构
 
 ### 技术栈
 
-- **框架**: Vue 3 + TypeScript
-- **构建**: Vite
-- **样式**: UnoCSS（Tailwind CSS 兼容）
-- **UI 组件**: Element Plus（按需引入）
-- **图表**: ECharts 5
-- **测试**: Vitest + jsdom
-- **代码质量**: oxlint + oxfmt
-- **HTTP 客户端**: axios
+- Vue 3 + TypeScript + Vite 8
+- UnoCSS（presetWind3，Tailwind 兼容）+ Element Plus（全局引入，size: small）
+- @tanstack/vue-query 管理服务端状态（数据获取、缓存、自动刷新）
+- ECharts 5 图表、axios HTTP 客户端
+- vue-router（hash 模式，两个路由：`/` Home、`/settings` Settings）
+- 测试：Vitest + jsdom；代码质量：oxlint + oxfmt
 
-### 项目结构
+### 数据流与状态管理
 
-```
-src/
-├── components/          # 可复用组件（按功能分组）
-│   ├── FundTable/       # 基金表格
-│   ├── FundSearch/      # 基金搜索
-│   ├── IndexBar/        # 指数行情栏
-│   ├── ActionBar/       # 操作栏
-│   ├── ConfigBox/       # 配置导入导出
-│   ├── settings/        # 设置相关组件
-│   └── ...
-├── composables/         # 逻辑复用（Vue 3 Composition API）
-│   ├── fund/            # 基金数据管理
-│   ├── importExport/    # 导入导出逻辑
-│   ├── drag/            # 拖拽排序
-│   └── ...
-├── pages/               # 页面级组件
-│   ├── Home.vue         # 主页
-│   └── Settings.vue     # 设置页
-├── App.vue              # 根组件
-└── main.ts              # 应用入口
-```
+没有使用 Vuex/Pinia。状态分两层：
+- **服务端状态**：通过 @tanstack/vue-query + composables（`useFundData`、`useGlobalIndices`）管理，负责 API 请求、缓存和自动刷新
+- **本地状态**：通过 `storage` 工具（`src/utils/storage.ts`）封装 localStorage，所有配置存储在 `funds_config` 键下，回调风格 API（模拟原 Chrome 扩展 storage API）
 
-### 核心模式
+### Dashboard Zone 布局
 
-**Composables（组合式函数）** — 业务逻辑通过 composables 实现，而非 mixins 或 class 组件。例如 `useFundData()` 管理基金数据获取和缓存。
+Home.vue 使用 CSS Grid 实现分区布局：
+- Zone A（ticker）：全局指数走马灯，横跨全宽
+- Zone B（console）：自选基金列表，左侧 60%
+- Zone C（detail）：基金详情面板，右侧 40%（无基金时隐藏，Zone B 独占全宽）
+- Zone D：AI 洞察抽屉（fixed 定位，FAB 触发）
+- Zone E（status）：底部状态栏
 
-**组件组织** — 每个组件在独立文件夹中，包含 `.vue` 文件和 `index.ts` 导出。
+### 双层设计令牌系统
 
-**API 代理** — 开发环境通过 Vite 代理访问东方财富 API（见 vite.config.ts）：
+颜色和样式定义在两处，需保持同步：
+- `src/styles/tokens.css`：CSS 自定义属性，供 ECharts 配色、scoped CSS 等非 UnoCSS 场景使用
+- `uno.config.ts`：UnoCSS theme + shortcuts，供模板中原子类使用
+
+关键语义快捷类：`text-up`/`text-down`（涨跌色+等宽数字）、`text-p`/`text-s`/`text-t`（文字层级）、`bg-card`/`bg-surface`/`bg-root`（背景层级）、`btn-primary`/`btn-ghost`（按钮）、`num`（等宽数字）
+
+涨跌配色遵循 A 股惯例：红涨（rise）绿跌（fall）。
+
+### 组件与 Composables 约定
+
+- 组件：`src/components/<Name>/` 文件夹，含 `.vue` 文件和 `index.ts` 桶导出
+- Composables：`src/composables/<domain>/` 文件夹，`use*.ts` 实现 + `index.ts` 桶导出
+- 路径别名：`@` → `./src`
+
+### API 代理
+
+开发环境通过 Vite 代理访问东方财富 API（见 `vite.config.ts`）：
 - `/api/fund` → `https://fundmobapi.eastmoney.com`
 - `/api/search` → `https://fundsuggest.eastmoney.com`
 - `/api/index` → `https://push2.eastmoney.com`
 - `/api/kline` → `https://push2his.eastmoney.com`
 
+### 交易时间判断
+
+`src/utils/marketStatus.ts` 中的 `isDuringDate()` 判断当前是否为 A 股交易时段（UTC+8）：上午 9:30–11:35、下午 13:00–15:05，排除周末和 `/holiday.json` 中的节假日。自动刷新逻辑依赖此判断。
+
 ### 测试
 
-测试文件位于 `src/**/*.test.ts`，使用 Vitest + jsdom。运行 `npm run test:run` 执行单次测试。
-
-### 数据来源
-
-基金和指数数据来自东方财富（eastmoney.com）API。
+测试文件位于 `src/__tests__/` 目录（按源码路径镜像组织），使用 Vitest + jsdom。
 
 ## 注意事项
 
-- 项目正在从 Vue 2 + Webpack 迁移到 Vue 3 + Vite，部分旧文件仍在 git 中标记为删除
-- 使用 TypeScript，确保类型检查通过（`npm run type-check`）
-- UnoCSS 提供原子化 CSS，避免手写 CSS；使用 `uno.config.ts` 中定义的快捷类（如 `text-up`、`text-down`、`btn`）
-- oxlint 和 oxfmt 是 Rust 实现的高性能工具，比传统 ESLint/Prettier 更快
+- 使用 pnpm，不是 npm
+- UnoCSS 原子类优先，避免手写 CSS；使用 `uno.config.ts` 中定义的语义快捷类
+- oxlint/oxfmt 是 Rust 实现的高性能 lint/format 工具
+- 全局变量 `__APP_VERSION__` 由 Vite define 注入，值为 package.json version

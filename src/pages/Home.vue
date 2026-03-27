@@ -3,14 +3,14 @@ import { ref, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useSettings } from "@/composables/settings";
 import { useFundData, useTableSort } from "@/composables/fund";
-import { useIndexData } from "@/composables/index";
-import { useAutoRefresh } from "@/composables/refresh";
+import { useGlobalIndices } from "@/composables/index";
 import { useDragSort } from "@/composables/drag";
 import { useHoliday } from "@/composables/holiday";
 import { loadHoliday } from "@/utils/marketStatus";
 import { storage } from "@/utils/storage";
 import { Reward } from "@/components/Reward";
 import { ChangeLog } from "@/components/ChangeLog";
+import { GlobalTicker } from "@/components/GlobalTicker";
 
 const router = useRouter();
 const settings = useSettings();
@@ -21,14 +21,8 @@ const fundData = useFundData(
   settings.userId,
   settings.sortTypeObj,
 );
-const indexData = useIndexData(settings.seciList);
+const globalIndices = useGlobalIndices();
 const tableSort = useTableSort(fundData.dataList, fundData.dataListDft);
-const autoRefresh = useAutoRefresh(
-  indexData.fetchIndexData,
-  fundData.fetchData,
-  settings.isEdit,
-  settings.isLiveUpdate,
-);
 
 const fundDrag = useDragSort(
   settings.fundListM,
@@ -37,12 +31,7 @@ const fundDrag = useDragSort(
   "code",
 );
 
-const indexDrag = useDragSort(
-  indexData.indFundData,
-  undefined,
-  "seciList",
-  "f12",
-);
+
 
 const rewardRef = ref<InstanceType<typeof Reward> | null>(null);
 const changelogRef = ref<InstanceType<typeof ChangeLog> | null>(null);
@@ -65,11 +54,8 @@ onMounted(async () => {
   loadHolidayFromStorage();
   await settings.load();
 
-  if (settings.seciList.value.length > 0) {
-    indexData.fetchIndexData();
-  }
+  globalIndices.refetch();
   fundData.fetchData();
-  autoRefresh.checkAndStart(true);
 
   // 默认选中第一只基金
   if (settings.fundListM.value.length > 0) {
@@ -78,7 +64,7 @@ onMounted(async () => {
 });
 
 function handleRefresh() {
-  indexData.fetchIndexData();
+  globalIndices.refetch();
   fundData.fetchData();
 }
 </script>
@@ -92,9 +78,7 @@ function handleRefresh() {
     <!-- ── Zone A: 全景走马灯 ────────────────────── -->
     <header class="zone-a">
       <!-- Phase 2: <GlobalTicker /> -->
-      <div class="h-full flex items-center px-4 text-t text-xs">
-        走马灯占位 · 全球指数行情
-      </div>
+      <GlobalTicker :data-list="globalIndices.dataList.value" />
     </header>
 
     <!-- ── Zone B: 自选核心控制台 ─────────────────── -->
