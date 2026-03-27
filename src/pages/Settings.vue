@@ -22,22 +22,22 @@ onMounted(async () => {
   loadFromStorage()
 })
 
-function handleSettingChange(value: any, key: string) {
+const handleSettingChange = (value: any, key: string) => {
   ;(settings as any)[key].value = value
   settings.updateSetting(key, value)
 }
 
-function handleDarkModeChange(val: boolean) {
+const handleDarkModeChange = (val: boolean) => {
   settings.darkMode.value = val
   settings.toggleDarkMode()
 }
 
-function handleFontSizeChange(val: boolean) {
+const handleFontSizeChange = (val: boolean) => {
   settings.normalFontSize.value = val
   settings.toggleFontSize()
 }
 
-function handleColumnChange(value: boolean, key: string) {
+const handleColumnChange = (value: boolean, key: string) => {
   ;(settings as any)[key].value = value
   settings.updateSetting(key, value)
 }

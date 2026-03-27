@@ -1,6 +1,6 @@
 const STORAGE_KEY = "funds_config";
 
-function getAll(): Record<string, any> {
+const getAll = (): Record<string, any> => {
   try {
     const data = localStorage.getItem(STORAGE_KEY);
     return data ? JSON.parse(data) : {};

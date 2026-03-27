@@ -45,7 +45,7 @@ const aiDrawerOpen = ref(false);
 /** 当前选中基金（Zone B → Zone C 联动） */
 const selectedFundCode = ref<string | null>(null);
 
-function selectFund(code: string) {
+const selectFund = (code: string) => {
   selectedFundCode.value = code;
 }
 
@@ -63,7 +63,7 @@ onMounted(async () => {
   }
 });
 
-function handleRefresh() {
+const handleRefresh = () => {
   globalIndices.refetch();
   fundData.fetchData();
 }

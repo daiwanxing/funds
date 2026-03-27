@@ -16,7 +16,7 @@ const emit = defineEmits<{
 const importConfigRef = ref<HTMLInputElement | null>(null)
 const importExcelRef = ref<HTMLInputElement | null>(null)
 
-function handleConfigFileChange(e: Event) {
+const handleConfigFileChange = (e: Event) => {
   const file = (e.target as HTMLInputElement).files?.[0]
   if (file) {
     emit('importConfig', file)
@@ -24,7 +24,7 @@ function handleConfigFileChange(e: Event) {
   }
 }
 
-function handleExcelFileChange(e: Event) {
+const handleExcelFileChange = (e: Event) => {
   const file = (e.target as HTMLInputElement).files?.[0]
   if (file) {
     emit('importExcel', file)

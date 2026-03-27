@@ -20,11 +20,11 @@ const changelog = ref<any>({});
 const APP_VERSION = "3.0.0";
 const CHANGELOG_URL = "https://x2rr.github.io/funds/src/common/changeLog.json";
 
-function goGitee() {
+const goGitee = () => {
   window.open("http://rabt.gitee.io/funds/docs/dist/index.html#/ChangeLog");
 }
 
-async function init() {
+const init = async () => {
   visible.value = true;
   loading.value = true;
   netError.value = false;
@@ -39,7 +39,7 @@ async function init() {
   }
 }
 
-function close() {
+const close = () => {
   visible.value = false;
   emit("close");
 }

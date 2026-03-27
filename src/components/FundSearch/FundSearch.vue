@@ -14,7 +14,7 @@ const fundcode = ref<string[]>([])
 const searchOptions = ref<{ value: string; label: string }[]>([])
 const loading = ref(false)
 
-function remoteMethod(query: string) {
+const remoteMethod = (query: string) => {
   if (!query) {
     searchOptions.value = []
     return
@@ -35,11 +35,11 @@ function remoteMethod(query: string) {
   })
 }
 
-function selectChange() {
+const selectChange = () => {
   searchOptions.value = []
 }
 
-function handleSave() {
+const handleSave = () => {
   if (fundcode.value.length > 0) {
     emit('save', [...fundcode.value])
     fundcode.value = []

@@ -11,7 +11,7 @@ const emit = defineEmits<{
   changeOpacity: [val: number]
 }>()
 
-function formatTooltip(val: number): string {
+const formatTooltip = (val: number): string => {
   return val + '%'
 }
 </script>

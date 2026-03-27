@@ -11,11 +11,11 @@ interface IndexItem {
   f14: string;
 }
 
-export function useIndexData(seciList: Ref<string[]>) {
+export const useIndexData = (seciList: Ref<string[]>) => {
   const indFundData = ref<IndexItem[]>([]);
   const loadingInd = ref(false);
 
-  async function fetchIndexData(): Promise<void> {
+  const fetchIndexData = async (): Promise<void> => {
     const seciStr = seciList.value.join(",");
     if (!seciStr) return;
 
@@ -34,14 +34,14 @@ export function useIndexData(seciList: Ref<string[]>) {
     }
   }
 
-  function addIndex(code: string): void {
+  const addIndex = (code: string): void => {
     seciList.value.push(code);
     storage.set({ seciList: seciList.value }, () => {
       fetchIndexData();
     });
   }
 
-  function deleteIndex(index: number): void {
+  const deleteIndex = (index: number): void => {
     seciList.value.splice(index, 1);
     storage.set({ seciList: seciList.value }, () => {
       fetchIndexData();

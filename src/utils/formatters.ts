@@ -1,4 +1,4 @@
-export function formatNum(val: number | string): string {
+export const formatNum = (val: number | string): string => {
   const num = typeof val === "string" ? parseFloat(val) : val;
   const absNum = Math.abs(num);
 
@@ -11,7 +11,7 @@ export function formatNum(val: number | string): string {
   return (num / 1000000).toFixed(0) + "M";
 }
 
-export function getGuid(): string {
+export const getGuid = (): string => {
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
     const r = (Math.random() * 16) | 0;
     const v = c === "x" ? r : (r & 0x3) | 0x8;

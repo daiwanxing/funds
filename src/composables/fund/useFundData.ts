@@ -25,11 +25,11 @@ interface FundListMItem {
   cost?: number;
 }
 
-function calculateMoney(val: { dwjz: number | null; num: number }): number {
+const calculateMoney = (val: { dwjz: number | null; num: number }): number => {
   return parseFloat(((val.dwjz ?? 0) * (val.num ?? 0)).toFixed(2));
 }
 
-function calculate(val: FundItem, hasReplace?: boolean): number {
+const calculate = (val: FundItem, hasReplace?: boolean): number => {
   const num = val.num ?? 0;
   if (hasReplace) {
     return parseFloat(
@@ -45,21 +45,21 @@ function calculate(val: FundItem, hasReplace?: boolean): number {
   return 0;
 }
 
-function calculateCost(val: FundItem): number {
+const calculateCost = (val: FundItem): number => {
   if (val.cost && val.dwjz) {
     return parseFloat(((val.dwjz - val.cost) * val.num).toFixed(2));
   }
   return 0;
 }
 
-function calculateCostRate(val: FundItem): number {
+const calculateCostRate = (val: FundItem): number => {
   if (val.cost && val.cost !== 0 && val.dwjz) {
     return parseFloat((((val.dwjz - val.cost) / val.cost) * 100).toFixed(2));
   }
   return 0;
 }
 
-function compareFn(property: string, type: string) {
+const compareFn = (property: string, type: string) => {
   return (a: any, b: any) => {
     return type === "asc"
       ? a[property] - b[property]
@@ -72,11 +72,11 @@ import { useSettings } from "@/composables/settings";
 import { isDuringDate } from "@/utils/marketStatus";
 // Ensure imports above are valid, assuming they are placed near other imports.
 
-export function useFundData(
+export const useFundData = (
   fundListM: Ref<FundListMItem[]>,
   userId: Ref<string>,
   sortTypeObj: Ref<{ name: string | null; type: string | null }>,
-) {
+) => {
   const settings = useSettings();
   const dataList = ref<FundItem[]>([]);
   const dataListDft = ref<FundItem[]>([]);
@@ -161,20 +161,20 @@ export function useFundData(
     }
   }, { immediate: true });
 
-  async function fetchData(type?: string): Promise<void> {
+  const fetchData = async (): Promise<void> => {
     await fundListQuery.refetch();
   }
 
-  function addFund(codes: string[]): void {
+  const addFund = (codes: string[]): void => {
     codes.forEach((code) => {
       fundListM.value.push({ code, num: 0 });
     });
     storage.set({ fundListM: fundListM.value }, () => {
-      fetchData("add");
+      fetchData();
     });
   }
 
-  function deleteFund(id: string): void {
+  const deleteFund = (id: string): void => {
     fundListM.value = fundListM.value.filter((f) => f.code !== id);
     storage.set({ fundListM: fundListM.value }, () => {
       dataList.value = dataList.value.filter((f) => f.fundcode !== id);
@@ -182,7 +182,7 @@ export function useFundData(
     });
   }
 
-  function updateFundNum(item: FundItem): void {
+  const updateFundNum = (item: FundItem): void => {
     const fund = fundListM.value.find((f) => f.code === item.fundcode);
     if (fund) {
       fund.num = item.num;
@@ -194,7 +194,7 @@ export function useFundData(
     }
   }
 
-  function updateFundCost(item: FundItem): void {
+  const updateFundCost = (item: FundItem): void => {
     const fund = fundListM.value.find((f) => f.code === item.fundcode);
     if (fund) {
       fund.cost = item.cost;

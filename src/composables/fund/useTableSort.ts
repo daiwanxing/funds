@@ -3,7 +3,7 @@ import { storage } from "@/utils/storage";
 
 type SortDirection = "asc" | "desc" | "none";
 
-export function useTableSort(dataList: Ref<any[]>, dataListDft: Ref<any[]>) {
+export const useTableSort = (dataList: Ref<any[]>, dataListDft: Ref<any[]>) => {
   const sortType = ref<Record<string, SortDirection>>({
     gszzl: "none",
     amount: "none",
@@ -17,7 +17,7 @@ export function useTableSort(dataList: Ref<any[]>, dataListDft: Ref<any[]>) {
     type: null,
   });
 
-  function sortList(type: string): void {
+  const sortList = (type: string): void => {
     // Reset other columns
     for (const key in sortType.value) {
       if (key !== type) sortType.value[key] = "none";
@@ -42,7 +42,7 @@ export function useTableSort(dataList: Ref<any[]>, dataListDft: Ref<any[]>) {
     storage.set({ sortTypeObj: sortTypeObj.value });
   }
 
-  function resetSort(): void {
+  const resetSort = (): void => {
     for (const key in sortType.value) {
       sortType.value[key] = "none";
     }

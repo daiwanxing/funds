@@ -12,7 +12,7 @@ interface HolidayData {
 
 let holidayData: HolidayData | null = null;
 
-export async function loadHoliday(): Promise<HolidayData> {
+export const loadHoliday = async (): Promise<HolidayData> => {
   if (holidayData) return holidayData;
   try {
     const res = await axios.get<HolidayData>("/holiday.json");
@@ -24,11 +24,11 @@ export async function loadHoliday(): Promise<HolidayData> {
   }
 }
 
-export function setHolidayData(data: HolidayData): void {
+export const setHolidayData = (data: HolidayData): void => {
   holidayData = data;
 }
 
-export function checkHoliday(date: Date): boolean {
+export const checkHoliday = (date: Date): boolean => {
   if (!holidayData?.data) return false;
 
   const nowYear = date.getFullYear().toString();
@@ -45,7 +45,7 @@ export function checkHoliday(date: Date): boolean {
   return yearData[nowDate]?.holiday ?? false;
 }
 
-export function isDuringDate(): boolean {
+export const isDuringDate = (): boolean => {
   // 时区转换为东8区
   const zoneOffset = 8;
   const offset8 = new Date().getTimezoneOffset() * 60 * 1000;

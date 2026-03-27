@@ -26,7 +26,7 @@ const GLOBAL_INDICES = [
   "100.DJIA", // 道琼斯
 ];
 
-export function useGlobalIndices() {
+export const useGlobalIndices = () => {
   const settings = useSettings();
 
   const snapshotQuery = useQuery({

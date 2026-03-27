@@ -17,7 +17,7 @@ const checked = ref<'export' | 'import'>('export')
 const exportConfigStr = ref('')
 const inputConfigStr = ref('')
 
-function init() {
+const init = () => {
   visible.value = true
   inputConfigStr.value = ''
   storage.get(null, (res: Record<string, any>) => {
@@ -26,7 +26,7 @@ function init() {
   })
 }
 
-function copyToClipboard() {
+const copyToClipboard = () => {
   navigator.clipboard.writeText(exportConfigStr.value).then(() => {
     ElMessage.success('已复制到剪贴板！')
   }).catch(() => {
@@ -34,7 +34,7 @@ function copyToClipboard() {
   })
 }
 
-function importInput() {
+const importInput = () => {
   try {
     const config = JSON.parse(inputConfigStr.value)
     if (typeof config === 'object') {
@@ -48,7 +48,7 @@ function importInput() {
   }
 }
 
-function close() {
+const close = () => {
   visible.value = false
   emit('close')
 }

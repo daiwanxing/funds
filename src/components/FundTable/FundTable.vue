@@ -29,7 +29,7 @@ const emit = defineEmits<{
   dragEnd: [e: DragEvent, item: FundItem];
 }>();
 
-function fmtLocale(n: number | string): string {
+const fmtLocale = (n: number | string): string => {
   return parseFloat(String(n)).toLocaleString("zh", {
     minimumFractionDigits: 2,
   });

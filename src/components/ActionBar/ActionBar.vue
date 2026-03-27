@@ -19,7 +19,7 @@ const emit = defineEmits<{
   refresh: [];
 }>();
 
-function fmtNum(n: number): string {
+const fmtNum = (n: number): string => {
   return parseFloat(String(n)).toLocaleString("zh", {
     minimumFractionDigits: 2,
   });

@@ -9,11 +9,11 @@ interface HolidayInfo {
   data?: Record<string, any>;
 }
 
-export function useHoliday() {
+export const useHoliday = () => {
   const holiday = ref<HolidayInfo | null>(null);
   const updating = ref(false);
 
-  function loadFromStorage(): void {
+  const loadFromStorage = (): void => {
     storage.get(["holiday"], (res: Record<string, any>) => {
       if (res.holiday) {
         holiday.value = res.holiday;
@@ -24,7 +24,7 @@ export function useHoliday() {
     });
   }
 
-  async function fetchHoliday(): Promise<void> {
+  const fetchHoliday = async (): Promise<void> => {
     updating.value = true;
     try {
       const res = await axios.get<HolidayInfo>(

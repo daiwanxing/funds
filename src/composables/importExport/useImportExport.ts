@@ -11,14 +11,14 @@ interface FundListMItem {
   cost?: number;
 }
 
-export function useImportExport(
+export const useImportExport = (
   fundListM: Ref<FundListMItem[]>,
   userId: Ref<string>,
   reloadSettings: () => void,
-) {
+) => {
   const loadingFundList = ref(false);
 
-  function exportConfig(): void {
+  const exportConfig = (): void => {
     storage.get(null, (res: Record<string, any>) => {
       delete res.holiday;
       const blob = new Blob([JSON.stringify(res, null, 2)], {
@@ -28,7 +28,7 @@ export function useImportExport(
     });
   }
 
-  function importConfig(file: File): void {
+  const importConfig = (file: File): void => {
     const reader = new FileReader();
     reader.addEventListener("load", (event) => {
       try {
@@ -46,7 +46,7 @@ export function useImportExport(
     reader.readAsText(file);
   }
 
-  async function exportExcel(): Promise<void> {
+  const exportExcel = async (): Promise<void> => {
     loadingFundList.value = true;
     ElMessage.success("正在导出中，请稍候...");
 
@@ -86,7 +86,7 @@ export function useImportExport(
     }
   }
 
-  function importExcel(file: File): void {
+  const importExcel = (file: File): void => {
     const reader = new FileReader();
     reader.addEventListener("load", (event) => {
       try {

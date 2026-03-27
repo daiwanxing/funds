@@ -32,7 +32,7 @@ const userSeciList = computed(() =>
   props.allSeciList.filter((v) => !props.seciList.includes(v.value)),
 )
 
-function saveSeci() {
+const saveSeci = () => {
   emit('addIndex', sltSeci.value)
   sltSeci.value = ''
   showAddInput.value = false

@@ -49,7 +49,7 @@ const SETTINGS_KEYS = [
   "holiday",
 ] as const;
 
-export function useSettings() {
+export const useSettings = () => {
   const isEdit = ref(false);
   const isReady = ref(false);
 
@@ -84,7 +84,7 @@ export function useSettings() {
     opacity: 1 - opacityValue.value / 100,
   }));
 
-  function load(): Promise<void> {
+  const load = (): Promise<void> => {
     return new Promise((resolve) => {
       storage.get(
         SETTINGS_KEYS as unknown as string[],
@@ -134,24 +134,24 @@ export function useSettings() {
     });
   }
 
-  function updateSetting(key: string, value: any): void {
+  const updateSetting = (key: string, value: any): void => {
     storage.set({ [key]: value });
   }
 
-  function toggleDarkMode(): void {
+  const toggleDarkMode = (): void => {
     updateSetting("darkMode", darkMode.value);
   }
 
-  function toggleFontSize(): void {
+  const toggleFontSize = (): void => {
     updateSetting("normalFontSize", normalFontSize.value);
   }
 
-  function setGrayscale(val: number): void {
+  const setGrayscale = (val: number): void => {
     grayscaleValue.value = val;
     updateSetting("grayscaleValue", val);
   }
 
-  function setOpacity(val: number): void {
+  const setOpacity = (val: number): void => {
     opacityValue.value = val;
     updateSetting("opacityValue", val);
   }

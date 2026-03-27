@@ -12,11 +12,11 @@ const emit = defineEmits<{
 const visible = ref(false)
 const checked = ref<'wepay' | 'alipay'>('wepay')
 
-function init() {
+const init = () => {
   visible.value = true
 }
 
-function close() {
+const close = () => {
   visible.value = false
   emit('close')
 }
