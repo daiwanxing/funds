@@ -1,7 +1,22 @@
 {
+  "plugins": ["typescript", "unicorn", "oxc"],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "warn",
+    "pedantic": "off",
+    "perf": "warn",
+    "style": "off"
+  },
   "rules": {
     "no-unused-vars": "warn",
     "no-console": "warn",
     "eqeqeq": "error"
-  }
+  },
+  "ignorePatterns": [
+    "dist/",
+    "node_modules/",
+    "src/icons/",
+    "*.config.ts",
+    "*.config.js"
+  ]
 }
