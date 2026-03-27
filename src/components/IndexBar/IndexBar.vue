@@ -1,19 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, type PropType } from 'vue'
 
-interface IndexItem {
-  f2: number
-  f3: number
-  f4: number
-  f12: string
-  f13: string
-  f14: string
-}
-
-interface SeciOption {
-  value: string
-  label: string
-}
+import type { IndexItem, SeciOption } from "@/types";
 
 const props = defineProps<{
   indFundData: IndexItem[]

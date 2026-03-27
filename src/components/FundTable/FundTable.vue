@@ -1,20 +1,5 @@
 <script setup lang="ts">
-interface FundItem {
-  fundcode: string;
-  name: string;
-  jzrq: string;
-  dwjz: number | null;
-  gsz: number | null;
-  gszzl: number;
-  gztime: string;
-  num: number;
-  cost: number;
-  amount: number;
-  gains: number;
-  costGains: number;
-  costGainsRate: number;
-  hasReplace?: boolean;
-}
+import type { FundItem } from "@/types";
 
 defineProps<{
   dataList: FundItem[];

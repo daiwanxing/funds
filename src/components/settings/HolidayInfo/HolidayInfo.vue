@@ -1,8 +1,5 @@
 <script setup lang="ts">
-interface HolidayData {
-  version?: string
-  lastDate?: string
-}
+import type { HolidayData } from "@/types";
 
 defineProps<{
   holiday: HolidayData | null

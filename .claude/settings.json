@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.file_path // .tool_response.filePath' | { read -r f; if echo \"$f\" | grep -qE '\\.(ts|vue)$'; then pnpm lint && pnpm type-check && pnpm test:run; fi; }",
+            "timeout": 120,
+            "statusMessage": "正在检查: lint + type-check + test..."
+          }
+        ]
+      }
+    ]
+  }
+}

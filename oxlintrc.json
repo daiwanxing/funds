@@ -1,25 +1,21 @@
 {
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
   "plugins": ["typescript", "unicorn", "oxc", "import"],
   "categories": {
-    "correctness": "error",
-    "suspicious": "warn",
-    "pedantic": "off",
-    "perf": "warn",
-    "style": "off"
+    "correctness": "error"
   },
   "rules": {
-    "no-unused-vars": "warn",
+    "no-unused-vars": "error",
+    "func-style": ["error", "expression"],
     "no-console": "warn",
     "eqeqeq": "error",
     "import/no-unassigned-import": "off"
   },
   "ignorePatterns": [
-    "dist/",
-    "docs/",
-    "lib/",
-    "node_modules/",
-    "src/icons/",
+    "dist/**/*",
+    "docs/**/*",
+    "lib/**/*",
+    "node_modules/**/*",
+    "src/icons/**/*",
     "*.config.ts",
     "*.config.js"
   ]

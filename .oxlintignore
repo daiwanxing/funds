@@ -1,0 +1,7 @@
+dist/
+docs/
+lib/
+node_modules/
+src/icons/
+*.config.ts
+*.config.js

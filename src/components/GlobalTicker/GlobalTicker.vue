@@ -8,19 +8,16 @@ defineProps<{
 </script>
 
 <template>
-  <div class="ticker-wrapper bg-bg-1 border-b border-white/6 h-12 flex items-center overflow-hidden whitespace-nowrap">
-    <div class="ticker-track flex items-center h-full" v-if="dataList.length > 0">
+  <div
+    class="ticker-wrapper bg-bg-1 border-b border-white/6 h-12 flex items-center overflow-hidden whitespace-nowrap"
+  >
+    <div
+      class="ticker-track flex items-center h-full"
+      v-if="dataList.length > 0"
+    >
       <!-- 复制两份实现无缝滚动 -->
-      <div 
-        v-for="(_, trackIdx) in 2" 
-        :key="trackIdx"
-        class="flex items-center"
-      >
-        <TickerCard 
-          v-for="item in dataList" 
-          :key="item.f12"
-          :item="item"
-        />
+      <div v-for="(_, trackIdx) in 2" :key="trackIdx" class="flex items-center">
+        <TickerCard v-for="item in dataList" :key="item.f12" :item="item" />
       </div>
     </div>
   </div>
