@@ -36,29 +36,86 @@ const handleAdd = (code: string) => {
 
 <template>
   <div class="flex-1 flex flex-col h-full overflow-hidden bg-[#161618]">
-    <!-- Status Text -->
-    <div class="px-4 py-2 border-y border-white/5 shrink-0 min-h-[76px] box-border">
-      <div v-if="loading" class="text-[#3B82F6] text-[11px] font-sans h-[16px] flex items-center">正在查询基金库...</div>
-      <div v-else-if="options && options.length > 0" class="flex text-white/40 text-[11px] font-sans h-[16px] items-center">找到 <span class="text-white px-1">{{ options.length }}</span> 个匹配结果 · 点击 + 添加至自选</div>
-      <div v-else class="h-[16px]"></div>
-      
-      <!-- Sub Title -->
-      <div class="mt-4 flex items-center gap-1.5 text-white/40 text-[12px] mb-2 font-sans tracking-tight h-[18px]">
-        <Search v-if="query" class="w-3.5 h-3.5 opacity-80" />
-        <template v-if="query">搜索 <span class="text-[#3B82F6] font-medium tracking-normal">"{{ query }}"</span> 的结果</template>
-      </div>
+    <!-- Status Text: 仅在搜索有结果且不在加载时展示这个容器 -->
+    <div v-if="!loading && options && options.length > 0" class="px-4 border-y border-white/5 shrink-0 h-[30px] flex items-center box-border overflow-hidden">
+      <div class="flex text-white/40 text-[11px] font-sans">找到 <span class="text-white px-1">{{ options.length }}</span> 个匹配结果 · 点击 + 添加至自选</div>
     </div>
 
     <!-- Scrollable Body -->
-    <div class="flex-1 overflow-y-auto">
+    <div class="flex-1 overflow-y-auto relative">
       <template v-if="loading">
-        <!-- SVG Motion Loader: Stock Chart line drawing animation -->
-        <div class="p-16 flex flex-col items-center justify-center gap-4 opacity-80 mt-10">
-          <svg class="w-12 h-12 text-[#3B82F6] loading-motion" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <!-- Drawn left to right -->
-            <polyline class="draw-line" points="2 17 8.5 10.5 13.5 15.5 22 7" />
-            <polyline class="draw-arrow" points="16 7 22 7 22 13" />
+        <!-- SVG Advanced Motion Loader -->
+        <div class="absolute inset-0 flex flex-col items-center justify-center -mt-10">
+          <svg width="240" height="80" viewBox="0 0 240 80" class="overflow-visible">
+            <defs>
+              <filter id="glowBlur" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="1.5" result="blur" />
+                <feMerge>
+                  <feMergeNode in="blur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+              <filter id="outerGlowBlur" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="3.5" result="blur" />
+                <feMerge>
+                  <feMergeNode in="blur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+              <!-- 渐变底纹面积区域 -->
+              <linearGradient id="areaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#3B82F6" stop-opacity="0.15" />
+                <stop offset="100%" stop-color="#3B82F6" stop-opacity="0" />
+              </linearGradient>
+            </defs>
+
+            <!-- 幽灵底边面积曲线 (常驻展示区) -->
+            <path d="M 0 60 C 15 45 25 65 40 55 C 55 45 65 30 80 40 C 95 50 110 65 130 45 C 150 25 165 15 185 25 C 205 35 220 10 240 15 L 240 80 L 0 80 Z" 
+                  fill="url(#areaGradient)" />
+            <!-- 微弱发光的幽灵背线 -->
+            <path d="M 0 60 C 15 45 25 65 40 55 C 55 45 65 30 80 40 C 95 50 110 65 130 45 C 150 25 165 15 185 25 C 205 35 220 10 240 15" 
+                  fill="none" class="text-white/[0.04]" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+
+            <!-- The Drawing Path: 强制 pathLength 使得进度计算与偏移完全 1:1 -->
+            <path id="searchLineDataPath" d="M 0 60 C 15 45 25 65 40 55 C 55 45 65 30 80 40 C 95 50 110 65 130 45 C 150 25 165 15 185 25 C 205 35 220 10 240 15" 
+                  fill="none" class="text-[#3B82F6]/60" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" 
+                  pathLength="100" stroke-dasharray="100" stroke-dashoffset="100">
+              <animate attributeName="stroke-dashoffset" 
+                       values="100; 0; 0; 100" 
+                       keyTimes="0; 0.62; 0.80; 1" 
+                       keySplines="0.42 0 0.28 1; 0.42 0 0.28 1; 0.42 0 0.28 1" 
+                       calcMode="spline" 
+                       dur="2.8s" 
+                       repeatCount="indefinite" />
+            </path>
+
+            <!-- Moving Core Layers -->
+            <!-- 1. Outer Glow -->
+            <circle r="9" fill="#3B82F6" opacity="0.18" filter="url(#outerGlowBlur)">
+              <animateMotion dur="2.8s" repeatCount="indefinite" keyPoints="0; 1; 1; 0" keyTimes="0; 0.62; 0.80; 1" keySplines="0.42 0 0.28 1; 0.42 0 0.28 1; 0.42 0 0.28 1" calcMode="spline">
+                <mpath href="#searchLineDataPath" />
+              </animateMotion>
+            </circle>
+
+            <!-- 2. Mid Glow -->
+            <circle r="4" fill="#60A5FA" opacity="0.6" filter="url(#glowBlur)">
+              <animateMotion dur="2.8s" repeatCount="indefinite" keyPoints="0; 1; 1; 0" keyTimes="0; 0.62; 0.80; 1" keySplines="0.42 0 0.28 1; 0.42 0 0.28 1; 0.42 0 0.28 1" calcMode="spline">
+                <mpath href="#searchLineDataPath" />
+              </animateMotion>
+            </circle>
+
+            <!-- 3. White Core -->
+            <circle r="2" fill="#FFFFFF" opacity="0.92">
+              <animateMotion dur="2.8s" repeatCount="indefinite" keyPoints="0; 1; 1; 0" keyTimes="0; 0.62; 0.80; 1" keySplines="0.42 0 0.28 1; 0.42 0 0.28 1; 0.42 0 0.28 1" calcMode="spline">
+                <mpath href="#searchLineDataPath" />
+              </animateMotion>
+            </circle>
           </svg>
+          
+          <div class="mt-8 flex flex-col items-center justify-center gap-[6px] font-sans">
+            <span class="text-white/70 text-[13px] tracking-wide font-medium">正在检索基金数据库</span>
+            <span class="text-white/30 text-[11px] tracking-wide">共收录 10,000+ 只基金 · 实时行情数据</span>
+          </div>
         </div>
       </template>
       
@@ -84,11 +141,22 @@ const handleAdd = (code: string) => {
             
             <!-- Right Action Area -->
             <div class="flex gap-[6px] items-start shrink-0">
-              <span class="text-white/80 text-[12px] tracking-tight w-11 pt-0.5 text-right font-mono">0.9820</span>
+              <!-- 估算净值 -->
+              <span class="text-white/80 text-[12px] tracking-tight w-11 pt-0.5 text-right font-mono">
+                {{ item.gsz ?? '--' }}
+              </span>
               <div class="flex flex-col items-end w-20 gap-2">
-                <!-- Change text -->
-                <span class="text-down font-mono text-[12px] font-semibold bg-down/10 px-1.5 rounded w-fit tracking-tight">-0.51%</span>
-                
+                <!-- 涨跌幅 Badge：有数据时按正负着色，无数据置灰 -->
+                <template v-if="item.gszzl !== undefined">
+                  <span
+                    class="font-mono text-[12px] font-semibold px-1.5 rounded w-fit tracking-tight"
+                    :class="item.gszzl >= 0 ? 'text-up bg-up/10' : 'text-down bg-down/10'"
+                  >
+                    {{ item.gszzl >= 0 ? '+' : '' }}{{ item.gszzl.toFixed(2) }}%
+                  </span>
+                </template>
+                <span v-else class="text-white/30 font-mono text-[12px] px-1.5">--</span>
+
                 <!-- Action Button -->
                 <button 
                   v-if="addedKeys.has(item.value)"
@@ -120,30 +188,5 @@ const handleAdd = (code: string) => {
 </template>
 
 <style scoped>
-.loading-motion {
-  filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.4));
-}
-.draw-line {
-  stroke-dasharray: 100;
-  stroke-dashoffset: 100;
-  animation: drawLine 1.5s ease-in-out infinite;
-}
-.draw-arrow {
-  opacity: 0;
-  animation: showArrow 1.5s ease-in-out infinite;
-}
-
-@keyframes drawLine {
-  0% { stroke-dashoffset: 100; opacity: 1; }
-  40% { stroke-dashoffset: 0; opacity: 1; }
-  80% { stroke-dashoffset: 0; opacity: 1; }
-  100% { stroke-dashoffset: 0; opacity: 0; }
-}
-
-@keyframes showArrow {
-  0%, 35% { opacity: 0; transform: translate(-2px, 2px) scale(0.9); }
-  45% { opacity: 1; transform: translate(0, 0) scale(1); }
-  80% { opacity: 1; }
-  100% { opacity: 0; }
-}
+/* 纯原生 SVG 控制，不再需要外部 CSS Keyframes */
 </style>

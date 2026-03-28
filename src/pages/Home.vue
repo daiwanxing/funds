@@ -128,10 +128,22 @@ const handleRefresh = () => {
       <div v-if="!searchQuery && hasFunds" class="h-10 flex items-center justify-between px-4 border-t border-white/5 shrink-0 bg-[#121213]">
         <div class="flex items-center gap-1.5 text-white/40 text-[11px] font-sans">
            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trending-up"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
-           今日 <span class="text-up font-bold font-mono text-[13px] ml-0.5 opacity-90">+¥207</span>
+           今日
+           <span
+             class="font-bold font-mono text-[13px] ml-0.5 opacity-90"
+             :class="fundData.allGains.value[0] > 0 ? 'text-up' : fundData.allGains.value[0] < 0 ? 'text-down' : 'text-white/30'"
+           >
+             {{ fundData.allGains.value[0] > 0 ? '+¥' + fundData.allGains.value[0].toFixed(2) : fundData.allGains.value[0] < 0 ? '-¥' + Math.abs(fundData.allGains.value[0]).toFixed(2) : '¥0' }}
+           </span>
         </div>
         <div class="flex items-center gap-1.5 text-white/40 text-[11px] font-sans">
-           累计 <span class="text-up font-bold font-mono text-[13px] ml-0.5 opacity-90">+¥2,850</span>
+           累计
+           <span
+             class="font-bold font-mono text-[13px] ml-0.5 opacity-90"
+             :class="fundData.allCostGains.value[0] > 0 ? 'text-up' : fundData.allCostGains.value[0] < 0 ? 'text-down' : 'text-white/30'"
+           >
+             {{ fundData.allCostGains.value[0] > 0 ? '+¥' + fundData.allCostGains.value[0].toFixed(2) : fundData.allCostGains.value[0] < 0 ? '-¥' + Math.abs(fundData.allCostGains.value[0]).toFixed(2) : '¥0' }}
+           </span>
         </div>
       </div>
     </main>

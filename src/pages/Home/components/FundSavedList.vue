@@ -44,7 +44,7 @@ const emit = defineEmits<{
         <!-- Right Columns -->
         <div class="flex items-start gap-[6px] shrink-0 font-mono tracking-tight pt-0.5">
            <!-- Valuation -->
-           <span class="w-11 text-right text-white/90 text-[12px]">{{ item.gsz ? item.gsz : '1.0000' }}</span>
+           <span class="w-11 text-right text-white/90 text-[12px]">{{ item.gsz != null ? item.gsz : '--' }}</span>
            
            <!-- Change Badge -->
            <span class="w-14 flex justify-end">
@@ -54,8 +54,8 @@ const emit = defineEmits<{
            </span>
            
            <!-- Today's Earnings -->
-           <span class="w-[52px] text-right text-[12px] font-bold" :class="Number(item.gszzl) >= 0 ? 'text-up' : 'text-down'">
-             {{ Number(item.gszzl) > 0 ? '+¥92' : (Number(item.gszzl) < 0 ? '-¥26' : '¥0') }}
+           <span class="w-[52px] text-right text-[12px] font-bold" :class="item.gains > 0 ? 'text-up' : item.gains < 0 ? 'text-down' : 'text-white/30'">
+             {{ item.gains > 0 ? '+¥' + item.gains.toFixed(2) : item.gains < 0 ? '-¥' + Math.abs(item.gains).toFixed(2) : '¥0' }}
            </span>
         </div>
       </li>
