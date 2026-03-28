@@ -29,18 +29,33 @@ pnpm fmt                 # oxfmt 格式化代码
 ### 技术栈
 
 - Vue 3 + TypeScript + Vite 8
-- 弃用第三方 UI 库（不再使用 Element Plus），全程采用自行研发的 UI：依靠 **UnoCSS**（presetWind3，Tailwind 兼容） + **Vue** 内置动画 / **Motion** 实现 Bloomberg 特色的暗黑系全终端风格。
+- UI 层：以 **UnoCSS**（presetWind3，Tailwind 兼容）原子类 + **Motion** 动画库为主，实现 Bloomberg 风格暗色终端界面。**Element Plus** 仍全局注册（`main.ts`），部分遗留组件仍在使用，但新组件应优先使用 UnoCSS + 自研 UI
+- **Lucide Vue Next** 图标库
 - @tanstack/vue-query 管理服务端状态（数据获取、缓存、自动刷新）
+- **Pinia** 管理跨组件共享的客户端状态（`src/stores/`）
 - ECharts 5 图表、axios HTTP 客户端
+- **XLSX** + **file-saver** 实现基金列表导入导出
 - vue-router（hash 模式，两个路由：`/` Home、`/settings` Settings）
 - 测试：Vitest + jsdom；代码质量：oxlint + oxfmt
 
 ### 数据流与状态管理
 
-没有使用 Vuex/Pinia。状态分两层：
+状态分三层：
 
+- **Pinia Store**（`src/stores/fund.ts`）：管理跨组件共享的客户端响应式状态（如 `fundListM` 基金列表）
 - **服务端状态**：通过 @tanstack/vue-query + composables（`useFundData`、`useGlobalIndices`）管理，负责 API 请求、缓存和自动刷新
-- **本地状态**：通过 `storage` 工具（`src/utils/storage.ts`）封装 localStorage，所有配置存储在 `funds_config` 键下，回调风格 API（模拟原 Chrome 扩展 storage API）
+- **本地持久化**：通过 `storage` 工具（`src/utils/storage.ts`）封装 localStorage，所有配置存储在 `funds_config` 键下，回调风格 API（模拟原 Chrome 扩展 storage API）
+
+### Composables 模块
+
+`src/composables/` 按领域划分：
+
+- `fund/`：`useFundData`（基金数据查询）、`useFundSearch`（搜索）、`useTableSort`（表格排序）
+- `index/`：`useGlobalIndices`（全球指数快照与趋势）、`useIndexData`
+- `settings/`：`useSettings`（配置读写）
+- `holiday/`：`useHoliday`（节假日管理）
+- `importExport/`：`useImportExport`（XLSX 导入导出）
+- `drag/`：`useDragSort`（拖拽排序）
 
 ### Dashboard Zone 布局
 

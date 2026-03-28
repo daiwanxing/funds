@@ -12,7 +12,10 @@ import { Reward } from "@/components/Reward";
 import { ChangeLog } from "@/components/ChangeLog";
 import { GlobalTicker } from "@/components/GlobalTicker";
 import { StatusBar } from "@/components/StatusBar";
-import FundSearch from "./Home/components/FundSearch.vue";
+import ZoneBHeader from "./Home/components/ZoneBHeader.vue";
+import FundSavedList from "./Home/components/FundSavedList.vue";
+import FundSearchList from "./Home/components/FundSearchList.vue";
+import { useFundSearch } from "@/composables/fund/useFundSearch";
 import { BarChart2, Search, Bot, X, Star, Plus } from "lucide-vue-next";
 
 const router = useRouter();
@@ -53,6 +56,7 @@ const selectFund = (code: string) => {
 }
 
 const searchQuery = ref("");
+const { searchOptions, loading: isSearching } = useFundSearch(searchQuery);
 
 const lastUpdateTime = ref<Date>();
 
@@ -95,44 +99,39 @@ const handleRefresh = () => {
     </header>
 
     <!-- ── Zone B: 自选核心控制台 ─────────────────── -->
-    <main class="zone-b flex flex-col h-full overflow-hidden">
-      <!-- 常驻顶部搜索框与列表控制 -->
-      <div class="px-4 py-3 shrink-0 flex gap-2 items-center border-b border-white/6">
-        <FundSearch 
-          v-model:query="searchQuery" 
-          @add-fund="(code) => fundData.addFund([code])" 
+    <main class="zone-b flex flex-col h-full overflow-hidden bg-[#161618]">
+      <ZoneBHeader 
+        v-model:query="searchQuery"
+        :is-searching="isSearching"
+        :saved-count="settings.fundListM.value.length"
+        :result-count="searchOptions?.length"
+      />
+
+      <!-- 搜索列表或自选列表切换 -->
+      <template v-if="searchQuery">
+        <FundSearchList 
+          :query="searchQuery"
+          :options="searchOptions || []"
+          :loading="isSearching"
+          @add="(code) => { fundData.addFund([code]); searchQuery = ''; }"
         />
-        <button v-if="hasFunds" class="shrink-0 text-xs border border-white/6 rounded py-1 px-3 bg-bg-2 hover:bg-white/10 transition-colors" @click="settings.fundListM.value = []; storage.set({ fundListM: [] })">
-          清空列表
-        </button>
-      </div>
+      </template>
+      <template v-else>
+        <FundSavedList 
+          :fund-data="fundData"
+          :active-code="selectedFundCode"
+          @select="selectFund"
+        />
+      </template>
 
-      <!-- 空状态：独立设计的极客黑胶囊 -->
-      <div v-if="!hasFunds" class="flex-1 flex flex-col items-center justify-center pb-20">
-        <!-- 圆角方形外壳 -->
-        <div class="relative w-20 h-20 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mb-6">
-          <Star class="w-8 h-8 opacity-40 text-white" />
-          <!-- 右下角蓝底的加号徽标 -->
-          <div class="absolute -bottom-2 -right-2 w-6 h-6 rounded-full bg-accent text-white flex items-center justify-center shadow-lg border-2 border-[#1c1c1e]">
-            <Plus class="w-4 h-4" stroke-width="3" />
-          </div>
+      <!-- 汇总栏 (仅在未搜索且有持仓时显示) -->
+      <div v-if="!searchQuery && hasFunds" class="h-10 flex items-center justify-between px-4 border-t border-white/5 shrink-0 bg-[#121213]">
+        <div class="flex items-center gap-1.5 text-white/40 text-[11px] font-sans">
+           <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trending-up"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+           今日 <span class="text-up font-bold font-mono text-[13px] ml-0.5 opacity-90">+¥207</span>
         </div>
-        <p class="text-white text-base font-bold mb-3 tracking-wide">还没有自选基金</p>
-        <p class="text-t text-xs max-w-[240px] text-center leading-relaxed opacity-60">
-          添加你关注的基金，实时追踪行情与收益
-        </p>
-      </div>
-
-      <!-- 正常态：基金列表 -->
-      <div v-else class="flex-1 flex flex-col overflow-hidden">
-        <!-- Phase 2: <FundConsole> 替换此占位 -->
-        <div class="flex-1 flex items-center justify-center text-t text-sm relative">
-          基金列表占位（Phase 2 实现）
-        </div>
-        <!-- 汇总栏 -->
-        <div class="h-12 flex items-center justify-between px-4 border-t border-white/6 shrink-0">
-          <span class="text-t text-xs">今日收益</span>
-          <span class="text-up text-sm">+¥248.00 <span class="text-t">(+0.62%)</span></span>
+        <div class="flex items-center gap-1.5 text-white/40 text-[11px] font-sans">
+           累计 <span class="text-up font-bold font-mono text-[13px] ml-0.5 opacity-90">+¥2,850</span>
         </div>
       </div>
     </main>
@@ -217,7 +216,7 @@ const handleRefresh = () => {
 .dashboard {
   display: grid;
   grid-template-rows: 48px 1fr 36px;
-  grid-template-columns: 320px 1fr;
+  grid-template-columns: 380px 1fr;
   grid-template-areas:
     "ticker  ticker"
     "console detail"
