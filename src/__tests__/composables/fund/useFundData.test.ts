@@ -1,0 +1,100 @@
+import { describe, it, expect, beforeEach, vi } from "vitest";
+import { defineComponent, ref } from "vue";
+import { mount, flushPromises } from "@vue/test-utils";
+import { QueryClient, VueQueryPlugin } from "@tanstack/vue-query";
+import axios from "axios";
+import { useFundData } from "@/composables/fund/useFundData";
+
+vi.mock("axios");
+
+const settingsState = {
+  isLiveUpdate: ref(false),
+  isEdit: ref(false),
+};
+
+vi.mock("@/composables/settings", () => ({
+  useSettings: () => settingsState,
+}));
+
+vi.mock("@/utils/marketStatus", () => ({
+  isDuringDate: () => false,
+}));
+
+const mockedAxiosGet = vi.mocked(axios.get);
+
+const fundQuoteResponse = {
+  data: {
+    Datas: [
+      {
+        FCODE: "005827",
+        SHORTNAME: "易方达蓝筹精选混合",
+        PDATE: "2026-03-27",
+        NAV: "1.7866",
+        NAVCHGRT: "0.74",
+        GSZ: null,
+        GSZZL: null,
+        GZTIME: null,
+      },
+    ],
+  },
+};
+
+const mountUseFundData = () => {
+  const fundListM = ref([{ code: "005827", num: 100, cost: 1.7 }]);
+  const userId = ref("test-user");
+  const sortTypeObj = ref({ name: null, type: null });
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+      },
+    },
+  });
+
+  let exposed!: ReturnType<typeof useFundData>;
+
+  const Host = defineComponent({
+    setup() {
+      exposed = useFundData(fundListM, userId, sortTypeObj);
+      return () => null;
+    },
+  });
+
+  const wrapper = mount(Host, {
+    global: {
+      plugins: [[VueQueryPlugin, { queryClient }]],
+    },
+  });
+
+  return { exposed, wrapper, queryClient };
+};
+
+describe("useFundData", () => {
+  beforeEach(() => {
+    mockedAxiosGet.mockReset();
+    settingsState.isLiveUpdate.value = false;
+    settingsState.isEdit.value = false;
+  });
+
+  it("uses NAV and NAVCHGRT as fallback when live valuation fields are null", async () => {
+    mockedAxiosGet.mockResolvedValueOnce(fundQuoteResponse);
+
+    const { exposed, wrapper, queryClient } = mountUseFundData();
+
+    await flushPromises();
+
+    expect(exposed.dataList.value).toHaveLength(1);
+    expect(exposed.dataList.value[0]).toEqual(
+      expect.objectContaining({
+        fundcode: "005827",
+        gsz: 1.7866,
+        gszzl: 0.74,
+        hasReplace: true,
+      }),
+    );
+    expect(exposed.dataList.value[0].gains).toBeCloseTo(1.31, 2);
+
+    wrapper.unmount();
+    queryClient.clear();
+  });
+});

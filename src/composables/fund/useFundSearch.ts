@@ -1,6 +1,7 @@
 import { ref, computed, watch } from 'vue';
 import { useQuery } from '@tanstack/vue-query';
 import axios from 'axios';
+import { resolveFundQuote } from './quote';
 
 export interface SearchFundItem {
   label: string;
@@ -47,9 +48,10 @@ export const useFundSearch = (queryRef: any) => {
           `/api/fund/FundMNewApi/FundMNFInfo?pageIndex=1&pageSize=20&plat=Android&appType=ttjj&product=EFund&Version=1&deviceid=search&Fcodes=${codes}`
         );
         for (const d of (quoteRes.data.Datas ?? [])) {
+          const quote = resolveFundQuote(d);
           quoteMap.set(d.FCODE, {
-            gsz: d.GSZ ?? '--',
-            gszzl: Number.isFinite(Number(d.GSZZL)) ? parseFloat(d.GSZZL) : 0,
+            gsz: quote.gsz != null ? String(quote.gsz) : '--',
+            gszzl: quote.gszzl,
           });
         }
       } catch {

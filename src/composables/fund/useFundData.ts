@@ -1,6 +1,7 @@
 import { ref, computed, watch, type Ref } from "vue";
 import axios from "axios";
 import { storage } from "@/utils/storage";
+import { resolveFundQuote } from "./quote";
 
 interface FundItem {
   fundcode: string;
@@ -99,27 +100,23 @@ export const useFundData = (
       const list: FundItem[] = [];
 
       rawData.forEach((val: any) => {
+        const quote = resolveFundQuote(val);
         const item: FundItem = {
           fundcode: val.FCODE,
           name: val.SHORTNAME,
           jzrq: val.PDATE,
-          dwjz: Number.isFinite(Number(val.NAV)) ? parseFloat(val.NAV) : null,
-          gsz: Number.isFinite(Number(val.GSZ)) ? parseFloat(val.GSZ) : null,
-          gszzl: Number.isFinite(Number(val.GSZZL)) ? parseFloat(val.GSZZL) : 0,
-          gztime: val.GZTIME ?? '',
+          dwjz: quote.dwjz,
+          gsz: quote.gsz,
+          gszzl: quote.gszzl,
+          gztime: quote.gztime,
           num: 0,
           cost: 0,
           amount: 0,
           gains: 0,
           costGains: 0,
           costGainsRate: 0,
+          hasReplace: quote.hasReplace,
         };
-
-        if (val.PDATE !== "--" && val.PDATE === val.GZTIME?.substr(0, 10)) {
-          item.gsz = Number.isFinite(Number(val.NAV)) ? parseFloat(val.NAV) : null;
-          item.gszzl = Number.isFinite(Number(val.NAVCHGRT)) ? parseFloat(val.NAVCHGRT) : 0;
-          item.hasReplace = true;
-        }
 
         const match = fundListM.value.find((f) => f.code === item.fundcode);
         if (match) {
