@@ -1,3 +1,5 @@
+import type { FundQuoteResponseItem } from "@/types/fund";
+
 const parseNullableNumber = (value: unknown): number | null => {
   if (value === null || value === undefined || value === "") {
     return null;
@@ -7,14 +9,10 @@ const parseNullableNumber = (value: unknown): number | null => {
   return Number.isFinite(parsed) ? parsed : null;
 };
 
-export interface RawFundQuote {
-  NAV?: unknown;
-  NAVCHGRT?: unknown;
-  GSZ?: unknown;
-  GSZZL?: unknown;
-  PDATE?: string;
-  GZTIME?: string | null;
-}
+export type RawFundQuote = Pick<
+  FundQuoteResponseItem,
+  "NAV" | "NAVCHGRT" | "GSZ" | "GSZZL" | "PDATE" | "GZTIME"
+>;
 
 export const resolveFundQuote = (quote: RawFundQuote) => {
   const nav = parseNullableNumber(quote.NAV);

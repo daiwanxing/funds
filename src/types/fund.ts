@@ -36,3 +36,40 @@ export interface SearchFundItem {
   /** 估算涨跌幅，例如 0.51（正数涨，负数跌） */
   gszzl?: number;
 }
+
+/** 基金列表可排序字段 */
+export type FundSortableField =
+  | "gszzl"
+  | "amount"
+  | "gains"
+  | "costGains"
+  | "costGainsRate";
+
+/** 搜索接口原始条目 */
+export interface FundSearchResponseItem {
+  CODE: string;
+  NAME: string;
+  CATEGORY?: number | string | null;
+}
+
+/** 搜索接口响应 */
+export interface FundSearchApiResponse {
+  Datas?: FundSearchResponseItem[];
+}
+
+/** 基金行情接口原始条目 */
+export interface FundQuoteResponseItem {
+  FCODE: string;
+  SHORTNAME: string;
+  PDATE: string;
+  NAV: string | null;
+  NAVCHGRT: string | null;
+  GSZ: string | null;
+  GSZZL: string | null;
+  GZTIME: string | null;
+}
+
+/** 基金行情接口响应 */
+export interface FundQuoteApiResponse {
+  Datas?: FundQuoteResponseItem[];
+}

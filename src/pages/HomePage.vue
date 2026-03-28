@@ -23,11 +23,6 @@ const fundData = useFundData(
 );
 const globalIndices = useGlobalIndices();
 
-
-
-
-
-
 /** 是否有自选基金（控制 Zone C 显示和 FAB 显示） */
 const hasFunds = computed(() => settings.fundListM.value.length > 0);
 
@@ -35,22 +30,57 @@ const hasFunds = computed(() => settings.fundListM.value.length > 0);
 const aiDrawerOpen = ref(false);
 
 /** 当前选中基金（Zone B → Zone C 联动） */
-const selectedFundCode = ref<string | null>(null);
+const selectedFundCode = computed(() => settings.RealtimeFundcode.value);
+
+const setSelectedFundCode = (code: string | null) => {
+  settings.RealtimeFundcode.value = code;
+  settings.updateSetting("RealtimeFundcode", code);
+};
 
 const selectFund = (code: string) => {
-  selectedFundCode.value = code;
-}
+  if (settings.RealtimeFundcode.value === code) return;
+  setSelectedFundCode(code);
+};
 
 const searchQuery = ref("");
 const { searchOptions, loading: isSearching } = useFundSearch(searchQuery);
 
 const lastUpdateTime = ref<Date>();
 
+const normalizeSelectedFundCode = () => {
+  const codes = settings.fundListM.value.map((item) => item.code);
+  const current = settings.RealtimeFundcode.value;
+
+  if (codes.length === 0) {
+    if (current !== null) {
+      setSelectedFundCode(null);
+    }
+    return;
+  }
+
+  if (current && codes.includes(current)) {
+    return;
+  }
+
+  setSelectedFundCode(codes[0]);
+};
+
 watch(
   () => fundData.dataListDft.value,
   () => {
     lastUpdateTime.value = new Date();
-  }
+  },
+);
+
+watch(
+  [
+    () => settings.fundListM.value.map((item) => item.code),
+    () => settings.RealtimeFundcode.value,
+  ],
+  () => {
+    if (!settings.isReady.value) return;
+    normalizeSelectedFundCode();
+  },
 );
 
 onMounted(async () => {
@@ -60,14 +90,8 @@ onMounted(async () => {
 
   globalIndices.refetch();
   fundData.fetchData();
-
-  // 默认选中第一只基金
-  if (settings.fundListM.value.length > 0) {
-    selectedFundCode.value = settings.fundListM.value[0].code;
-  }
+  normalizeSelectedFundCode();
 });
-
-
 </script>
 
 <template>
@@ -101,7 +125,7 @@ onMounted(async () => {
       </template>
       <template v-else>
         <FundSavedList 
-          :fund-data="fundData"
+          :items="fundData.dataList.value"
           :active-code="selectedFundCode"
           @select="selectFund"
         />
@@ -170,9 +194,7 @@ onMounted(async () => {
     <!-- ── Zone E: 状态栏 ────────────────────────── -->
     <footer class="zone-e">
       <StatusBar
-        :fund-count="settings.fundListM.value.length"
         :last-update-time="lastUpdateTime"
-        @edit="settings.isEdit.value = !settings.isEdit.value"
       />
     </footer>
 
@@ -219,7 +241,6 @@ onMounted(async () => {
         </div>
       </aside>
     </Transition>
-
   </div>
 </template>
 

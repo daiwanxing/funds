@@ -1,13 +1,18 @@
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, type Ref } from 'vue';
 import { useQuery } from '@tanstack/vue-query';
 import axios from 'axios';
 import { resolveFundQuote } from './quote';
-import type { SearchFundItem } from '@/types/fund';
+import type {
+  SearchFundItem,
+  FundQuoteApiResponse,
+  FundSearchApiResponse,
+  FundSearchResponseItem,
+} from '@/types/fund';
 
 // re-export so existing `import { SearchFundItem } from '@/composables/fund/useFundSearch'` 不报错
 export type { SearchFundItem };
 
-export const useFundSearch = (queryRef: any) => {
+export const useFundSearch = (queryRef: Ref<string>) => {
   const debouncedQuery = ref('');
   let timeoutId: number | null = null;
   
@@ -26,23 +31,23 @@ export const useFundSearch = (queryRef: any) => {
       
       const searchUrl = `/api/search/FundSearch/api/FundSearchAPI.ashx?&m=9&key=${encodeURIComponent(kw)}&_=${Date.now()}`;
       const [searchRes] = await Promise.all([
-        axios.get(searchUrl),
+        axios.get<FundSearchApiResponse>(searchUrl),
         new Promise(r => setTimeout(r, 1800)) // 保底 1800ms，确保 2.8s 的动画完整画满第一段折线
       ]);
       
-      const searchDatas: any[] = searchRes.data.Datas ?? [];
+      const searchDatas = searchRes.data.Datas ?? [];
       if (searchDatas.length === 0) return [];
 
       // 批量查询估值行情（最多取前 20 条避免 URL 过长）
-      const codes = searchDatas.slice(0, 20).map((v: any) => v.CODE).join(',');
+      const codes = searchDatas.slice(0, 20).map((item) => item.CODE).join(',');
       const quoteMap = new Map<string, { gsz: string; gszzl: number }>();
       try {
-        const quoteRes = await axios.get(
+        const quoteRes = await axios.get<FundQuoteApiResponse>(
           `/api/fund/FundMNewApi/FundMNFInfo?pageIndex=1&pageSize=20&plat=Android&appType=ttjj&product=EFund&Version=1&deviceid=search&Fcodes=${codes}`
         );
-        for (const d of (quoteRes.data.Datas ?? [])) {
-          const quote = resolveFundQuote(d);
-          quoteMap.set(d.FCODE, {
+        for (const item of (quoteRes.data.Datas ?? [])) {
+          const quote = resolveFundQuote(item);
+          quoteMap.set(item.FCODE, {
             gsz: quote.gsz !== null ? String(quote.gsz) : '--',
             gszzl: quote.gszzl,
           });
@@ -51,21 +56,21 @@ export const useFundSearch = (queryRef: any) => {
         // 行情查询失败时降级展示，不影响搜索结果
       }
 
-      return searchDatas.map((val: any) => {
+      return searchDatas.map((item: FundSearchResponseItem) => {
         let tag: string;
-        if (val.NAME.includes('证券') || val.NAME.includes('券商')) tag = '证券';
-        else if (val.NAME.includes('医疗') || val.NAME.includes('医药')) tag = '医疗';
-        else if (val.NAME.includes('500') || val.NAME.includes('300')) tag = '指数型';
-        else if (val.NAME.includes('债券') || val.NAME.includes('纯债')) tag = '债券型';
-        else if (val.NAME.includes('混合')) tag = '混合型';
-        else if (val.NAME.includes('货币') || val.NAME.includes('现金')) tag = '货币型';
+        if (item.NAME.includes('证券') || item.NAME.includes('券商')) tag = '证券';
+        else if (item.NAME.includes('医疗') || item.NAME.includes('医药')) tag = '医疗';
+        else if (item.NAME.includes('500') || item.NAME.includes('300')) tag = '指数型';
+        else if (item.NAME.includes('债券') || item.NAME.includes('纯债')) tag = '债券型';
+        else if (item.NAME.includes('混合')) tag = '混合型';
+        else if (item.NAME.includes('货币') || item.NAME.includes('现金')) tag = '货币型';
         else tag = '股票型';
 
-        const quote = quoteMap.get(val.CODE);
+        const quote = quoteMap.get(item.CODE);
         return {
-          label: val.NAME,
-          value: val.CODE,
-          desc: `${val.CODE} · ${val.CATEGORY ?? tag}`,
+          label: item.NAME,
+          value: item.CODE,
+          desc: `${item.CODE} · ${item.CATEGORY ?? tag}`,
           tag,
           gsz: quote?.gsz,
           gszzl: quote?.gszzl,

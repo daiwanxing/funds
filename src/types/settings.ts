@@ -1,6 +1,15 @@
 // ─── 设置领域类型 ────────────────────────────────────────────────
 
 import type { FundListItem } from './fund';
+import type { FundSortableField } from './fund';
+import type { HolidayData } from './holiday';
+
+export type SortDirection = "asc" | "desc" | "none";
+
+export interface SortTypeState {
+  name: FundSortableField | null;
+  type: SortDirection | null;
+}
 
 /** 应用设置状态完整结构 */
 export interface SettingsState {
@@ -20,7 +29,14 @@ export interface SettingsState {
   userId: string;
   grayscaleValue: number;
   opacityValue: number;
-  sortTypeObj: { name: string | null; type: string | null };
+  sortTypeObj: SortTypeState;
   RealtimeFundcode: string | null;
   RealtimeIndcode: string | null;
+}
+
+/** localStorage 中持久化的完整配置结构 */
+export interface StorageSchema extends Partial<SettingsState> {
+  fundList?: string[];
+  holiday?: HolidayData;
+  version?: string;
 }

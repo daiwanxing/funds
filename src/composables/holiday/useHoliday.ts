@@ -9,7 +9,7 @@ export const useHoliday = () => {
   const updating = ref(false);
 
   const loadFromStorage = (): void => {
-    storage.get(["holiday"], (res: Record<string, any>) => {
+    storage.get(["holiday"], (res) => {
       if (res.holiday) {
         holiday.value = res.holiday;
         setHolidayData(res.holiday);
@@ -17,7 +17,7 @@ export const useHoliday = () => {
         fetchHoliday();
       }
     });
-  }
+  };
 
   const fetchHoliday = async (): Promise<void> => {
     updating.value = true;
@@ -31,7 +31,7 @@ export const useHoliday = () => {
     } finally {
       updating.value = false;
     }
-  }
+  };
 
   return {
     holiday,
@@ -39,4 +39,4 @@ export const useHoliday = () => {
     loadFromStorage,
     fetchHoliday,
   };
-}
+};

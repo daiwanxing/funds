@@ -3,7 +3,7 @@ import { storeToRefs } from "pinia";
 import { storage } from "@/utils/storage";
 import { getGuid } from "@/utils/formatters";
 import { useFundStore } from "@/stores/fund";
-import type { SettingsState } from "@/types/settings";
+import type { SettingsState, StorageSchema } from "@/types/settings";
 
 // re-export for backward compat
 export type { SettingsState };
@@ -73,8 +73,8 @@ export const useSettings = () => {
   const load = (): Promise<void> => {
     return new Promise((resolve) => {
       storage.get(
-        SETTINGS_KEYS as unknown as string[],
-        (res: Record<string, any>) => {
+        SETTINGS_KEYS,
+        (res) => {
           if (res.fundListM) {
             fundListM.value = res.fundListM;
           } else {
@@ -117,29 +117,32 @@ export const useSettings = () => {
         },
       );
     });
-  }
+  };
 
-  const updateSetting = (key: string, value: any): void => {
+  const updateSetting = <K extends keyof StorageSchema>(
+    key: K,
+    value: StorageSchema[K],
+  ): void => {
     storage.set({ [key]: value });
-  }
+  };
 
   const toggleDarkMode = (): void => {
     updateSetting("darkMode", darkMode.value);
-  }
+  };
 
   const toggleFontSize = (): void => {
     updateSetting("normalFontSize", normalFontSize.value);
-  }
+  };
 
   const setGrayscale = (val: number): void => {
     grayscaleValue.value = val;
     updateSetting("grayscaleValue", val);
-  }
+  };
 
   const setOpacity = (val: number): void => {
     opacityValue.value = val;
     updateSetting("opacityValue", val);
-  }
+  };
 
   return {
     // State
@@ -175,4 +178,4 @@ export const useSettings = () => {
     setGrayscale,
     setOpacity,
   };
-}
+};

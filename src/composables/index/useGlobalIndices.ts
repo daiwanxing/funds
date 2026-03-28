@@ -3,7 +3,12 @@ import axios from "axios";
 import { useQuery } from "@tanstack/vue-query";
 import { useSettings } from "@/composables/settings";
 import { isDuringDate } from "@/utils/marketStatus";
-import type { GlobalIndexItem } from "@/types/market";
+import type {
+  GlobalIndexItem,
+  GlobalIndexSnapshot,
+  GlobalIndicesSnapshotApiResponse,
+  GlobalIndexTrendApiResponse,
+} from "@/types/market";
 
 export type { GlobalIndexItem };
 
@@ -30,7 +35,7 @@ export const useGlobalIndices = () => {
     queryFn: async () => {
       const secids = GLOBAL_INDICES.join(",");
       const url = `/api/index/api/qt/ulist.np/get?fltt=2&fields=f2,f3,f4,f12,f13,f14&secids=${secids}&_=${Date.now()}`;
-      const { data } = await axios.get(url);
+      const { data } = await axios.get<GlobalIndicesSnapshotApiResponse>(url);
       return data?.data?.diff ?? [];
     },
     // Dynamically control polling based on settings and market status
@@ -44,7 +49,7 @@ export const useGlobalIndices = () => {
     queryFn: async () => {
       const promises = GLOBAL_INDICES.map(async (code) => {
         const url = `/api/index/api/qt/stock/trends2/get?secid=${code}&fields1=f1,f2&fields2=f51,f53&_=${Date.now()}`;
-        const res = await axios.get(url);
+        const res = await axios.get<GlobalIndexTrendApiResponse>(url);
         const data = res.data?.data;
         if (!data) return { code, prePrice: 0, points: [] };
 
@@ -52,7 +57,7 @@ export const useGlobalIndices = () => {
           .map((t: string) => parseFloat(t.split(",")[1]))
           .filter((p: number) => !isNaN(p));
         
-        return { code, prePrice: data.prePrice, points };
+        return { code, prePrice: data.prePrice ?? 0, points };
       });
       return await Promise.all(promises);
     },
@@ -65,12 +70,12 @@ export const useGlobalIndices = () => {
     const snapshots = snapshotQuery.data.value || [];
     const trends = trendsQuery.data.value || [];
     
-    return snapshots.map((snap: any) => {
-      const trendData = trends.find((t: any) => t.code.endsWith(snap.f12));
+    return snapshots.map((snapshot: GlobalIndexSnapshot) => {
+      const trendData = trends.find((item) => item.code.endsWith(snapshot.f12));
       // Calculate prePrice fallback from current price minus change amount
-      const fallbackPre = (Number(snap.f2) - Number(snap.f4)) || 0;
+      const fallbackPre = (Number(snapshot.f2) - Number(snapshot.f4)) || 0;
       return {
-        ...snap,
+        ...snapshot,
         prePrice: trendData?.prePrice || fallbackPre,
         trendPoints: trendData?.points,
       };
@@ -87,4 +92,4 @@ export const useGlobalIndices = () => {
       trendsQuery.refetch();
     }
   };
-}
+};

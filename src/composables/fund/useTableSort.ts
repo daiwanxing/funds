@@ -1,10 +1,13 @@
 import { ref, type Ref } from "vue";
 import { storage } from "@/utils/storage";
+import type { FundItem, FundSortableField } from "@/types/fund";
+import type { SortDirection, SortTypeState } from "@/types/settings";
 
-type SortDirection = "asc" | "desc" | "none";
-
-export const useTableSort = (dataList: Ref<any[]>, dataListDft: Ref<any[]>) => {
-  const sortType = ref<Record<string, SortDirection>>({
+export const useTableSort = (
+  dataList: Ref<FundItem[]>,
+  dataListDft: Ref<FundItem[]>,
+) => {
+  const sortType = ref<Record<FundSortableField, SortDirection>>({
     gszzl: "none",
     amount: "none",
     gains: "none",
@@ -12,15 +15,15 @@ export const useTableSort = (dataList: Ref<any[]>, dataListDft: Ref<any[]>) => {
     costGainsRate: "none",
   });
 
-  const sortTypeObj = ref<{ name: string | null; type: string | null }>({
+  const sortTypeObj = ref<SortTypeState>({
     name: null,
     type: null,
   });
 
-  const sortList = (type: string): void => {
+  const sortList = (type: FundSortableField): void => {
     // Reset other columns
     for (const key in sortType.value) {
-      if (key !== type) sortType.value[key] = "none";
+      if (key !== type) sortType.value[key as FundSortableField] = "none";
     }
 
     // Cycle: none → desc → asc → none
@@ -44,10 +47,10 @@ export const useTableSort = (dataList: Ref<any[]>, dataListDft: Ref<any[]>) => {
 
   const resetSort = (): void => {
     for (const key in sortType.value) {
-      sortType.value[key] = "none";
+      sortType.value[key as FundSortableField] = "none";
     }
     dataList.value = [...dataListDft.value];
-  }
+  };
 
   return {
     sortType,
@@ -55,4 +58,4 @@ export const useTableSort = (dataList: Ref<any[]>, dataListDft: Ref<any[]>) => {
     sortList,
     resetSort,
   };
-}
+};

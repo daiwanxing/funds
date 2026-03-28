@@ -1,21 +1,22 @@
 import { ref, type Ref } from "vue";
 import { storage } from "@/utils/storage";
+import type { StorageSchema } from "@/types/settings";
 
 const handleDragOver = (e: DragEvent): void => {
   if (e.dataTransfer) e.dataTransfer.dropEffect = "move";
-}
+};
 
-export const useDragSort = <T extends Record<string, any>>(
+export const useDragSort = <T extends Record<string, unknown>, K extends keyof T & string>(
   list: Ref<T[]>,
-  syncList?: Ref<any[]>,
-  storageKey?: string,
-  matchKey?: string,
+  syncList?: Ref<T[]>,
+  storageKey?: keyof StorageSchema,
+  matchKey?: K,
 ) => {
   const dragging = ref<T | null>(null);
 
   const handleDragStart = (_e: DragEvent, item: T): void => {
     dragging.value = item;
-  }
+  };
 
   const handleDragEnter = (e: DragEvent, item: T): void => {
     if (!dragging.value || !matchKey) return;
@@ -45,14 +46,14 @@ export const useDragSort = <T extends Record<string, any>>(
         syncList.value = newSync;
       }
     }
-  }
+  };
 
   const handleDragEnd = (): void => {
     dragging.value = null;
     if (storageKey) {
-      storage.set({ [storageKey]: list.value });
+      storage.set({ [storageKey]: list.value } as Partial<StorageSchema>);
     }
-  }
+  };
 
   return {
     dragging,
@@ -61,4 +62,4 @@ export const useDragSort = <T extends Record<string, any>>(
     handleDragEnter,
     handleDragEnd,
   };
-}
+};

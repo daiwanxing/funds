@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import type { FundItem } from "@/types/fund";
+
 defineProps<{
-  fundData: any;
+  items: FundItem[];
   activeCode?: string | null;
 }>();
 
@@ -25,11 +27,11 @@ const emit = defineEmits<{
 
     <!-- Body -->
     <ul
-      v-if="fundData.dataList.value.length > 0"
+      v-if="items.length > 0"
       class="flex-1 overflow-y-auto pb-10"
     >
       <li 
-        v-for="item in fundData.dataList.value" 
+        v-for="item in items" 
         :key="item.fundcode"
         @click="emit('select', item.fundcode)"
         class="relative px-4 py-3 flex items-start gap-[20px] justify-between border-b border-white/[0.04] cursor-pointer"

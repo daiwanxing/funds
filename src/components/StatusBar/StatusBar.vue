@@ -1,15 +1,14 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from "vue";
 import { isDuringDate } from "@/utils/marketStatus";
-import { Activity, PencilLine, Settings2 } from "lucide-vue-next";
+import { Activity, Settings2 } from "lucide-vue-next";
+import packageJson from "../../../package.json";
 
 const props = defineProps<{
-  fundCount: number;
   lastUpdateTime?: Date;
 }>();
 
 const emit = defineEmits<{
-  (e: "edit"): void;
   (e: "settings"): void;
 }>();
 
@@ -41,15 +40,7 @@ const formattedTime = computed(() => {
   return `${h}:${m}:${s}`;
 });
 
-// 3. 当前日期和星期
-// 格式如 "03/28周六"
-const currentDateStr = computed(() => {
-  const d = new Date();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const dd = String(d.getDate()).padStart(2, "0");
-  const w = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"][d.getDay()];
-  return `${m}/${dd}${w}`;
-});
+const appVersion = `v${packageJson.version}`;
 </script>
 
 <template>
@@ -79,43 +70,16 @@ const currentDateStr = computed(() => {
           style="letter-spacing: 0.5px;"
         >{{ formattedTime }}</span>
       </span>
-
-      <!-- 分隔线 -->
-      <span
-        v-if="fundCount > 0"
-        class="w-[1px] h-3 bg-white/6 mx-1"
-      />
-
-      <!-- 自选数量 -->
-      <span
-        v-if="fundCount > 0"
-        class="flex items-center gap-1"
-      >
-        自选 <span class="text-accent font-bold px-1 text-sm">{{ fundCount }}</span> 只
-      </span>
     </div>
 
     <!-- 右侧区域 -->
     <div class="flex items-center gap-3">
-      <!-- 当前日期 -->
-      <span class="tracking-wide">
-        {{ currentDateStr }}
+      <span class="tracking-wide text-white/50">
+        {{ appVersion }}
       </span>
 
       <!-- 分隔线 -->
       <span class="w-[1px] h-3 bg-white/6 mx-1" />
-
-      <!-- 编辑操作 -->
-      <button 
-        class="flex items-center gap-1.5 hover:text-p transition-colors cursor-pointer"
-        @click="emit('edit')"
-      >
-        <PencilLine
-          class="w-3.5 h-3.5"
-          :stroke-width="2"
-        />
-        编辑
-      </button>
 
       <!-- 设置入口 -->
       <button 

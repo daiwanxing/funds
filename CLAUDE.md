@@ -16,6 +16,16 @@ pnpm fmt          # oxfmt 格式化
 pnpm test:run     # 运行测试
 ```
 
+## Completion Checklist
+
+- 每次完成代码修改后，至少运行：
+  - `pnpm test:run`（如果测试受影响或已存在测试）
+  - `pnpm type-check`
+  - `pnpm lint`
+- 在回复中明确说明这些命令是否通过；如果未运行，必须说明原因。
+- 不要默认运行会改写文件的命令，如 `pnpm lint:fix` 或 `pnpm fmt`，除非用户明确要求。
+- 若修改了 `src/` 下的 TS/Vue 代码，`pnpm lint` 为必跑项。
+
 ## 知识地图
 
 | 想了解… | 去哪里找 |
