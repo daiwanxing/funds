@@ -62,9 +62,9 @@ const chartAreaPath = computed(() => {
 </script>
 
 <template>
-  <div class="ticker-card flex items-center h-full px-4 cursor-default transition-colors relative">
+  <div class="ticker-card flex items-center h-full px-5 cursor-default transition-colors relative">
     <!-- 左侧：微型图表（SVG） -->
-    <div class="mr-3 shrink-0 flex items-center opacity-80 mt-1">
+    <div class="mr-3 shrink-0 flex items-center mt-1">
       <svg :width="WIDTH" :height="HEIGHT" class="overflow-visible">
         <defs>
           <!-- 通过 style 把 CSS variables 直接传入 stop-color 以获取正确的涨跌色 -->
@@ -72,7 +72,7 @@ const chartAreaPath = computed(() => {
             <stop
               offset="0%"
               :stop-color="isUp ? 'var(--rise-primary)' : 'var(--fall-primary)'"
-              stop-opacity="0.3"
+              stop-opacity="0.6"
             />
             <stop
               offset="100%"
@@ -86,51 +86,27 @@ const chartAreaPath = computed(() => {
           :d="chartPath"
           fill="none"
           :stroke="isUp ? 'var(--rise-primary)' : 'var(--fall-primary)'"
-          stroke-width="1.5"
+          stroke-width="1.8"
           stroke-linejoin="round"
           stroke-linecap="round"
         />
         <path :d="chartAreaPath" :fill="`url(#${gradientId})`" />
-        <!-- 昨收参考线（虚线） -->
-        <line
-          v-if="points.length > 0 && prePrice > 0"
-          x1="0"
-          :y1="
-            HEIGHT -
-            ((prePrice - Math.min(...points)) /
-              (Math.max(...points) - Math.min(...points) || 1)) *
-              HEIGHT
-          "
-          :x2="WIDTH"
-          :y2="
-            HEIGHT -
-            ((prePrice - Math.min(...points)) /
-              (Math.max(...points) - Math.min(...points) || 1)) *
-              HEIGHT
-          "
-          stroke="var(--border-strong)"
-          stroke-width="1"
-          stroke-dasharray="2,2"
-        />
       </svg>
     </div>
 
     <!-- 右侧：数值信息 -->
-    <div class="flex flex-col justify-center min-w-16">
-      <div class="flex items-center gap-2 mb-0.5">
-        <span class="text-p text-xs font-semibold">{{ item.f14 }}</span>
+    <div class="flex flex-col justify-center min-w-[76px]">
+      <div class="flex items-center mb-0.5">
+        <span class="text-[11px] font-medium text-white/50 tracking-wide">{{ item.f14 }}</span>
       </div>
       <div class="flex items-baseline gap-1.5">
-        <span
-          :class="colorClass"
-          class="text-sm font-mono font-medium tracking-tight"
-        >
+        <span class="text-[14px] font-bold text-white tracking-tight">
           {{ item.f2 === "-" ? "--" : item.f2 }}
         </span>
         <span
           v-if="item.f3 !== undefined && item.f3 !== '-'"
           :class="colorClass"
-          class="text-[10px] font-mono"
+          class="text-[11px] font-medium font-mono"
         >
           {{ Number(item.f3) > 0 ? "+" : "" }}{{ item.f3 }}%
         </span>
