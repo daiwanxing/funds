@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useRouter } from "vue-router";
 import { useSettings } from "@/composables/settings";
 import { useFundData, useTableSort } from "@/composables/fund";
@@ -11,6 +11,9 @@ import { storage } from "@/utils/storage";
 import { Reward } from "@/components/Reward";
 import { ChangeLog } from "@/components/ChangeLog";
 import { GlobalTicker } from "@/components/GlobalTicker";
+import { StatusBar } from "@/components/StatusBar";
+import FundSearch from "./Home/components/FundSearch.vue";
+import { BarChart2, Search, Bot, X, Star, Plus } from "lucide-vue-next";
 
 const router = useRouter();
 const settings = useSettings();
@@ -49,6 +52,17 @@ const selectFund = (code: string) => {
   selectedFundCode.value = code;
 }
 
+const searchQuery = ref("");
+
+const lastUpdateTime = ref<Date>();
+
+watch(
+  () => fundData.dataListDft.value,
+  () => {
+    lastUpdateTime.value = new Date();
+  }
+);
+
 onMounted(async () => {
   await loadHoliday();
   loadHolidayFromStorage();
@@ -73,7 +87,6 @@ const handleRefresh = () => {
   <div
     v-if="settings.isReady.value"
     class="dashboard"
-    :class="{ 'dashboard--empty': !hasFunds }"
   >
     <!-- ── Zone A: 全景走马灯 ────────────────────── -->
     <header class="zone-a">
@@ -82,35 +95,38 @@ const handleRefresh = () => {
     </header>
 
     <!-- ── Zone B: 自选核心控制台 ─────────────────── -->
-    <main class="zone-b">
-      <!-- 空状态：引导添加第一只基金 -->
-      <div v-if="!hasFunds" class="h-full flex items-center justify-center">
-        <div class="flex flex-col items-center gap-6 px-8 py-12 rounded-xl bg-bg-2 border border-white/6 max-w-md w-full mx-4">
-          <div class="text-4xl">📊</div>
-          <div class="text-center">
-            <p class="text-p text-base font-semibold mb-1">添加你的第一只基金</p>
-            <p class="text-t text-sm">搜索基金名称或代码，开始追踪净值</p>
-          </div>
-          <!-- Phase 2: <FundSearch /> -->
-          <div class="w-full h-10 rounded-lg bg-white/4 border border-white/6 flex items-center px-3 text-t text-sm cursor-text">
-            🔍 搜索基金代码或名称
-          </div>
-          <div class="w-full">
-            <p class="text-t text-xs mb-2">热门推荐</p>
-            <div class="flex flex-wrap gap-2">
-              <span v-for="name in ['沪深 300 ETF', '中证白酒', '纳指 ETF', '黄金 ETF', '半导体 ETF', '中证医疗']" :key="name"
-                class="px-2.5 py-1 rounded-full bg-white/6 text-s text-xs cursor-pointer hover:bg-white/9 transition-colors">
-                {{ name }}
-              </span>
-            </div>
+    <main class="zone-b flex flex-col h-full overflow-hidden">
+      <!-- 常驻顶部搜索框与列表控制 -->
+      <div class="px-4 py-3 shrink-0 flex gap-2 items-center border-b border-white/6">
+        <FundSearch 
+          v-model:query="searchQuery" 
+          @add-fund="(code) => fundData.addFund([code])" 
+        />
+        <button v-if="hasFunds" class="shrink-0 text-xs border border-white/6 rounded py-1 px-3 bg-bg-2 hover:bg-white/10 transition-colors" @click="settings.fundListM.value = []; storage.set({ fundListM: [] })">
+          清空列表
+        </button>
+      </div>
+
+      <!-- 空状态：独立设计的极客黑胶囊 -->
+      <div v-if="!hasFunds" class="flex-1 flex flex-col items-center justify-center pb-20">
+        <!-- 圆角方形外壳 -->
+        <div class="relative w-20 h-20 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mb-6">
+          <Star class="w-8 h-8 opacity-40 text-white" />
+          <!-- 右下角蓝底的加号徽标 -->
+          <div class="absolute -bottom-2 -right-2 w-6 h-6 rounded-full bg-accent text-white flex items-center justify-center shadow-lg border-2 border-[#1c1c1e]">
+            <Plus class="w-4 h-4" stroke-width="3" />
           </div>
         </div>
+        <p class="text-white text-base font-bold mb-3 tracking-wide">还没有自选基金</p>
+        <p class="text-t text-xs max-w-[240px] text-center leading-relaxed opacity-60">
+          使用上方搜索框添加你关注的基金，<br>实时追踪行情与收益
+        </p>
       </div>
 
       <!-- 正常态：基金列表 -->
-      <div v-else class="h-full flex flex-col">
+      <div v-else class="flex-1 flex flex-col overflow-hidden">
         <!-- Phase 2: <FundConsole> 替换此占位 -->
-        <div class="flex-1 flex items-center justify-center text-t text-sm">
+        <div class="flex-1 flex items-center justify-center text-t text-sm relative">
           基金列表占位（Phase 2 实现）
         </div>
         <!-- 汇总栏 -->
@@ -121,8 +137,8 @@ const handleRefresh = () => {
       </div>
     </main>
 
-    <!-- ── Zone C: 基金详情面板（有基金时显示）────── -->
-    <aside v-if="hasFunds" class="zone-c">
+    <!-- ── Zone C: 基金详情面板（全局常驻）────── -->
+    <aside class="zone-c">
       <!-- Phase 3: <FundDetail :code="selectedFundCode" /> -->
       <div class="h-full flex flex-col">
         <!-- Tab 栏占位 -->
@@ -145,21 +161,12 @@ const handleRefresh = () => {
 
     <!-- ── Zone E: 状态栏 ────────────────────────── -->
     <footer class="zone-e">
-      <!-- Phase 2: <StatusBar /> -->
-      <div class="h-full flex items-center justify-between px-4 text-t text-xs">
-        <div class="flex items-center gap-3">
-          <span class="flex items-center gap-1.5">
-            <span class="w-1.5 h-1.5 rounded-full bg-fall"></span>
-            休市中
-          </span>
-          <span>自选 {{ settings.fundListM.value.length }} 只</span>
-        </div>
-        <div class="flex items-center gap-3">
-          <button class="hover:text-p transition-colors cursor-pointer" @click="router.push('/settings')">⚙ 设置</button>
-          <button class="hover:text-p transition-colors cursor-pointer" @click="changelogRef?.init()">日志</button>
-          <button class="hover:text-p transition-colors cursor-pointer" @click="rewardRef?.init()">打赏</button>
-        </div>
-      </div>
+      <StatusBar
+        :fund-count="settings.fundListM.value.length"
+        :last-update-time="lastUpdateTime"
+        @edit="settings.isEdit.value = !settings.isEdit.value"
+        @settings="router.push('/settings')"
+      />
     </footer>
 
     <!-- ── Zone D: AI FAB（有基金时显示）────────── -->
@@ -169,7 +176,7 @@ const handleRefresh = () => {
       title="AI 洞察"
       @click="aiDrawerOpen = true"
     >
-      🤖
+      <Bot class="w-6 h-6" />
     </button>
 
     <!-- ── Zone D: AI 抽屉 ───────────────────────── -->
@@ -180,8 +187,10 @@ const handleRefresh = () => {
       <aside v-if="aiDrawerOpen" class="zone-d-drawer">
         <div class="h-full flex flex-col bg-bg-3 border-l border-white/6">
           <div class="flex items-center justify-between px-5 py-4 border-b border-white/6 shrink-0">
-            <span class="text-p text-sm font-semibold">🤖 AI 洞察</span>
-            <button class="text-t hover:text-p text-lg cursor-pointer transition-colors" @click="aiDrawerOpen = false">✕</button>
+            <span class="text-p text-sm font-semibold flex items-center gap-1.5"><Bot class="w-4 h-4" /> AI 洞察</span>
+            <button class="text-t flex items-center justify-center hover:text-p cursor-pointer transition-colors" @click="aiDrawerOpen = false">
+              <X class="w-5 h-5" />
+            </button>
           </div>
           <!-- Phase 4: <AIDecision /> -->
           <div class="flex-1 flex items-center justify-center text-t text-sm">
@@ -208,7 +217,7 @@ const handleRefresh = () => {
 .dashboard {
   display: grid;
   grid-template-rows: 48px 1fr 36px;
-  grid-template-columns: 60fr 40fr;
+  grid-template-columns: 1fr 2fr;
   grid-template-areas:
     "ticker  ticker"
     "console detail"
@@ -220,14 +229,7 @@ const handleRefresh = () => {
   font-family: var(--font-sans);
 }
 
-/* 空状态：Zone B 独占全宽 */
-.dashboard--empty {
-  grid-template-columns: 1fr;
-  grid-template-areas:
-    "ticker"
-    "console"
-    "status";
-}
+/* 移除隐藏控制，保证 60 40 划分 */
 
 .zone-a {
   grid-area: ticker;

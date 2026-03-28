@@ -1,6 +1,8 @@
 import { ref, computed } from "vue";
+import { storeToRefs } from "pinia";
 import { storage } from "@/utils/storage";
 import { getGuid } from "@/utils/formatters";
+import { useFundStore } from "@/stores/fund";
 
 export interface SettingsState {
   fundListM: { code: string; num: number; cost?: number }[];
@@ -53,7 +55,9 @@ export const useSettings = () => {
   const isEdit = ref(false);
   const isReady = ref(false);
 
-  const fundListM = ref<SettingsState["fundListM"]>([]);
+  const fundStore = useFundStore();
+  const { fundListM } = storeToRefs(fundStore);
+
   const seciList = ref(["1.000001", "1.000300", "0.399001", "0.399006"]);
   const darkMode = ref(false);
   const normalFontSize = ref(false);
@@ -89,12 +93,11 @@ export const useSettings = () => {
       storage.get(
         SETTINGS_KEYS as unknown as string[],
         (res: Record<string, any>) => {
-          const defaultFundList = ["001618"];
-
           if (res.fundListM) {
             fundListM.value = res.fundListM;
           } else {
-            const fundList = res.fundList ?? defaultFundList;
+            // 如果不存在新版的 fundListM，尝试读取旧版本的 fundList，若都没配置过，就彻底置空不乱塞。
+            const fundList = res.fundList ?? [];
             fundListM.value = fundList.map((code: string) => ({
               code,
               num: 0,

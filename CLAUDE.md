@@ -29,7 +29,7 @@ pnpm fmt                 # oxfmt 格式化代码
 ### 技术栈
 
 - Vue 3 + TypeScript + Vite 8
-- UnoCSS（presetWind3，Tailwind 兼容）+ Element Plus（全局引入，size: small）
+- 弃用第三方 UI 库（不再使用 Element Plus），全程采用自行研发的 UI：依靠 **UnoCSS**（presetWind3，Tailwind 兼容） + **Vue** 内置动画 / **Motion** 实现 Bloomberg 特色的暗黑系全终端风格。
 - @tanstack/vue-query 管理服务端状态（数据获取、缓存、自动刷新）
 - ECharts 5 图表、axios HTTP 客户端
 - vue-router（hash 模式，两个路由：`/` Home、`/settings` Settings）
@@ -63,10 +63,12 @@ Home.vue 使用 CSS Grid 实现分区布局：
 
 涨跌配色遵循 A 股惯例：红涨（rise）绿跌（fall）。
 
-### 组件与 Composables 约定
+### 组件约定 (Component Architecture)
 
-- 组件：`src/components/<Name>/` 文件夹，含 `.vue` 文件和 `index.ts` 桶导出
-- Composables：`src/composables/<domain>/` 文件夹，`use*.ts` 实现 + `index.ts` 桶导出
+- **全局/基础 UI 组件**：只允许放置于 `src/components/<Name>/` 文件夹。这些组件必须是“纯展示和交互层”的物料（如 `AutoComplete`、`Button` 等），绝不可混合业务网络请求。
+- **专有/业务组件**：任何涉及接口调用、状态管理（如 API 查询、本地记录交互）的新业务代码，都应该被就近放入对应页面的下级（例如：`src/pages/Home/components/` 等页面专属目录）。
+- **遗留代码豁免**：旧的全局混合存留组件（例如早期的 `Reward`，或者自带请求的 `GlobalTicker` 等）不要去随意改动或迁移，维持原状；**以上两条物理隔离规约仅针对未来的全新模块生效。**
+
 - 路径别名：`@` → `./src`
 
 ### API 代理
