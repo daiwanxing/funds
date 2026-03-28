@@ -72,7 +72,12 @@ export default ts.config(
         { order: ['defineProps', 'defineEmits', 'defineModel'] },
       ],
       'vue/no-unused-refs': 'error',    // 检测未使用的 template ref
-      'vue/no-undef-components': 'warn', // 未注册的组件（warn：Element Plus 全局注册）
+      'vue/no-undef-components': ['warn', {
+        // vue-router 通过 app.use(router) 全局注册 RouterView / RouterLink
+        // eslint-plugin-vue 无法感知运行时全局注册，手动声明白名单
+        ignorePatterns: ['RouterView', 'RouterLink', 'router-view', 'router-link'],
+      }],
+
 
       // ── TypeScript ─────────────────────────────────────────────────────────
       '@typescript-eslint/no-explicit-any': 'warn',
