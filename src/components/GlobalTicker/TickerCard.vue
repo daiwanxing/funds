@@ -25,9 +25,9 @@ const isUp = computed(() => {
 const colorClass = computed(() => (isUp.value ? "text-up" : "text-down"));
 const gradientId = computed(() => `spark-grad-${props.item.f12}`); // 唯一渐变ID
 
-// 图表尺寸
-const WIDTH = 64;
-const HEIGHT = 24;
+// 图表尺寸 (适配高度 35)
+const WIDTH = 80;
+const HEIGHT = 35;
 
 const chartPath = computed(() => {
   if (points.value.length === 0) return "";
@@ -62,9 +62,7 @@ const chartAreaPath = computed(() => {
 </script>
 
 <template>
-  <div
-    class="ticker-card flex items-center h-full px-4 hover:bg-bg-2 cursor-default transition-colors border-r border-white/6 last:border-0 relative"
-  >
+  <div class="ticker-card flex items-center h-full px-4 cursor-default transition-colors relative">
     <!-- 左侧：微型图表（SVG） -->
     <div class="mr-3 shrink-0 flex items-center opacity-80 mt-1">
       <svg :width="WIDTH" :height="HEIGHT" class="overflow-visible">
@@ -73,8 +71,8 @@ const chartAreaPath = computed(() => {
           <linearGradient :id="gradientId" x1="0" y1="0" x2="0" y2="1">
             <stop
               offset="0%"
-              :stop-color="isUp ? 'var(--rise-soft-bg)' : 'var(--fall-soft-bg)'"
-              stop-opacity="1"
+              :stop-color="isUp ? 'var(--rise-primary)' : 'var(--fall-primary)'"
+              stop-opacity="0.3"
             />
             <stop
               offset="100%"

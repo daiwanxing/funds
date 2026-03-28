@@ -24,6 +24,10 @@ const GLOBAL_INDICES = [
   "100.NDX",  // 纳斯达克
   "100.SPX",  // 标普500
   "100.DJIA", // 道琼斯
+  "100.N225", // 日经225
+  "100.VNINDEX", // 越南胡志明
+  "100.XIN9", // 富时中国A50
+  "107.VIXY", // 恐慌指数VIX ETF
 ];
 
 export const useGlobalIndices = () => {
@@ -71,9 +75,11 @@ export const useGlobalIndices = () => {
     
     return snapshots.map((snap: any) => {
       const trendData = trends.find((t: any) => t.code.endsWith(snap.f12));
+      // Calculate prePrice fallback from current price minus change amount
+      const fallbackPre = (Number(snap.f2) - Number(snap.f4)) || 0;
       return {
         ...snap,
-        prePrice: trendData?.prePrice,
+        prePrice: trendData?.prePrice || fallbackPre,
         trendPoints: trendData?.points,
       };
     });

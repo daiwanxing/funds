@@ -30,7 +30,7 @@ defineProps<{
 }
 
 .ticker-track {
-  animation: marquee 45s linear infinite;
+  animation: marquee 60s linear infinite;
   width: max-content;
 }
 
