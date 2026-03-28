@@ -38,12 +38,14 @@ pnpm fmt                 # oxfmt 格式化代码
 ### 数据流与状态管理
 
 没有使用 Vuex/Pinia。状态分两层：
+
 - **服务端状态**：通过 @tanstack/vue-query + composables（`useFundData`、`useGlobalIndices`）管理，负责 API 请求、缓存和自动刷新
 - **本地状态**：通过 `storage` 工具（`src/utils/storage.ts`）封装 localStorage，所有配置存储在 `funds_config` 键下，回调风格 API（模拟原 Chrome 扩展 storage API）
 
 ### Dashboard Zone 布局
 
 Home.vue 使用 CSS Grid 实现分区布局：
+
 - Zone A（ticker）：全局指数走马灯，横跨全宽
 - Zone B（console）：自选基金列表，左侧 60%
 - Zone C（detail）：基金详情面板，右侧 40%（无基金时隐藏，Zone B 独占全宽）
@@ -53,6 +55,7 @@ Home.vue 使用 CSS Grid 实现分区布局：
 ### 双层设计令牌系统
 
 颜色和样式定义在两处，需保持同步：
+
 - `src/styles/tokens.css`：CSS 自定义属性，供 ECharts 配色、scoped CSS 等非 UnoCSS 场景使用
 - `uno.config.ts`：UnoCSS theme + shortcuts，供模板中原子类使用
 
@@ -69,6 +72,7 @@ Home.vue 使用 CSS Grid 实现分区布局：
 ### API 代理
 
 开发环境通过 Vite 代理访问东方财富 API（见 `vite.config.ts`）：
+
 - `/api/fund` → `https://fundmobapi.eastmoney.com`
 - `/api/search` → `https://fundsuggest.eastmoney.com`
 - `/api/index` → `https://push2.eastmoney.com`
@@ -84,7 +88,7 @@ Home.vue 使用 CSS Grid 实现分区布局：
 
 ## 注意事项
 
-- 使用 pnpm，不是 npm
+- 使用 pnpm
 - UnoCSS 原子类优先，避免手写 CSS；使用 `uno.config.ts` 中定义的语义快捷类
 - oxlint/oxfmt 是 Rust 实现的高性能 lint/format 工具
 - 全局变量 `__APP_VERSION__` 由 Vite define 注入，值为 package.json version
