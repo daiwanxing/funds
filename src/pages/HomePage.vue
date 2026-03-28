@@ -1,15 +1,10 @@
-<!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from "vue";
-import { useRouter } from "vue-router";
 import { useSettings } from "@/composables/settings";
 import { useFundData } from "@/composables/fund";
 import { useGlobalIndices } from "@/composables/index";
 import { useHoliday } from "@/composables/holiday";
 import { loadHoliday } from "@/utils/marketStatus";
-import { storage } from "@/utils/storage";
-import { Reward } from "@/components/Reward";
-import { ChangeLog } from "@/components/ChangeLog";
 import { GlobalTicker } from "@/components/GlobalTicker";
 import { StatusBar } from "@/components/StatusBar";
 import ZoneBHeader from "./Home/components/ZoneBHeader.vue";
@@ -18,7 +13,6 @@ import FundSearchList from "./Home/components/FundSearchList.vue";
 import { useFundSearch } from "@/composables/fund/useFundSearch";
 import { Bot, X } from "lucide-vue-next";
 
-const router = useRouter();
 const settings = useSettings();
 const { loadFromStorage: loadHolidayFromStorage } = useHoliday();
 
@@ -32,8 +26,7 @@ const globalIndices = useGlobalIndices();
 
 
 
-const rewardRef = ref<InstanceType<typeof Reward> | null>(null);
-const changelogRef = ref<InstanceType<typeof ChangeLog> | null>(null);
+
 
 /** 是否有自选基金（控制 Zone C 显示和 FAB 显示） */
 const hasFunds = computed(() => settings.fundListM.value.length > 0);
@@ -180,7 +173,6 @@ onMounted(async () => {
         :fund-count="settings.fundListM.value.length"
         :last-update-time="lastUpdateTime"
         @edit="settings.isEdit.value = !settings.isEdit.value"
-        @settings="router.push('/settings')"
       />
     </footer>
 
@@ -228,13 +220,6 @@ onMounted(async () => {
       </aside>
     </Transition>
 
-    <!-- 全局弹窗 -->
-    <Reward ref="rewardRef" />
-    <ChangeLog
-      ref="changelogRef"
-      :dark-mode="true"
-      @close="storage.set({ version: '3.0.0' })"
-    />
   </div>
 </template>
 
