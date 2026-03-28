@@ -1,14 +1,5 @@
 import axios from "axios";
-
-interface HolidayYearData {
-  [date: string]: { holiday: boolean };
-}
-
-interface HolidayData {
-  version?: string;
-  lastDate?: string;
-  data?: Record<string, HolidayYearData>;
-}
+import type { HolidayData } from "@/types/holiday";
 
 let holidayData: HolidayData | null = null;
 

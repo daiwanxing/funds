@@ -3,28 +3,10 @@ import { storeToRefs } from "pinia";
 import { storage } from "@/utils/storage";
 import { getGuid } from "@/utils/formatters";
 import { useFundStore } from "@/stores/fund";
+import type { SettingsState } from "@/types/settings";
 
-export interface SettingsState {
-  fundListM: { code: string; num: number; cost?: number }[];
-  seciList: string[];
-  darkMode: boolean;
-  normalFontSize: boolean;
-  isLiveUpdate: boolean;
-  showAmount: boolean;
-  showGains: boolean;
-  showCost: boolean;
-  showCostRate: boolean;
-  showGSZ: boolean;
-  showBadge: number;
-  BadgeContent: number;
-  BadgeType: number;
-  userId: string;
-  grayscaleValue: number;
-  opacityValue: number;
-  sortTypeObj: { name: string | null; type: string | null };
-  RealtimeFundcode: string | null;
-  RealtimeIndcode: string | null;
-}
+// re-export for backward compat
+export type { SettingsState };
 
 const SETTINGS_KEYS = [
   "RealtimeFundcode",

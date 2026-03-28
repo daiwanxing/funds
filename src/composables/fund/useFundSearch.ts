@@ -2,17 +2,10 @@ import { ref, computed, watch } from 'vue';
 import { useQuery } from '@tanstack/vue-query';
 import axios from 'axios';
 import { resolveFundQuote } from './quote';
+import type { SearchFundItem } from '@/types/fund';
 
-export interface SearchFundItem {
-  label: string;
-  value: string;
-  desc?: string;
-  tag?: string;
-  /** 估算净值，例如 "1.0820" */
-  gsz?: string;
-  /** 估算涨跌幅，例如 0.51（正数涨，负数跌） */
-  gszzl?: number;
-}
+// re-export so existing `import { SearchFundItem } from '@/composables/fund/useFundSearch'` 不报错
+export type { SearchFundItem };
 
 export const useFundSearch = (queryRef: any) => {
   const debouncedQuery = ref('');

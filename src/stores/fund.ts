@@ -1,11 +1,8 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
+import type { FundListItem } from '@/types/fund';
 
-export interface FundListItem {
-  code: string;
-  num: number;
-  cost?: number;
-}
+export type { FundListItem };
 
 export const useFundStore = defineStore('fund', () => {
   const fundListM = ref<FundListItem[]>([]);

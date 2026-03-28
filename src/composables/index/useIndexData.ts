@@ -1,15 +1,7 @@
 import { ref, type Ref } from "vue";
 import axios from "axios";
 import { storage } from "@/utils/storage";
-
-interface IndexItem {
-  f2: number;
-  f3: number;
-  f4: number;
-  f12: string;
-  f13: string;
-  f14: string;
-}
+import type { IndexItem } from "@/types/market";
 
 export const useIndexData = (seciList: Ref<string[]>) => {
   const indFundData = ref<IndexItem[]>([]);

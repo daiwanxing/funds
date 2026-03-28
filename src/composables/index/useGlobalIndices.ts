@@ -3,17 +3,9 @@ import axios from "axios";
 import { useQuery } from "@tanstack/vue-query";
 import { useSettings } from "@/composables/settings";
 import { isDuringDate } from "@/utils/marketStatus";
+import type { GlobalIndexItem } from "@/types/market";
 
-export interface GlobalIndexItem {
-  f2: number | string; // 最新价
-  f3: number | string; // 涨跌幅
-  f4: number | string; // 涨跌额
-  f12: string; // 代码
-  f13: number | string; // 市场号
-  f14: string; // 名称
-  prePrice?: number; // 昨收价
-  trendPoints?: number[]; // 分时价格曲线
-}
+export type { GlobalIndexItem };
 
 const GLOBAL_INDICES = [
   "1.000001", // 上证指数

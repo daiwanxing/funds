@@ -2,29 +2,9 @@ import { ref, computed, watch, type Ref } from "vue";
 import axios from "axios";
 import { storage } from "@/utils/storage";
 import { resolveFundQuote } from "./quote";
+import type { FundItem, FundListItem } from "@/types/fund";
 
-interface FundItem {
-  fundcode: string;
-  name: string;
-  jzrq: string;
-  dwjz: number | null;
-  gsz: number | null;
-  gszzl: number;
-  gztime: string;
-  num: number;
-  cost: number;
-  amount: number;
-  gains: number;
-  costGains: number;
-  costGainsRate: number;
-  hasReplace?: boolean;
-}
 
-interface FundListMItem {
-  code: string;
-  num: number;
-  cost?: number;
-}
 
 const calculateMoney = (val: { dwjz: number | null; num: number }): number => {
   return parseFloat(((val.dwjz ?? 0) * (val.num ?? 0)).toFixed(2));
@@ -74,7 +54,7 @@ import { isDuringDate } from "@/utils/marketStatus";
 // Ensure imports above are valid, assuming they are placed near other imports.
 
 export const useFundData = (
-  fundListM: Ref<FundListMItem[]>,
+  fundListM: Ref<FundListItem[]>,
   userId: Ref<string>,
   sortTypeObj: Ref<{ name: string | null; type: string | null }>,
 ) => {
