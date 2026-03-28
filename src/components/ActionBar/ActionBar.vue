@@ -9,7 +9,7 @@ defineProps<{
   allCostGains: readonly [number, number];
 }>();
 
-const emit = defineEmits<{
+defineEmits<{
   market: [];
   toggleLiveUpdate: [];
   toggleEdit: [];
@@ -28,23 +28,56 @@ const fmtNum = (n: number): string => {
 
 <template>
   <div class="flex flex-wrap gap-1 py-1 items-center">
-    <button class="btn" @click="$emit('market')">行情中心</button>
-    <button v-if="isDuring" class="btn" @click="$emit('toggleLiveUpdate')">
+    <button
+      class="btn"
+      @click="$emit('market')"
+    >
+      行情中心
+    </button>
+    <button
+      v-if="isDuring"
+      class="btn"
+      @click="$emit('toggleLiveUpdate')"
+    >
       {{ isLiveUpdate ? "暂停更新" : "实时更新" }}
     </button>
-    <button v-if="!isDuring" class="btn">休市中</button>
-    <button class="btn" @click="$emit('toggleEdit')">
+    <button
+      v-if="!isDuring"
+      class="btn"
+    >
+      休市中
+    </button>
+    <button
+      class="btn"
+      @click="$emit('toggleEdit')"
+    >
       {{ isEdit ? "完成编辑" : "编辑" }}
     </button>
-    <button class="btn" @click="$emit('settings')">设置</button>
-    <button class="btn" @click="$emit('changelog')">日志</button>
-    <button class="btn text-blue-500 border-blue-500" @click="$emit('reward')">
+    <button
+      class="btn"
+      @click="$emit('settings')"
+    >
+      设置
+    </button>
+    <button
+      class="btn"
+      @click="$emit('changelog')"
+    >
+      日志
+    </button>
+    <button
+      class="btn text-blue-500 border-blue-500"
+      @click="$emit('reward')"
+    >
       打赏
     </button>
   </div>
 
   <!-- Summary row -->
-  <div v-if="showCost || showGains" class="flex flex-wrap gap-1 py-1">
+  <div
+    v-if="showCost || showGains"
+    class="flex flex-wrap gap-1 py-1"
+  >
     <button
       v-if="showGains"
       class="btn text-xs"

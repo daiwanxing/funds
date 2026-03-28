@@ -50,7 +50,7 @@ export const useFundSearch = (queryRef: any) => {
         for (const d of (quoteRes.data.Datas ?? [])) {
           const quote = resolveFundQuote(d);
           quoteMap.set(d.FCODE, {
-            gsz: quote.gsz != null ? String(quote.gsz) : '--',
+            gsz: quote.gsz !== null ? String(quote.gsz) : '--',
             gszzl: quote.gszzl,
           });
         }
@@ -59,7 +59,7 @@ export const useFundSearch = (queryRef: any) => {
       }
 
       return searchDatas.map((val: any) => {
-        let tag = '';
+        let tag: string;
         if (val.NAME.includes('证券') || val.NAME.includes('券商')) tag = '证券';
         else if (val.NAME.includes('医疗') || val.NAME.includes('医药')) tag = '医疗';
         else if (val.NAME.includes('500') || val.NAME.includes('300')) tag = '指数型';

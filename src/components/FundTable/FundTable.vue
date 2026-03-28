@@ -16,7 +16,7 @@ defineProps<{
   sortType: Record<string, string>;
 }>();
 
-const emit = defineEmits<{
+defineEmits<{
   fundDetail: [item: FundItem];
   sort: [type: string];
   delete: [id: string];
@@ -47,10 +47,19 @@ const fmtLocale = (n: number | string): string => {
     <table class="w-full border-collapse text-right text-xs">
       <thead>
         <tr>
-          <th class="text-left p-2">基金名称（{{ dataList.length }}）</th>
-          <th v-if="isEdit">基金代码</th>
-          <th v-if="showGSZ && !isEdit">估算净值</th>
-          <th v-if="isEdit && (showCostRate || showCost)" class="text-center">
+          <th class="text-left p-2">
+            基金名称（{{ dataList.length }}）
+          </th>
+          <th v-if="isEdit">
+            基金代码
+          </th>
+          <th v-if="showGSZ && !isEdit">
+            估算净值
+          </th>
+          <th
+            v-if="isEdit && (showCostRate || showCost)"
+            class="text-center"
+          >
             成本价
           </th>
           <th
@@ -59,7 +68,10 @@ const fmtLocale = (n: number | string): string => {
             @click="$emit('sort', 'amount')"
           >
             持有额
-            <span class="text-xs" :class="sortType.amount">{{
+            <span
+              class="text-xs"
+              :class="sortType.amount"
+            >{{
               sortType.amount === "desc"
                 ? "↓"
                 : sortType.amount === "asc"
@@ -73,7 +85,10 @@ const fmtLocale = (n: number | string): string => {
             @click="$emit('sort', 'costGains')"
           >
             持有收益
-            <span class="text-xs" :class="sortType.costGains">{{
+            <span
+              class="text-xs"
+              :class="sortType.costGains"
+            >{{
               sortType.costGains === "desc"
                 ? "↓"
                 : sortType.costGains === "asc"
@@ -95,7 +110,10 @@ const fmtLocale = (n: number | string): string => {
                   : ""
             }}</span>
           </th>
-          <th class="cursor-pointer" @click="$emit('sort', 'gszzl')">
+          <th
+            class="cursor-pointer"
+            @click="$emit('sort', 'gszzl')"
+          >
             涨跌幅
             <span class="text-xs">{{
               sortType.gszzl === "desc"
@@ -119,7 +137,9 @@ const fmtLocale = (n: number | string): string => {
                   : ""
             }}</span>
           </th>
-          <th v-if="!isEdit">更新时间</th>
+          <th v-if="!isEdit">
+            更新时间
+          </th>
           <th
             v-if="
               isEdit && (showAmount || showGains || showCost || showCostRate)
@@ -128,8 +148,12 @@ const fmtLocale = (n: number | string): string => {
           >
             持有份额
           </th>
-          <th v-if="isEdit && badgeContent === 1">特别关注</th>
-          <th v-if="isEdit">删除</th>
+          <th v-if="isEdit && badgeContent === 1">
+            特别关注
+          </th>
+          <th v-if="isEdit">
+            删除
+          </th>
         </tr>
       </thead>
       <tbody>
@@ -153,11 +177,14 @@ const fmtLocale = (n: number | string): string => {
             <span
               v-if="el.hasReplace"
               class="inline-block px-0.5 mr-0.5 rounded-sm text-blue-500 border border-blue-500 text-xs leading-3"
-              >✔</span
-            >{{ el.name }}
+            >✔</span>{{ el.name }}
           </td>
-          <td v-if="isEdit">{{ el.fundcode }}</td>
-          <td v-if="showGSZ && !isEdit">{{ el.gsz }}</td>
+          <td v-if="isEdit">
+            {{ el.fundcode }}
+          </td>
+          <td v-if="showGSZ && !isEdit">
+            {{ el.gsz }}
+          </td>
           <td v-if="isEdit && (showCostRate || showCost)">
             <input
               class="border border-gray-300 rounded px-1 py-0.5 text-xs w-70px text-center"
@@ -168,9 +195,11 @@ const fmtLocale = (n: number | string): string => {
                 el.cost = Number(($event.target as HTMLInputElement).value);
                 $emit('changeCost', el);
               "
-            />
+            >
           </td>
-          <td v-if="showAmount">{{ fmtLocale(el.amount) }}</td>
+          <td v-if="showAmount">
+            {{ fmtLocale(el.amount) }}
+          </td>
           <td
             v-if="showCost"
             :class="
@@ -210,7 +239,10 @@ const fmtLocale = (n: number | string): string => {
           >
             {{ fmtLocale(el.gains) }}
           </td>
-          <td v-if="!isEdit" class="text-xs text-gray-400">
+          <td
+            v-if="!isEdit"
+            class="text-xs text-gray-400"
+          >
             {{
               el.hasReplace
                 ? el.gztime?.substring(5, 10)
@@ -232,7 +264,7 @@ const fmtLocale = (n: number | string): string => {
                 el.num = Number(($event.target as HTMLInputElement).value);
                 $emit('changeNum', el);
               "
-            />
+            >
           </td>
           <td v-if="isEdit && badgeContent === 1">
             <button

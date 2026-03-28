@@ -5,7 +5,7 @@ defineProps<{
   opacityValue: number
 }>()
 
-const emit = defineEmits<{
+defineEmits<{
   'update:darkMode': [val: boolean]
   changeGrayscale: [val: number]
   changeOpacity: [val: number]

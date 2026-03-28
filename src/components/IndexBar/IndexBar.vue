@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, type PropType } from 'vue'
+import { ref, computed } from 'vue'
 
 import type { IndexItem, SeciOption } from "@/types";
 
@@ -66,7 +66,10 @@ const saveSeci = () => {
           @click.stop="$emit('deleteIndex', index)"
         >✖</span>
       </h5>
-      <p :class="el.f3 >= 0 ? 'text-red-500' : 'text-green-600'" class="m-0 font-bold text-xs">
+      <p
+        :class="el.f3 >= 0 ? 'text-red-500' : 'text-green-600'"
+        class="m-0 font-bold text-xs"
+      >
         {{ el.f2 }}
         <input
           v-if="isEdit && badgeContent === 3"
@@ -75,24 +78,54 @@ const saveSeci = () => {
           type="button"
           value="✔"
           @click.stop="$emit('selectIndex', el)"
-        />
+        >
       </p>
-      <p :class="el.f3 >= 0 ? 'text-red-500' : 'text-green-600'" class="m-0 text-xs">
+      <p
+        :class="el.f3 >= 0 ? 'text-red-500' : 'text-green-600'"
+        class="m-0 text-xs"
+      >
         {{ el.f4 }}&nbsp;&nbsp;{{ el.f3 }}%
       </p>
     </div>
 
-    <div v-if="isEdit && indFundData.length < 4" class="px-2 py-1 min-w-80px">
-      <div v-if="!showAddInput" class="cursor-pointer text-blue-500 text-xs" @click="showAddInput = true">
+    <div
+      v-if="isEdit && indFundData.length < 4"
+      class="px-2 py-1 min-w-80px"
+    >
+      <div
+        v-if="!showAddInput"
+        class="cursor-pointer text-blue-500 text-xs"
+        @click="showAddInput = true"
+      >
         添加
       </div>
       <div v-else>
-        <el-select v-model="sltSeci" size="small" placeholder="请选择" class="w-110px">
-          <el-option v-for="item in userSeciList" :key="item.value" :label="item.label" :value="item.value" />
+        <el-select
+          v-model="sltSeci"
+          size="small"
+          placeholder="请选择"
+          class="w-110px"
+        >
+          <el-option
+            v-for="item in userSeciList"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
         </el-select>
         <div class="mt-1">
-          <button class="text-xs border border-gray-300 rounded px-2 py-1 mr-1 cursor-pointer" @click="showAddInput = false">取消</button>
-          <button class="text-xs border border-gray-300 rounded px-2 py-1 cursor-pointer" @click="saveSeci">确定</button>
+          <button
+            class="text-xs border border-gray-300 rounded px-2 py-1 mr-1 cursor-pointer"
+            @click="showAddInput = false"
+          >
+            取消
+          </button>
+          <button
+            class="text-xs border border-gray-300 rounded px-2 py-1 cursor-pointer"
+            @click="saveSeci"
+          >
+            确定
+          </button>
         </div>
       </div>
     </div>

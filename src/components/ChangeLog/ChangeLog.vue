@@ -2,7 +2,7 @@
 import { ref } from "vue";
 import axios from "axios";
 
-const props = withDefaults(
+withDefaults(
   defineProps<{
     darkMode?: boolean;
     top?: number;
@@ -58,7 +58,10 @@ defineExpose({ init });
     center
     @update:model-value="visible = $event"
   >
-    <div v-if="netError" class="text-center py-8">
+    <div
+      v-if="netError"
+      class="text-center py-8"
+    >
       网络不好？
       <el-button
         type="primary"
@@ -75,30 +78,47 @@ defineExpose({ init });
       "
       class="h-400px overflow-y-auto"
     >
-      <p v-if="changelog.qqGroup" class="text-center m-0 py-0.5">
+      <p
+        v-if="changelog.qqGroup"
+        class="text-center m-0 py-0.5"
+      >
         qq交流群：{{ changelog.qqGroup }}
       </p>
-      <p v-if="changelog.tgGroup" class="text-center m-0 py-0.5">
-        电报交流群：<a target="_Blank" :href="changelog.tgGroup">点击跳转</a>
+      <p
+        v-if="changelog.tgGroup"
+        class="text-center m-0 py-0.5"
+      >
+        电报交流群：<a
+          target="_Blank"
+          :href="changelog.tgGroup"
+        >点击跳转</a>
       </p>
-      <p v-if="changelog.tip" class="text-center m-0 py-0.5">
+      <p
+        v-if="changelog.tip"
+        class="text-center m-0 py-0.5"
+      >
         {{ changelog.tip }}
       </p>
-      <div v-if="changelog.htmlTip" v-html="changelog.htmlTip" />
+      <div
+        v-if="changelog.htmlTip"
+        v-html="changelog.htmlTip"
+      />
       <ul class="pl-5 my-1">
-        <li v-for="el in changelog.list" :key="el.version" class="py-1">
+        <li
+          v-for="el in changelog.list"
+          :key="el.version"
+          class="py-1"
+        >
           <h5 class="my-2 text-sm font-bold">
             v{{ el.version }}
             <span
               v-if="APP_VERSION === el.version"
               class="text-xs text-red-500 border border-red-500 rounded px-1 ml-1"
-              >当前版本</span
-            >
+            >当前版本</span>
             <span
               v-if="el.type === 2"
               class="text-xs text-blue-500 border border-blue-500 rounded px-1 ml-1"
-              >重要更新</span
-            >
+            >重要更新</span>
           </h5>
           <ul class="pl-5">
             <li
@@ -114,7 +134,12 @@ defineExpose({ init });
       </ul>
     </div>
     <template #footer>
-      <el-button type="primary" @click="close">确 定</el-button>
+      <el-button
+        type="primary"
+        @click="close"
+      >
+        确 定
+      </el-button>
     </template>
   </el-dialog>
 </template>

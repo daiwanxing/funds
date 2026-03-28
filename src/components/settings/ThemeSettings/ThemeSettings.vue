@@ -4,7 +4,7 @@ defineProps<{
   normalFontSize: boolean
 }>()
 
-const emit = defineEmits<{
+defineEmits<{
   'update:darkMode': [val: boolean]
   'update:normalFontSize': [val: boolean]
 }>()
@@ -12,7 +12,9 @@ const emit = defineEmits<{
 
 <template>
   <div>
-    <div class="font-bold leading-8">主题与页面设置</div>
+    <div class="font-bold leading-8">
+      主题与页面设置
+    </div>
     <div class="pl-5 leading-9">
       <el-switch
         :model-value="darkMode"

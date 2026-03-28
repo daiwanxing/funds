@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useSettings } from '@/composables/settings'
@@ -48,7 +49,10 @@ const handleColumnChange = (value: boolean, key: string) => {
     class="max-w-600px mx-a py-4 text-sm font-sans"
     :class="settings.darkMode.value ? 'bg-dark text-white/60' : ''"
   >
-    <ul class="list-none p-2 rounded-lg" :class="settings.darkMode.value ? 'bg-white/11' : ''">
+    <ul
+      class="list-none p-2 rounded-lg"
+      :class="settings.darkMode.value ? 'bg-white/11' : ''"
+    >
       <li class="border-b border-gray-200 py-2">
         <BadgeSettings
           :show-badge="settings.showBadge.value"
@@ -97,6 +101,10 @@ const handleColumnChange = (value: boolean, key: string) => {
       </li>
     </ul>
 
-    <ConfigBox ref="configBoxRef" :top="40" @success="settings.load()" />
+    <ConfigBox
+      ref="configBoxRef"
+      :top="40"
+      @success="settings.load()"
+    />
   </div>
 </template>

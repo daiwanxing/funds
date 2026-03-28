@@ -1,10 +1,10 @@
+<!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from "vue";
 import { useRouter } from "vue-router";
 import { useSettings } from "@/composables/settings";
-import { useFundData, useTableSort } from "@/composables/fund";
+import { useFundData } from "@/composables/fund";
 import { useGlobalIndices } from "@/composables/index";
-import { useDragSort } from "@/composables/drag";
 import { useHoliday } from "@/composables/holiday";
 import { loadHoliday } from "@/utils/marketStatus";
 import { storage } from "@/utils/storage";
@@ -16,7 +16,7 @@ import ZoneBHeader from "./Home/components/ZoneBHeader.vue";
 import FundSavedList from "./Home/components/FundSavedList.vue";
 import FundSearchList from "./Home/components/FundSearchList.vue";
 import { useFundSearch } from "@/composables/fund/useFundSearch";
-import { BarChart2, Search, Bot, X, Star, Plus } from "lucide-vue-next";
+import { Bot, X } from "lucide-vue-next";
 
 const router = useRouter();
 const settings = useSettings();
@@ -28,14 +28,7 @@ const fundData = useFundData(
   settings.sortTypeObj,
 );
 const globalIndices = useGlobalIndices();
-const tableSort = useTableSort(fundData.dataList, fundData.dataListDft);
 
-const fundDrag = useDragSort(
-  settings.fundListM,
-  fundData.dataList,
-  "fundListM",
-  "code",
-);
 
 
 
@@ -81,10 +74,7 @@ onMounted(async () => {
   }
 });
 
-const handleRefresh = () => {
-  globalIndices.refetch();
-  fundData.fetchData();
-}
+
 </script>
 
 <template>
@@ -125,25 +115,39 @@ const handleRefresh = () => {
       </template>
 
       <!-- 汇总栏 (仅在未搜索且有持仓时显示) -->
-      <div v-if="!searchQuery && hasFunds" class="h-10 flex items-center justify-between px-4 border-t border-white/5 shrink-0 bg-[#121213]">
+      <div
+        v-if="!searchQuery && hasFunds"
+        class="h-10 flex items-center justify-between px-4 border-t border-white/5 shrink-0 bg-[#121213]"
+      >
         <div class="flex items-center gap-1.5 text-white/40 text-[11px] font-sans">
-           <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trending-up"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
-           今日
-           <span
-             class="font-bold font-mono text-[13px] ml-0.5 opacity-90"
-             :class="fundData.allGains.value[0] > 0 ? 'text-up' : fundData.allGains.value[0] < 0 ? 'text-down' : 'text-white/30'"
-           >
-             {{ fundData.allGains.value[0] > 0 ? '+¥' + fundData.allGains.value[0].toFixed(2) : fundData.allGains.value[0] < 0 ? '-¥' + Math.abs(fundData.allGains.value[0]).toFixed(2) : '¥0' }}
-           </span>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="lucide lucide-trending-up"
+          ><polyline points="22 7 13.5 15.5 8.5 10.5 2 17" /><polyline points="16 7 22 7 22 13" /></svg>
+          今日
+          <span
+            class="font-bold font-mono text-[13px] ml-0.5 opacity-90"
+            :class="fundData.allGains.value[0] > 0 ? 'text-up' : fundData.allGains.value[0] < 0 ? 'text-down' : 'text-white/30'"
+          >
+            {{ fundData.allGains.value[0] > 0 ? '+¥' + fundData.allGains.value[0].toFixed(2) : fundData.allGains.value[0] < 0 ? '-¥' + Math.abs(fundData.allGains.value[0]).toFixed(2) : '¥0' }}
+          </span>
         </div>
         <div class="flex items-center gap-1.5 text-white/40 text-[11px] font-sans">
-           累计
-           <span
-             class="font-bold font-mono text-[13px] ml-0.5 opacity-90"
-             :class="fundData.allCostGains.value[0] > 0 ? 'text-up' : fundData.allCostGains.value[0] < 0 ? 'text-down' : 'text-white/30'"
-           >
-             {{ fundData.allCostGains.value[0] > 0 ? '+¥' + fundData.allCostGains.value[0].toFixed(2) : fundData.allCostGains.value[0] < 0 ? '-¥' + Math.abs(fundData.allCostGains.value[0]).toFixed(2) : '¥0' }}
-           </span>
+          累计
+          <span
+            class="font-bold font-mono text-[13px] ml-0.5 opacity-90"
+            :class="fundData.allCostGains.value[0] > 0 ? 'text-up' : fundData.allCostGains.value[0] < 0 ? 'text-down' : 'text-white/30'"
+          >
+            {{ fundData.allCostGains.value[0] > 0 ? '+¥' + fundData.allCostGains.value[0].toFixed(2) : fundData.allCostGains.value[0] < 0 ? '-¥' + Math.abs(fundData.allCostGains.value[0]).toFixed(2) : '¥0' }}
+          </span>
         </div>
       </div>
     </main>
@@ -192,14 +196,24 @@ const handleRefresh = () => {
 
     <!-- ── Zone D: AI 抽屉 ───────────────────────── -->
     <Transition name="drawer">
-      <div v-if="aiDrawerOpen" class="zone-d-overlay" @click="aiDrawerOpen = false" />
+      <div
+        v-if="aiDrawerOpen"
+        class="zone-d-overlay"
+        @click="aiDrawerOpen = false"
+      />
     </Transition>
     <Transition name="drawer">
-      <aside v-if="aiDrawerOpen" class="zone-d-drawer">
+      <aside
+        v-if="aiDrawerOpen"
+        class="zone-d-drawer"
+      >
         <div class="h-full flex flex-col bg-bg-3 border-l border-white/6">
           <div class="flex items-center justify-between px-5 py-4 border-b border-white/6 shrink-0">
             <span class="text-p text-sm font-semibold flex items-center gap-1.5"><Bot class="w-4 h-4" /> AI 洞察</span>
-            <button class="text-t flex items-center justify-center hover:text-p cursor-pointer transition-colors" @click="aiDrawerOpen = false">
+            <button
+              class="text-t flex items-center justify-center hover:text-p cursor-pointer transition-colors"
+              @click="aiDrawerOpen = false"
+            >
               <X class="w-5 h-5" />
             </button>
           </div>

@@ -65,10 +65,20 @@ const chartAreaPath = computed(() => {
   <div class="ticker-card flex items-center h-full px-5 cursor-default transition-colors relative">
     <!-- 左侧：微型图表（SVG） -->
     <div class="mr-3 shrink-0 flex items-center mt-1">
-      <svg :width="WIDTH" :height="HEIGHT" class="overflow-visible">
+      <svg
+        :width="WIDTH"
+        :height="HEIGHT"
+        class="overflow-visible"
+      >
         <defs>
           <!-- 通过 style 把 CSS variables 直接传入 stop-color 以获取正确的涨跌色 -->
-          <linearGradient :id="gradientId" x1="0" y1="0" x2="0" y2="1">
+          <linearGradient
+            :id="gradientId"
+            x1="0"
+            y1="0"
+            x2="0"
+            y2="1"
+          >
             <stop
               offset="0%"
               :stop-color="isUp ? 'var(--rise-primary)' : 'var(--fall-primary)'"
@@ -90,7 +100,10 @@ const chartAreaPath = computed(() => {
           stroke-linejoin="round"
           stroke-linecap="round"
         />
-        <path :d="chartAreaPath" :fill="`url(#${gradientId})`" />
+        <path
+          :d="chartAreaPath"
+          :fill="`url(#${gradientId})`"
+        />
       </svg>
     </div>
 

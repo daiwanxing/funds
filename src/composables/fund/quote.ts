@@ -1,5 +1,5 @@
 const parseNullableNumber = (value: unknown): number | null => {
-  if (value == null || value === "") {
+  if (value === null || value === undefined || value === "") {
     return null;
   }
 

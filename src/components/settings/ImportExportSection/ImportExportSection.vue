@@ -35,9 +35,16 @@ const handleExcelFileChange = (e: Event) => {
 
 <template>
   <div>
-    <div class="font-bold leading-8">基金配置信息导入与导出</div>
+    <div class="font-bold leading-8">
+      基金配置信息导入与导出
+    </div>
     <div class="py-2 flex flex-wrap gap-2">
-      <button class="btn" @click="$emit('exportConfig')">导出配置文件</button>
+      <button
+        class="btn"
+        @click="$emit('exportConfig')"
+      >
+        导出配置文件
+      </button>
       <label class="btn relative overflow-hidden cursor-pointer">
         导入配置文件
         <input
@@ -46,12 +53,23 @@ const handleExcelFileChange = (e: Event) => {
           accept="application/json"
           class="absolute inset-0 opacity-0 cursor-pointer"
           @change="handleConfigFileChange"
-        />
+        >
       </label>
-      <button class="btn" @click="$emit('openConfigBox')">导入导出文本</button>
+      <button
+        class="btn"
+        @click="$emit('openConfigBox')"
+      >
+        导入导出文本
+      </button>
     </div>
     <div class="py-2 flex flex-wrap gap-2">
-      <button class="btn" :disabled="loadingFundList" @click="$emit('exportExcel')">导出基金列表Excel</button>
+      <button
+        class="btn"
+        :disabled="loadingFundList"
+        @click="$emit('exportExcel')"
+      >
+        导出基金列表Excel
+      </button>
       <label class="btn relative overflow-hidden cursor-pointer">
         导入基金列表Excel
         <input
@@ -60,7 +78,7 @@ const handleExcelFileChange = (e: Event) => {
           accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
           class="absolute inset-0 opacity-0 cursor-pointer"
           @change="handleExcelFileChange"
-        />
+        >
       </label>
     </div>
     <p class="text-sm text-gray-400 m-0">

@@ -61,24 +61,36 @@ const currentDateStr = computed(() => {
         <span
           class="w-2 h-2 rounded-full"
           :class="isMarketOpen ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]' : 'bg-white/20'"
-        ></span>
+        />
         {{ isMarketOpen ? "股市交易中" : "股市已收盘" }}
       </span>
 
       <!-- 分隔线 -->
-      <span class="w-[1px] h-3 bg-white/6 mx-1"></span>
+      <span class="w-[1px] h-3 bg-white/6 mx-1" />
 
       <!-- 最后更新时间 -->
       <span class="flex items-center gap-1.5">
-        <Activity class="w-3.5 h-3.5 opacity-70" :stroke-width="2" />
-        最后更新 <span class="font-medium text-s" style="letter-spacing: 0.5px;">{{ formattedTime }}</span>
+        <Activity
+          class="w-3.5 h-3.5 opacity-70"
+          :stroke-width="2"
+        />
+        最后更新 <span
+          class="font-medium text-s"
+          style="letter-spacing: 0.5px;"
+        >{{ formattedTime }}</span>
       </span>
 
       <!-- 分隔线 -->
-      <span v-if="fundCount > 0" class="w-[1px] h-3 bg-white/6 mx-1"></span>
+      <span
+        v-if="fundCount > 0"
+        class="w-[1px] h-3 bg-white/6 mx-1"
+      />
 
       <!-- 自选数量 -->
-      <span v-if="fundCount > 0" class="flex items-center gap-1">
+      <span
+        v-if="fundCount > 0"
+        class="flex items-center gap-1"
+      >
         自选 <span class="text-accent font-bold px-1 text-sm">{{ fundCount }}</span> 只
       </span>
     </div>
@@ -91,14 +103,17 @@ const currentDateStr = computed(() => {
       </span>
 
       <!-- 分隔线 -->
-      <span class="w-[1px] h-3 bg-white/6 mx-1"></span>
+      <span class="w-[1px] h-3 bg-white/6 mx-1" />
 
       <!-- 编辑操作 -->
       <button 
         class="flex items-center gap-1.5 hover:text-p transition-colors cursor-pointer"
         @click="emit('edit')"
       >
-        <PencilLine class="w-3.5 h-3.5" :stroke-width="2" />
+        <PencilLine
+          class="w-3.5 h-3.5"
+          :stroke-width="2"
+        />
         编辑
       </button>
 
@@ -107,7 +122,10 @@ const currentDateStr = computed(() => {
         class="flex items-center gap-1.5 hover:text-p transition-colors cursor-pointer ml-1"
         @click="emit('settings')"
       >
-        <Settings2 class="w-3.5 h-3.5" :stroke-width="2" />
+        <Settings2
+          class="w-3.5 h-3.5"
+          :stroke-width="2"
+        />
         设置
       </button>
     </div>
