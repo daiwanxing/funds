@@ -1,13 +1,11 @@
 import { computed } from "vue";
-import axios from "axios";
 import { useQuery } from "@tanstack/vue-query";
 import { useSettings } from "@/composables/settings";
 import { isDuringDate } from "@/utils/marketStatus";
+import { fetchIndexSnapshots, fetchIndexTrends } from "@/api/index";
 import type {
   GlobalIndexItem,
   GlobalIndexSnapshot,
-  GlobalIndicesSnapshotApiResponse,
-  GlobalIndexTrendApiResponse,
 } from "@/types/market";
 
 export type { GlobalIndexItem };
@@ -33,10 +31,7 @@ export const useGlobalIndices = () => {
   const snapshotQuery = useQuery({
     queryKey: ["global-indices", "snapshot"],
     queryFn: async () => {
-      const secids = GLOBAL_INDICES.join(",");
-      const url = `/api/index/api/qt/ulist.np/get?fltt=2&fields=f2,f3,f4,f12,f13,f14&secids=${secids}&_=${Date.now()}`;
-      const { data } = await axios.get<GlobalIndicesSnapshotApiResponse>(url);
-      return data?.data?.diff ?? [];
+      return fetchIndexSnapshots(GLOBAL_INDICES);
     },
     // Dynamically control polling based on settings and market status
     refetchInterval: computed(() => 
@@ -47,19 +42,7 @@ export const useGlobalIndices = () => {
   const trendsQuery = useQuery({
     queryKey: ["global-indices", "trends"],
     queryFn: async () => {
-      const promises = GLOBAL_INDICES.map(async (code) => {
-        const url = `/api/index/api/qt/stock/trends2/get?secid=${code}&fields1=f1,f2&fields2=f51,f53&_=${Date.now()}`;
-        const res = await axios.get<GlobalIndexTrendApiResponse>(url);
-        const data = res.data?.data;
-        if (!data) return { code, prePrice: 0, points: [] };
-
-        const points = (data.trends || [])
-          .map((t: string) => parseFloat(t.split(",")[1]))
-          .filter((p: number) => !isNaN(p));
-        
-        return { code, prePrice: data.prePrice ?? 0, points };
-      });
-      return await Promise.all(promises);
+      return fetchIndexTrends(GLOBAL_INDICES);
     },
     refetchInterval: computed(() => 
       settings.isLiveUpdate.value && isDuringDate() && !settings.isEdit.value ? 300_000 : false

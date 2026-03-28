@@ -1,23 +1,10 @@
-import axios from "axios";
 import type { HolidayData } from "@/types/holiday";
 
 let holidayData: HolidayData | null = null;
 
-export const loadHoliday = async (): Promise<HolidayData> => {
-  if (holidayData) return holidayData;
-  try {
-    const res = await axios.get<HolidayData>("/holiday.json");
-    holidayData = res.data;
-    return holidayData;
-  } catch {
-    holidayData = {};
-    return holidayData;
-  }
-}
-
 export const setHolidayData = (data: HolidayData): void => {
   holidayData = data;
-}
+};
 
 export const checkHoliday = (date: Date): boolean => {
   if (!holidayData?.data) return false;
@@ -34,7 +21,7 @@ export const checkHoliday = (date: Date): boolean => {
   if (!yearData) return false;
 
   return yearData[nowDate]?.holiday ?? false;
-}
+};
 
 export const isDuringDate = (): boolean => {
   // 时区转换为东8区
@@ -62,4 +49,4 @@ export const isDuringDate = (): boolean => {
   if (curDate >= beginDatePM && curDate <= endDatePM) return true;
 
   return false;
-}
+};

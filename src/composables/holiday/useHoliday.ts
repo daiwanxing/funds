@@ -1,42 +1,81 @@
-import { ref } from "vue";
-import axios from "axios";
+import { computed, watch } from "vue";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/vue-query";
 import { storage } from "@/utils/storage";
 import { setHolidayData } from "@/utils/marketStatus";
+import { fetchRemoteHoliday } from "@/api/holiday";
 import type { HolidayData } from "@/types/holiday";
 
-export const useHoliday = () => {
-  const holiday = ref<HolidayData | null>(null);
-  const updating = ref(false);
+interface HolidayQueryResult {
+  holiday: HolidayData;
+  source: "storage" | "remote";
+}
 
-  const loadFromStorage = (): void => {
+const readStoredHoliday = (): Promise<HolidayData | null> => {
+  return new Promise((resolve) => {
     storage.get(["holiday"], (res) => {
-      if (res.holiday) {
-        holiday.value = res.holiday;
-        setHolidayData(res.holiday);
-      } else {
-        fetchHoliday();
-      }
+      resolve(res.holiday ?? null);
     });
+  });
+};
+
+export const useHoliday = () => {
+  const queryClient = useQueryClient();
+  const holidayQuery = useQuery({
+    queryKey: ["holiday"],
+    queryFn: async (): Promise<HolidayQueryResult> => {
+      const cachedHoliday = await readStoredHoliday();
+      if (cachedHoliday) {
+        return {
+          holiday: cachedHoliday,
+          source: "storage",
+        };
+      }
+
+      return {
+        holiday: await fetchRemoteHoliday(),
+        source: "remote",
+      };
+    },
+    staleTime: Infinity,
+  });
+
+  const refreshHolidayMutation = useMutation({
+    mutationFn: fetchRemoteHoliday,
+    onSuccess: (holiday) => {
+      queryClient.setQueryData<HolidayQueryResult>(["holiday"], {
+        holiday,
+        source: "remote",
+      });
+    },
+  });
+
+  watch(
+    () => holidayQuery.data.value,
+    (result) => {
+      if (!result) return;
+      setHolidayData(result.holiday);
+      if (result.source === "remote") {
+        storage.set({ holiday: result.holiday });
+      }
+    },
+    { immediate: true },
+  );
+
+  const loadFromStorage = async (): Promise<void> => {
+    await holidayQuery.refetch();
   };
 
   const fetchHoliday = async (): Promise<void> => {
-    updating.value = true;
-    try {
-      const res = await axios.get<HolidayData>(
-        "https://x2rr.github.io/funds/holiday.json",
-      );
-      holiday.value = res.data;
-      setHolidayData(res.data);
-      storage.set({ holiday: res.data });
-    } finally {
-      updating.value = false;
-    }
+    await refreshHolidayMutation.mutateAsync();
   };
 
   return {
-    holiday,
-    updating,
+    holiday: computed(() => holidayQuery.data.value?.holiday ?? null),
+    updating: computed(
+      () => holidayQuery.isFetching.value || refreshHolidayMutation.isPending.value,
+    ),
     loadFromStorage,
     fetchHoliday,
+    isLoading: computed(() => holidayQuery.isLoading.value),
   };
 };

@@ -1,13 +1,11 @@
 import { ref, computed, watch, type Ref } from 'vue';
 import { useQuery } from '@tanstack/vue-query';
-import axios from 'axios';
 import { resolveFundQuote } from './quote';
 import type {
   SearchFundItem,
-  FundQuoteApiResponse,
-  FundSearchApiResponse,
   FundSearchResponseItem,
 } from '@/types/fund';
+import { fetchFundQuotes, searchFunds } from "@/api/fund";
 
 // re-export so existing `import { SearchFundItem } from '@/composables/fund/useFundSearch'` 不报错
 export type { SearchFundItem };
@@ -29,23 +27,20 @@ export const useFundSearch = (queryRef: Ref<string>) => {
       const kw = debouncedQuery.value.trim();
       if (!kw) return [];
       
-      const searchUrl = `/api/search/FundSearch/api/FundSearchAPI.ashx?&m=9&key=${encodeURIComponent(kw)}&_=${Date.now()}`;
       const [searchRes] = await Promise.all([
-        axios.get<FundSearchApiResponse>(searchUrl),
+        searchFunds(kw),
         new Promise(r => setTimeout(r, 1800)) // 保底 1800ms，确保 2.8s 的动画完整画满第一段折线
       ]);
       
-      const searchDatas = searchRes.data.Datas ?? [];
+      const searchDatas = searchRes;
       if (searchDatas.length === 0) return [];
 
       // 批量查询估值行情（最多取前 20 条避免 URL 过长）
       const codes = searchDatas.slice(0, 20).map((item) => item.CODE).join(',');
       const quoteMap = new Map<string, { gsz: string; gszzl: number }>();
       try {
-        const quoteRes = await axios.get<FundQuoteApiResponse>(
-          `/api/fund/FundMNewApi/FundMNFInfo?pageIndex=1&pageSize=20&plat=Android&appType=ttjj&product=EFund&Version=1&deviceid=search&Fcodes=${codes}`
-        );
-        for (const item of (quoteRes.data.Datas ?? [])) {
+        const quoteItems = await fetchFundQuotes(codes.split(","), "search");
+        for (const item of quoteItems) {
           const quote = resolveFundQuote(item);
           quoteMap.set(item.FCODE, {
             gsz: quote.gsz !== null ? String(quote.gsz) : '--',

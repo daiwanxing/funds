@@ -2,10 +2,12 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import { defineComponent, ref } from "vue";
 import { mount, flushPromises } from "@vue/test-utils";
 import { QueryClient, VueQueryPlugin } from "@tanstack/vue-query";
-import axios from "axios";
 import { useFundData } from "@/composables/fund/useFundData";
 
-vi.mock("axios");
+vi.mock("@/api/fund", () => ({
+  fetchFundQuotes: vi.fn(),
+  searchFunds: vi.fn(),
+}));
 
 const settingsState = {
   isLiveUpdate: ref(false),
@@ -20,7 +22,8 @@ vi.mock("@/utils/marketStatus", () => ({
   isDuringDate: () => false,
 }));
 
-const mockedAxiosGet = vi.mocked(axios.get);
+const { fetchFundQuotes } = await import("@/api/fund");
+const mockedFetchFundQuotes = vi.mocked(fetchFundQuotes);
 
 const fundQuoteResponse = {
   data: {
@@ -71,13 +74,13 @@ const mountUseFundData = () => {
 
 describe("useFundData", () => {
   beforeEach(() => {
-    mockedAxiosGet.mockReset();
+    mockedFetchFundQuotes.mockReset();
     settingsState.isLiveUpdate.value = false;
     settingsState.isEdit.value = false;
   });
 
   it("uses NAV and NAVCHGRT as fallback when live valuation fields are null", async () => {
-    mockedAxiosGet.mockResolvedValueOnce(fundQuoteResponse);
+    mockedFetchFundQuotes.mockResolvedValueOnce(fundQuoteResponse.data.Datas);
 
     const { exposed, wrapper, queryClient } = mountUseFundData();
 

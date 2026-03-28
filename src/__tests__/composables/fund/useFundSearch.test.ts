@@ -2,12 +2,16 @@ import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { defineComponent, ref } from "vue";
 import { mount, flushPromises } from "@vue/test-utils";
 import { QueryClient, VueQueryPlugin } from "@tanstack/vue-query";
-import axios from "axios";
 import { useFundSearch } from "@/composables/fund/useFundSearch";
 
-vi.mock("axios");
+vi.mock("@/api/fund", () => ({
+  searchFunds: vi.fn(),
+  fetchFundQuotes: vi.fn(),
+}));
 
-const mockedAxiosGet = vi.mocked(axios.get);
+const { searchFunds, fetchFundQuotes } = await import("@/api/fund");
+const mockedSearchFunds = vi.mocked(searchFunds);
+const mockedFetchFundQuotes = vi.mocked(fetchFundQuotes);
 
 const searchResponse = {
   data: {
@@ -26,10 +30,13 @@ const quoteResponse = {
     Datas: [
       {
         FCODE: "005827",
+        SHORTNAME: "易方达蓝筹精选混合",
+        PDATE: "2026-03-27",
         NAV: "1.7866",
         NAVCHGRT: "0.74",
         GSZ: null,
         GSZZL: null,
+        GZTIME: null,
       },
     ],
   },
@@ -66,7 +73,8 @@ const mountUseFundSearch = () => {
 describe("useFundSearch", () => {
   beforeEach(() => {
     vi.useFakeTimers();
-    mockedAxiosGet.mockReset();
+    mockedSearchFunds.mockReset();
+    mockedFetchFundQuotes.mockReset();
   });
 
   afterEach(() => {
@@ -74,9 +82,8 @@ describe("useFundSearch", () => {
   });
 
   it("falls back to NAV and NAVCHGRT when live quote fields are null", async () => {
-    mockedAxiosGet
-      .mockResolvedValueOnce(searchResponse)
-      .mockResolvedValueOnce(quoteResponse);
+    mockedSearchFunds.mockResolvedValueOnce(searchResponse.data.Datas);
+    mockedFetchFundQuotes.mockResolvedValueOnce(quoteResponse.data.Datas);
 
     const { exposed, wrapper, queryClient } = mountUseFundSearch();
 
@@ -85,7 +92,8 @@ describe("useFundSearch", () => {
     await vi.advanceTimersByTimeAsync(1800);
     await flushPromises();
 
-    expect(mockedAxiosGet).toHaveBeenCalledTimes(2);
+    expect(mockedSearchFunds).toHaveBeenCalledTimes(1);
+    expect(mockedFetchFundQuotes).toHaveBeenCalledTimes(1);
     expect(exposed.searchOptions.value).toEqual([
       expect.objectContaining({
         value: "005827",

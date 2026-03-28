@@ -26,6 +26,12 @@ pnpm test:run     # 运行测试
 - 不要默认运行会改写文件的命令，如 `pnpm lint:fix` 或 `pnpm fmt`，除非用户明确要求。
 - 若修改了 `src/` 下的 TS/Vue 代码，`pnpm lint` 为必跑项。
 
+## Data Fetching Rule
+
+- 远程数据请求必须通过 TanStack Query 暴露，使用 `useQuery` 或 `useMutation`。
+- 允许在 `src/api/` 中直接使用 `axios`，但 `src/pages/`、`src/components/`、`src/composables/`、`src/utils/` 中禁止直接写 `axios` 请求。
+- `src/api/` 只负责纯请求与响应映射，不负责 Vue 状态、storage 写入或其他副作用。
+
 ## 知识地图
 
 | 想了解… | 去哪里找 |

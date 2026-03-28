@@ -1,14 +1,13 @@
 import { ref, computed, watch, type Ref } from "vue";
 import { useQuery } from "@tanstack/vue-query";
-import axios from "axios";
 import { storage } from "@/utils/storage";
 import { resolveFundQuote } from "./quote";
 import { useSettings } from "@/composables/settings";
 import { isDuringDate } from "@/utils/marketStatus";
+import { fetchFundQuotes } from "@/api/fund";
 import type {
   FundItem,
   FundListItem,
-  FundQuoteApiResponse,
   FundQuoteResponseItem,
   FundSortableField,
 } from "@/types/fund";
@@ -72,14 +71,10 @@ export const useFundData = (
       const fundlist = fundListM.value.map((v) => v.code).join(",");
       if (!fundlist) return [];
 
-      const url =
-        "/api/fund/FundMNewApi/FundMNFInfo?pageIndex=1&pageSize=200&plat=Android&appType=ttjj&product=EFund&Version=1&deviceid=" +
-        userId.value +
-        "&Fcodes=" +
-        fundlist;
-
-      const res = await axios.get<FundQuoteApiResponse>(url);
-      const rawData = res.data.Datas ?? [];
+      const rawData = await fetchFundQuotes(
+        fundListM.value.map((item) => item.code),
+        userId.value,
+      );
       const list: FundItem[] = [];
 
       rawData.forEach((quoteItem: FundQuoteResponseItem) => {

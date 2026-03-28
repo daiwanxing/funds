@@ -4,7 +4,6 @@ import { useSettings } from "@/composables/settings";
 import { useFundData } from "@/composables/fund";
 import { useGlobalIndices } from "@/composables/index";
 import { useHoliday } from "@/composables/holiday";
-import { loadHoliday } from "@/utils/marketStatus";
 import { GlobalTicker } from "@/components/GlobalTicker";
 import { StatusBar } from "@/components/StatusBar";
 import ZoneBHeader from "./Home/components/ZoneBHeader.vue";
@@ -14,7 +13,7 @@ import { useFundSearch } from "@/composables/fund/useFundSearch";
 import { Bot, X } from "lucide-vue-next";
 
 const settings = useSettings();
-const { loadFromStorage: loadHolidayFromStorage } = useHoliday();
+useHoliday();
 
 const fundData = useFundData(
   settings.fundListM,
@@ -84,8 +83,6 @@ watch(
 );
 
 onMounted(async () => {
-  await loadHoliday();
-  loadHolidayFromStorage();
   await settings.load();
 
   globalIndices.refetch();
