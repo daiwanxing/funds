@@ -119,7 +119,7 @@ const handleRefresh = () => {
         </div>
         <p class="text-white text-base font-bold mb-3 tracking-wide">还没有自选基金</p>
         <p class="text-t text-xs max-w-[240px] text-center leading-relaxed opacity-60">
-          使用上方搜索框添加你关注的基金，<br>实时追踪行情与收益
+          添加你关注的基金，实时追踪行情与收益
         </p>
       </div>
 
@@ -217,13 +217,15 @@ const handleRefresh = () => {
 .dashboard {
   display: grid;
   grid-template-rows: 48px 1fr 36px;
-  grid-template-columns: 1fr 2fr;
+  grid-template-columns: 320px 1fr;
   grid-template-areas:
     "ticker  ticker"
     "console detail"
     "status  status";
   height: 100vh;
-  overflow: hidden;
+  min-width: 1000px;
+  overflow-x: auto;
+  overflow-y: hidden;
   background-color: var(--bg-0);
   color: var(--text-primary);
   font-family: var(--font-sans);
