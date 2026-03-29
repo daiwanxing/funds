@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Globe as GlobeIcon } from "lucide-vue-next";
-import { AUTH_GLOBE_MARKETS } from "@/layouts/authGlobeMarkets";
-import Globe from "@/components/ui/Globe.vue";
+import { AUTH_GLOBE_MARKETS } from "@/pages/Authentication/components/Globe/authGlobeMarkets";
+import Globe from "@/pages/Authentication/components/Globe/Globe.vue";
 </script>
 
 <template>

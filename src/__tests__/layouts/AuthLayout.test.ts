@@ -2,7 +2,7 @@ import { mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
 import AuthLayout from "@/layouts/AuthLayout.vue";
 
-vi.mock("@/components/ui/Globe.vue", () => ({
+vi.mock("@/pages/Authentication/components/Globe/Globe.vue", () => ({
   default: {
     name: "UiGlobeStub",
     template: '<div class="globe-stub" />',

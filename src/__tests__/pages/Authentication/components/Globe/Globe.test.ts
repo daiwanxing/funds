@@ -1,6 +1,6 @@
 import { mount } from "@vue/test-utils";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import Globe from "@/components/ui/Globe.vue";
+import Globe from "@/pages/Authentication/components/Globe/Globe.vue";
 import type { GlobeMarketItem } from "@/types/globe";
 import type { COBEOptions } from "cobe";
 
