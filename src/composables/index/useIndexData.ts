@@ -3,11 +3,11 @@ import { useQuery } from "@tanstack/vue-query";
 import { storage } from "@/utils/storage";
 import { fetchCustomIndices } from "@/api/index";
 import type { IndexItem } from "@/types/market";
-import { useSettings } from "@/composables/settings";
+import { usePreferences } from "@/composables/preferences";
 import { isDuringDate } from "@/utils/marketStatus";
 
 export const useIndexData = (seciList: Ref<string[]>) => {
-  const settings = useSettings();
+  const preferences = usePreferences();
   const indexQuery = useQuery({
     queryKey: ["custom-indices", computed(() => seciList.value.join(","))],
     queryFn: async () => {
@@ -15,7 +15,7 @@ export const useIndexData = (seciList: Ref<string[]>) => {
     },
     enabled: computed(() => seciList.value.length > 0),
     refetchInterval: computed(() =>
-      settings.isLiveUpdate.value && isDuringDate() && !settings.isEdit.value
+      preferences.isLiveUpdate.value && isDuringDate() && !preferences.isEdit.value
         ? 30_000
         : false,
     ),

@@ -11,6 +11,7 @@
   },
   "scripts": {
     "dev": "vite",
+    "dev:vercel": "npx vercel dev",
     "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview",
     "test": "vitest",
@@ -20,7 +21,9 @@
     "lint:fix": "eslint src api --fix",
     "type-check": "vue-tsc --noEmit && tsc --noEmit --project api/tsconfig.json",
     "fmt": "oxfmt",
-    "fmt:check": "oxfmt --check"
+    "fmt:check": "oxfmt --check",
+    "vercel:pull-env": "npx vercel env pull .env.local --yes",
+    "supabase:db:push": "npx supabase db push"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.100.1",

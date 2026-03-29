@@ -17,5 +17,10 @@ export type {
   GlobalIndexTrendApiResponse,
   GlobalIndexTrendItem,
 } from './market';
-export type { SettingsState, StorageSchema, SortTypeState, SortDirection } from './settings';
+export type {
+  PreferencesState,
+  PreferencesStorageSchema,
+  SortPreferenceState,
+  SortDirection,
+} from './preferences';
 export type { HolidayData, HolidayYearData, HolidayDayData } from './holiday';

@@ -1,4 +1,5 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
+import { isSecureAppUrl } from "./app-url.js";
 
 const ACCESS_TOKEN_COOKIE = "fs_access_token";
 const REFRESH_TOKEN_COOKIE = "fs_refresh_token";
@@ -12,19 +13,21 @@ const serializeCookie = (
   value: string,
   maxAge: number,
 ): string => {
+  const secureAttr = isSecureAppUrl() ? "Secure" : null;
   const parts = [
     `${name}=${encodeURIComponent(value)}`,
     `HttpOnly`,
-    `Secure`,
+    secureAttr,
     `SameSite=Lax`,
     `Path=/`,
     `Max-Age=${maxAge}`,
-  ];
+  ].filter(Boolean);
   return parts.join("; ");
 };
 
 const serializeExpiredCookie = (name: string): string => {
-  return `${name}=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0`;
+  const secureAttr = isSecureAppUrl() ? "; Secure" : "";
+  return `${name}=; HttpOnly${secureAttr}; SameSite=Lax; Path=/; Max-Age=0`;
 };
 
 /**

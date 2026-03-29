@@ -13,8 +13,8 @@ const settingsState = {
   isEdit: ref(false),
 };
 
-vi.mock("@/composables/settings", () => ({
-  useSettings: () => settingsState,
+vi.mock("@/composables/preferences", () => ({
+  usePreferences: () => settingsState,
 }));
 
 const { fetchCustomIndices } = await import("@/api/index");

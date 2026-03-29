@@ -8,6 +8,7 @@
 
 | Variable | Description | Where to find |
 |---|---|---|
+| `APP_URL` | Public app origin used to build auth callback/reset URLs | Local: `http://localhost:3000`; Production: your custom domain |
 | `SUPABASE_URL` | Supabase project URL (e.g. `https://xxx.supabase.co`) | Supabase Dashboard → Settings → API |
 | `SUPABASE_ANON_KEY` | Supabase anonymous/public key | Supabase Dashboard → Settings → API |
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key (server-only, never expose to client) | Supabase Dashboard → Settings → API |
@@ -21,12 +22,17 @@
 
 Configure in **Supabase Dashboard → Authentication → URL Configuration**:
 
-- **Site URL**: `https://your-domain.com`
+- **Site URL**: `http://localhost:3000` for local testing, then change to `https://your-domain.com` in production
 - **Redirect URLs** (allowlist):
   - Local: `http://localhost:3000/#/auth/callback`
   - Production: `https://your-domain.com/#/auth/callback`
   - Reset: `http://localhost:3000/#/auth/reset-password`
   - Reset (prod): `https://your-domain.com/#/auth/reset-password`
+
+### Email Confirmation
+
+Enable **Confirm email** in **Supabase Dashboard → Authentication → Providers → Email**.
+This project requires users to verify their email before they can sign in.
 
 ### SMTP
 
@@ -36,19 +42,28 @@ Supabase provides built-in email sending for development. For production, config
 
 ## Local Development Setup
 
-1. Create a `.env` file in the project root (already in `.gitignore`):
+1. Create a `.env.local` file in the project root from `.env.example`:
 
 ```env
+APP_URL=http://localhost:3000
 SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_ANON_KEY=your-anon-key
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 AUTH_COOKIE_SECRET=your-random-hex-secret
 ```
 
-2. Run Vercel Functions locally:
+2. Link and push Supabase migrations:
 
 ```bash
-vercel dev
+npx supabase login
+npx supabase link --project-ref <your-project-ref>
+pnpm supabase:db:push
+```
+
+3. Run Vercel Functions locally:
+
+```bash
+pnpm dev:vercel
 ```
 
 This starts the Vercel dev server which serves both the Vite frontend and the `/api/*` functions.
@@ -59,7 +74,19 @@ This starts the Vercel dev server which serves both the Vite frontend and the `/
 
 Add all variables above in **Vercel Dashboard → Settings → Environment Variables**.
 
+Recommended values:
+
+- Production `APP_URL`: `https://your-domain.com`
+- Preview `APP_URL`: `https://your-project-git-branch.vercel.app`
+- Development `APP_URL`: `http://localhost:3000`
+
 Ensure `SUPABASE_SERVICE_ROLE_KEY` is only available in server (Serverless Functions) scope — **never** expose it to the browser.
+
+After setting dashboard envs, pull them locally:
+
+```bash
+pnpm vercel:pull-env
+```
 
 ---
 

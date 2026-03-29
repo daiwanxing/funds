@@ -1,6 +1,6 @@
 import { computed } from "vue";
 import { useQuery } from "@tanstack/vue-query";
-import { useSettings } from "@/composables/settings";
+import { usePreferences } from "@/composables/preferences";
 import { isDuringDate } from "@/utils/marketStatus";
 import { fetchIndexSnapshots, fetchIndexTrends } from "@/api/index";
 import type {
@@ -26,7 +26,7 @@ const GLOBAL_INDICES = [
 ];
 
 export const useGlobalIndices = () => {
-  const settings = useSettings();
+  const preferences = usePreferences();
 
   const snapshotQuery = useQuery({
     queryKey: ["global-indices", "snapshot"],
@@ -35,7 +35,7 @@ export const useGlobalIndices = () => {
     },
     // Dynamically control polling based on settings and market status
     refetchInterval: computed(() => 
-      settings.isLiveUpdate.value && isDuringDate() && !settings.isEdit.value ? 30_000 : false
+      preferences.isLiveUpdate.value && isDuringDate() && !preferences.isEdit.value ? 30_000 : false
     ),
   });
 
@@ -45,7 +45,7 @@ export const useGlobalIndices = () => {
       return fetchIndexTrends(GLOBAL_INDICES);
     },
     refetchInterval: computed(() => 
-      settings.isLiveUpdate.value && isDuringDate() && !settings.isEdit.value ? 300_000 : false
+      preferences.isLiveUpdate.value && isDuringDate() && !preferences.isEdit.value ? 300_000 : false
     ),
   });
 

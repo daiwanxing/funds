@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from "vue";
 import type { FundListItem } from "@/types/fund";
-import { useSettings } from "@/composables/settings";
+import { usePreferences } from "@/composables/preferences";
 import { useFundData } from "@/composables/fund";
 import { useGlobalIndices } from "@/composables/index";
 import { useHoliday } from "@/composables/holiday";
@@ -17,7 +17,7 @@ import { useFundSearch } from "@/composables/fund/useFundSearch";
 import { mapFundListToWatchlist } from "@/types/auth";
 import { Bot, X } from "lucide-vue-next";
 
-const settings = useSettings();
+const preferences = usePreferences();
 useHoliday();
 const auth = useAuth();
 const guestWatchlist = useGuestWatchlist();
@@ -54,8 +54,8 @@ const persistWatchlist = async (watchlist: FundListItem[]) => {
 
 const fundData = useFundData(
   watchlistState,
-  settings.userId,
-  settings.sortTypeObj,
+  preferences.userId,
+  preferences.sortTypeObj,
   {
     persistWatchlist,
   },
@@ -70,15 +70,15 @@ const addedFundCodes = computed(() => watchlistState.value.map((item) => item.co
 const aiDrawerOpen = ref(false);
 
 /** 当前选中基金（Zone B → Zone C 联动） */
-const selectedFundCode = computed(() => settings.RealtimeFundcode.value);
+const selectedFundCode = computed(() => preferences.RealtimeFundcode.value);
 
 const setSelectedFundCode = (code: string | null) => {
-  settings.RealtimeFundcode.value = code;
-  settings.updateSetting("RealtimeFundcode", code);
+  preferences.RealtimeFundcode.value = code;
+  preferences.updatePreference("RealtimeFundcode", code);
 };
 
 const selectFund = (code: string) => {
-  if (settings.RealtimeFundcode.value === code) return;
+  if (preferences.RealtimeFundcode.value === code) return;
   setSelectedFundCode(code);
 };
 
@@ -92,7 +92,7 @@ const shouldShowImportDialog = computed(() => {
 
 const normalizeSelectedFundCode = () => {
   const codes = watchlistState.value.map((item) => item.code);
-  const current = settings.RealtimeFundcode.value;
+  const current = preferences.RealtimeFundcode.value;
 
   if (codes.length === 0) {
     if (current !== null) {
@@ -129,10 +129,10 @@ watch(
 watch(
   [
     () => watchlistState.value.map((item) => item.code),
-    () => settings.RealtimeFundcode.value,
+    () => preferences.RealtimeFundcode.value,
   ],
   () => {
-    if (!settings.isReady.value) return;
+    if (!preferences.isReady.value) return;
     normalizeSelectedFundCode();
   },
 );
@@ -150,7 +150,7 @@ const handleDismissImportPrompt = () => {
 };
 
 onMounted(async () => {
-  await settings.load();
+  await preferences.load();
   await auth.bootstrap.refetch();
 
   globalIndices.refetch();
@@ -161,7 +161,7 @@ onMounted(async () => {
 
 <template>
   <div
-    v-if="settings.isReady.value"
+    v-if="preferences.isReady.value"
     class="dashboard"
   >
     <!-- ── Zone A: 全景走马灯 ────────────────────── -->

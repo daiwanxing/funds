@@ -2,6 +2,7 @@ import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { z } from "zod";
 import { ok, fail } from "../_lib/json.js";
 import { signUp as supabaseSignUp } from "../_lib/supabase-auth.js";
+import { buildAppUrl } from "../_lib/app-url.js";
 
 const bodySchema = z.object({
   email: z.string().email("请输入有效的邮箱地址"),
@@ -22,7 +23,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const { email, password } = parsed.data;
 
   // Build the redirect URL for email verification
-  const emailRedirectTo = `${process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000"}/#/auth/callback`;
+  const emailRedirectTo = buildAppUrl("/auth/callback");
 
   const { user, error } = await supabaseSignUp(email, password, emailRedirectTo);
 

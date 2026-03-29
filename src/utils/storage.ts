@@ -1,11 +1,11 @@
-import type { StorageSchema } from "@/types/settings";
+import type { PreferencesStorageSchema } from "@/types/preferences";
 
 const STORAGE_KEY = "funds_config";
 
-const getAll = (): StorageSchema => {
+const getAll = (): PreferencesStorageSchema => {
   try {
     const data = localStorage.getItem(STORAGE_KEY);
-    return data ? (JSON.parse(data) as StorageSchema) : {};
+    return data ? (JSON.parse(data) as PreferencesStorageSchema) : {};
   } catch {
     return {};
   }
@@ -13,34 +13,36 @@ const getAll = (): StorageSchema => {
 
 function get(
   keys: null,
-  callback: (res: StorageSchema) => void,
+  callback: (res: PreferencesStorageSchema) => void,
 ): void;
-function get<K extends keyof StorageSchema>(
+function get<K extends keyof PreferencesStorageSchema>(
   keys: K | readonly K[],
-  callback: (res: Partial<Pick<StorageSchema, K>>) => void,
+  callback: (res: Partial<Pick<PreferencesStorageSchema, K>>) => void,
 ): void;
-function get<K extends keyof StorageSchema>(
+function get<K extends keyof PreferencesStorageSchema>(
   keys: K | readonly K[] | null,
-  callback: ((res: StorageSchema) => void) | ((res: Partial<Pick<StorageSchema, K>>) => void),
+  callback:
+    | ((res: PreferencesStorageSchema) => void)
+    | ((res: Partial<Pick<PreferencesStorageSchema, K>>) => void),
 ): void {
   const all = getAll();
   if (keys === null) {
-    (callback as (res: StorageSchema) => void)(all);
+    (callback as (res: PreferencesStorageSchema) => void)(all);
     return;
   }
 
   const normalizedKeys = (typeof keys === "string" ? [keys] : keys) as readonly K[];
-  const result = {} as Partial<Pick<StorageSchema, K>>;
+  const result = {} as Partial<Pick<PreferencesStorageSchema, K>>;
   normalizedKeys.forEach((key) => {
     if (key in all) {
-      result[key] = all[key] as StorageSchema[K];
+      result[key] = all[key] as PreferencesStorageSchema[K];
     }
   });
-  (callback as (res: Partial<Pick<StorageSchema, K>>) => void)(result);
+  (callback as (res: Partial<Pick<PreferencesStorageSchema, K>>) => void)(result);
 }
 
-const set = <K extends keyof StorageSchema>(
-  data: Pick<StorageSchema, K> | Partial<StorageSchema>,
+const set = <K extends keyof PreferencesStorageSchema>(
+  data: Pick<PreferencesStorageSchema, K> | Partial<PreferencesStorageSchema>,
   callback?: () => void,
 ): void => {
   const all = getAll();

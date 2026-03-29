@@ -1,7 +1,7 @@
 import { ref, computed, watch, type Ref } from "vue";
 import { useQuery } from "@tanstack/vue-query";
 import { resolveFundQuote } from "./quote";
-import { useSettings } from "@/composables/settings";
+import { usePreferences } from "@/composables/preferences";
 import { isDuringDate } from "@/utils/marketStatus";
 import { fetchFundQuotes } from "@/api/fund";
 import type {
@@ -10,7 +10,7 @@ import type {
   FundQuoteResponseItem,
   FundSortableField,
 } from "@/types/fund";
-import type { SortDirection, SortTypeState } from "@/types/settings";
+import type { SortDirection, SortPreferenceState } from "@/types/preferences";
 
 interface UseFundDataOptions {
   persistWatchlist?: (watchlist: FundListItem[]) => void | Promise<void>;
@@ -61,10 +61,10 @@ const compareFn = (property: FundSortableField, type: SortDirection) => {
 export const useFundData = (
   fundListM: Ref<FundListItem[]>,
   userId: Ref<string>,
-  sortTypeObj: Ref<SortTypeState>,
+  sortTypeObj: Ref<SortPreferenceState>,
   options: UseFundDataOptions = {},
 ) => {
-  const settings = useSettings();
+  const preferences = usePreferences();
   const dataList = ref<FundItem[]>([]);
   const dataListDft = ref<FundItem[]>([]);
   const loading = ref(false);
@@ -127,7 +127,7 @@ export const useFundData = (
       return list;
     },
     refetchInterval: computed(() => 
-      settings.isLiveUpdate.value && isDuringDate() && !settings.isEdit.value ? 60_000 : false
+      preferences.isLiveUpdate.value && isDuringDate() && !preferences.isEdit.value ? 60_000 : false
     ),
   });
 

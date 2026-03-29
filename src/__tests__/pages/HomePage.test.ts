@@ -8,12 +8,11 @@ import type { FundItem, FundListItem } from "@/types/fund";
 const settingsState = {
   isReady: ref(false),
   isEdit: ref(false),
-  fundListM: ref<FundListItem[]>([]),
   userId: ref("user-1"),
   sortTypeObj: ref({ name: null, type: null } as { name: string | null; type: string | null }),
   RealtimeFundcode: ref<string | null>(null),
   load: vi.fn(),
-  updateSetting: vi.fn(),
+  updatePreference: vi.fn(),
 };
 
 const fundDataState = {
@@ -63,8 +62,8 @@ const holidayState = {
   loadFromStorage: vi.fn(),
 };
 
-vi.mock("@/composables/settings", () => ({
-  useSettings: () => settingsState,
+vi.mock("@/composables/preferences", () => ({
+  usePreferences: () => settingsState,
 }));
 
 vi.mock("@/composables/fund", () => ({
@@ -193,14 +192,13 @@ describe("HomePage selection behavior", () => {
   beforeEach(() => {
     settingsState.isReady.value = false;
     settingsState.isEdit.value = false;
-    settingsState.fundListM.value = [];
     settingsState.RealtimeFundcode.value = null;
     settingsState.load.mockReset();
-    settingsState.updateSetting.mockReset();
+    settingsState.updatePreference.mockReset();
     settingsState.load.mockImplementation(async () => {
       settingsState.isReady.value = true;
     });
-    settingsState.updateSetting.mockImplementation((key, value) => {
+    settingsState.updatePreference.mockImplementation((key, value) => {
       if (key === "RealtimeFundcode") {
         settingsState.RealtimeFundcode.value = value as string | null;
       }

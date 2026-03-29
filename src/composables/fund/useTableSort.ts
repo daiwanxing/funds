@@ -1,7 +1,7 @@
 import { ref, type Ref } from "vue";
 import { storage } from "@/utils/storage";
 import type { FundItem, FundSortableField } from "@/types/fund";
-import type { SortDirection, SortTypeState } from "@/types/settings";
+import type { SortDirection, SortPreferenceState } from "@/types/preferences";
 
 export const useTableSort = (
   dataList: Ref<FundItem[]>,
@@ -15,7 +15,7 @@ export const useTableSort = (
     costGainsRate: "none",
   });
 
-  const sortTypeObj = ref<SortTypeState>({
+  const sortTypeObj = ref<SortPreferenceState>({
     name: null,
     type: null,
   });

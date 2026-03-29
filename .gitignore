@@ -70,7 +70,11 @@ typings/
 
 # dotenv environment variables file
 .env
+.env.local
+.env.*.local
 .env.test
+.vercel/
+supabase/.temp/
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache
@@ -106,3 +110,4 @@ dist-zip
 dev.md
 src/popup/App copy.vue
 .DS_Store
+.vercel

@@ -1,0 +1,17 @@
+# Supabase CLI local/project configuration for auth and remote migration workflows.
+project_id = "funds-web"
+
+[db.migrations]
+enabled = true
+
+[auth]
+enabled = true
+site_url = "http://localhost:3000"
+additional_redirect_urls = [
+  "http://localhost:3000/#/auth/callback",
+  "http://localhost:3000/#/auth/reset-password",
+]
+
+[auth.email]
+enable_signup = true
+enable_confirmations = true
