@@ -3,5 +3,23 @@
   "framework": "vite",
   "buildCommand": "pnpm build",
   "outputDirectory": "dist",
-  "devCommand": "pnpm dev"
+  "devCommand": "pnpm dev",
+  "rewrites": [
+    {
+      "source": "/api/fund/(.*)",
+      "destination": "https://fundmobapi.eastmoney.com/$1"
+    },
+    {
+      "source": "/api/search/(.*)",
+      "destination": "https://fundsuggest.eastmoney.com/$1"
+    },
+    {
+      "source": "/api/index/(.*)",
+      "destination": "https://push2.eastmoney.com/$1"
+    },
+    {
+      "source": "/api/kline/(.*)",
+      "destination": "https://push2his.eastmoney.com/$1"
+    }
+  ]
 }

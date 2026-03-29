@@ -122,8 +122,8 @@ funds/
 │ chrome.runtime.message  │  删除   (直接函数调用)
 │ chrome.browserAction    │  删除   (页面内 UI 替代)
 ├─────────────────────────┤
-│ 直接请求 eastmoney API  │──────►  Vercel Serverless Proxy
-│ (扩展无 CORS 限制)      │         /api/proxy → eastmoney
+│ 直接请求 eastmoney API  │──────►  Vercel External Rewrites
+│ (扩展无 CORS 限制)      │         /api/fund → eastmoney
 └─────────────────────────┘
 
 重构后（Web SPA / Vite 8 / Vue 3 / TypeScript）
@@ -131,15 +131,14 @@ funds/
 
 ## 5. API 代理策略
 
-所有东方财富 API 请求统一走 `/api/proxy` 前缀：
+所有东方财富 API 请求统一走 Vercel 平台级 rewrite：
 
 | 前端请求路径 | 代理目标 |
 |---|---|
-| `/api/fund/info?codes=...` | `fundmobapi.eastmoney.com/FundMNewApi/FundMNFInfo?...` |
-| `/api/fund/search?key=...` | `fundsuggest.eastmoney.com/FundSearch/api/...` |
-| `/api/index/quote?secids=...` | `push2.eastmoney.com/api/qt/ulist.np/get?...` |
-| `/api/index/kline?...` | `push2his.eastmoney.com/api/qt/stock/kline/get?...` |
-| `/api/market/*` | 行情中心相关接口 |
+| `/api/fund/*` | `https://fundmobapi.eastmoney.com/*` |
+| `/api/search/*` | `https://fundsuggest.eastmoney.com/*` |
+| `/api/index/*` | `https://push2.eastmoney.com/*` |
+| `/api/kline/*` | `https://push2his.eastmoney.com/*` |
 
 ## 6. 需要丢弃的功能
 

@@ -1,5 +1,5 @@
 # Supabase CLI local/project configuration for auth and remote migration workflows.
-project_id = "funds-web"
+project_id = "fundstation"
 
 [db.migrations]
 enabled = true

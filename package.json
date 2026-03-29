@@ -1,8 +1,8 @@
 {
-  "name": "funds-web",
+  "name": "fundstation",
   "version": "3.0.0",
   "private": true,
-  "description": "自选基金助手 - Web 版",
+  "description": "FundStation — 自选基金驾驶舱",
   "author": "LiuRabt",
   "license": "GPL-3.0",
   "type": "module",
@@ -11,7 +11,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "dev:vercel": "npx vercel dev",
+    "dev:vercel": "zsh -lc 'set -a && source .env.local && set +a && exec npx vercel dev'",
     "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview",
     "test": "vitest",
@@ -29,6 +29,7 @@
     "@supabase/supabase-js": "^2.100.1",
     "@tanstack/vue-query": "^5.95.2",
     "axios": "^1.7.0",
+    "cobe": "^2.0.1",
     "echarts": "^5.5.0",
     "file-saver": "^2.0.5",
     "lucide-vue-next": "^1.0.0",

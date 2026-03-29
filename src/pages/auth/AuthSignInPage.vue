@@ -3,6 +3,7 @@ import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useAuth } from "@/composables/auth/useAuth";
 import { LogIn, Mail, Lock, Eye, EyeOff } from "lucide-vue-next";
+import AuthLayout from "@/components/AuthLayout.vue";
 
 const router = useRouter();
 const { signIn } = useAuth();
@@ -29,7 +30,7 @@ const handleSubmit = async () => {
 </script>
 
 <template>
-  <div class="auth-page">
+  <AuthLayout>
     <div class="auth-card">
       <div class="auth-header">
         <div class="auth-icon">
@@ -138,26 +139,20 @@ const handleSubmit = async () => {
         </router-link>
       </div>
     </div>
-  </div>
+  </AuthLayout>
 </template>
 
 <style scoped>
-.auth-page {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--bg-0);
-  padding: 24px;
-}
-
 .auth-card {
   width: 100%;
   max-width: 400px;
-  background: var(--bg-2);
-  border: 1px solid var(--border-default);
-  border-radius: 12px;
-  padding: 32px;
+  background: rgba(22, 22, 24, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  border-radius: 16px;
+  padding: 40px;
 }
 
 .auth-header {
@@ -238,14 +233,14 @@ const handleSubmit = async () => {
   width: 100%;
   height: 40px;
   padding: 0 12px 0 36px;
-  border: 1px solid var(--border-default);
+  border: 1px solid rgba(255,255,255,0.1);
   border-radius: 8px;
-  background: var(--bg-3);
+  background: rgba(0,0,0,0.2);
   color: var(--text-primary);
   font-family: var(--font-sans);
   font-size: 14px;
   outline: none;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s, background 0.2s;
 }
 
 .form-input::placeholder {
@@ -253,7 +248,8 @@ const handleSubmit = async () => {
 }
 
 .form-input:focus {
-  border-color: var(--border-focus);
+  border-color: var(--accent-primary);
+  background: rgba(0,0,0,0.4);
 }
 
 .password-toggle {
