@@ -29,14 +29,27 @@ const fundDataState = {
   loadingList: ref(false),
 };
 
+const authIsAuthenticated = ref(false);
+const authCloudWatchlist = ref<FundListItem[]>([]);
+const authIsFirstLogin = ref(false);
+const authShouldShowImportPrompt = ref(false);
+
 const authState = {
   bootstrap: {
     refetch: vi.fn(),
   },
-  isAuthenticated: ref(false),
-  cloudWatchlist: ref<FundListItem[]>([]),
-  isFirstLogin: ref(false),
-  shouldShowImportPrompt: ref(false),
+  get isAuthenticated() {
+    return authIsAuthenticated.value;
+  },
+  get cloudWatchlist() {
+    return authCloudWatchlist.value;
+  },
+  get isFirstLogin() {
+    return authIsFirstLogin.value;
+  },
+  get shouldShowImportPrompt() {
+    return authShouldShowImportPrompt.value;
+  },
   saveWatchlist: {
     mutateAsync: vi.fn(),
   },
@@ -81,8 +94,8 @@ vi.mock("@/composables/holiday", () => ({
   useHoliday: () => holidayState,
 }));
 
-vi.mock("@/composables/auth/useAuth", () => ({
-  useAuth: () => authState,
+vi.mock("@/stores/auth", () => ({
+  useAuthStore: () => authState,
 }));
 
 vi.mock("@/composables/watchlist/useGuestWatchlist", () => ({
@@ -214,10 +227,10 @@ describe("HomePage selection behavior", () => {
     globalIndicesState.refetch.mockReset();
     holidayState.loadFromStorage.mockReset();
     authState.bootstrap.refetch.mockReset();
-    authState.isAuthenticated.value = false;
-    authState.cloudWatchlist.value = [];
-    authState.isFirstLogin.value = false;
-    authState.shouldShowImportPrompt.value = false;
+    authIsAuthenticated.value = false;
+    authCloudWatchlist.value = [];
+    authIsFirstLogin.value = false;
+    authShouldShowImportPrompt.value = false;
     authState.saveWatchlist.mutateAsync.mockReset();
     authState.importGuest.mutateAsync.mockReset();
     authState.dismissImportPrompt.mockReset();
@@ -260,8 +273,8 @@ describe("HomePage selection behavior", () => {
   });
 
   it("switches to cloud watchlist when authenticated", async () => {
-    authState.isAuthenticated.value = true;
-    authState.cloudWatchlist.value = [
+    authIsAuthenticated.value = true;
+    authCloudWatchlist.value = [
       { code: "000001", num: 0 },
       { code: "000002", num: 0 },
     ];
@@ -317,10 +330,10 @@ describe("HomePage selection behavior", () => {
   });
 
   it("opens the guest import dialog for first-login users with local guest funds", async () => {
-    authState.isAuthenticated.value = true;
-    authState.isFirstLogin.value = true;
-    authState.shouldShowImportPrompt.value = true;
-    authState.cloudWatchlist.value = [];
+    authIsAuthenticated.value = true;
+    authIsFirstLogin.value = true;
+    authShouldShowImportPrompt.value = true;
+    authCloudWatchlist.value = [];
     guestWatchlistState.items.value = [
       { code: "000001", num: 0 },
       { code: "000002", num: 0 },
@@ -332,10 +345,10 @@ describe("HomePage selection behavior", () => {
   });
 
   it("imports guest watchlist on confirmation and clears the guest session", async () => {
-    authState.isAuthenticated.value = true;
-    authState.isFirstLogin.value = true;
-    authState.shouldShowImportPrompt.value = true;
-    authState.cloudWatchlist.value = [];
+    authIsAuthenticated.value = true;
+    authIsFirstLogin.value = true;
+    authShouldShowImportPrompt.value = true;
+    authCloudWatchlist.value = [];
     guestWatchlistState.items.value = [
       { code: "005827", num: 10, cost: 1.7 },
       { code: "000001", num: 5, cost: 0 },
@@ -354,10 +367,10 @@ describe("HomePage selection behavior", () => {
   });
 
   it("dismisses the guest import dialog without importing when canceled", async () => {
-    authState.isAuthenticated.value = true;
-    authState.isFirstLogin.value = true;
-    authState.shouldShowImportPrompt.value = true;
-    authState.cloudWatchlist.value = [];
+    authIsAuthenticated.value = true;
+    authIsFirstLogin.value = true;
+    authShouldShowImportPrompt.value = true;
+    authCloudWatchlist.value = [];
     guestWatchlistState.items.value = [{ code: "005827", num: 10, cost: 1.7 }];
 
     const wrapper = await mountPage();

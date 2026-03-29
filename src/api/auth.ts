@@ -1,6 +1,7 @@
 import axios from "axios";
 import type {
   AuthSuccessResponse,
+  OAuthProvider,
 } from "@/types/auth";
 
 const authApi = axios.create({
@@ -50,4 +51,9 @@ export const resetPassword = async (
 export const resendVerification = async (email: string): Promise<AuthSuccessResponse> => {
   const { data } = await authApi.post<AuthSuccessResponse>("/resend-verification", { email });
   return data;
+};
+
+/** 发起第三方 OAuth 登录 */
+export const startOAuthSignIn = (provider: OAuthProvider): void => {
+  window.location.assign(`/api/auth/oauth/start?provider=${provider}`);
 };

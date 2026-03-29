@@ -2,6 +2,8 @@
 
 import type { FundListItem } from "./fund";
 
+export type OAuthProvider = "google" | "github";
+
 /** Bootstrap API 返回的自选基金条目 */
 export interface WatchlistItemDTO {
   fundCode: string;

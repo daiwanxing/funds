@@ -3,6 +3,14 @@ import { getEnv } from "./env.js";
 
 let _authClient: SupabaseClient | null = null;
 
+export type OAuthProvider = "google" | "github";
+
+const OAUTH_PROVIDERS = new Set<OAuthProvider>(["google", "github"]);
+
+export const isOAuthProvider = (value: string): value is OAuthProvider => {
+  return OAUTH_PROVIDERS.has(value as OAuthProvider);
+};
+
 /**
  * Get a Supabase client with anon key.
  * Used for auth flows (sign-up, sign-in, password reset, etc.).
@@ -30,6 +38,17 @@ export interface SignInResult {
   user: User | null;
   error: string | null;
   emailNotConfirmed?: boolean;
+}
+
+export interface OAuthAuthorizationResult {
+  url: string | null;
+  error: string | null;
+}
+
+export interface OAuthExchangeResult {
+  session: Session | null;
+  user: User | null;
+  error: string | null;
 }
 
 /**
@@ -80,6 +99,53 @@ export const signIn = async (
   }
 
   return { session: data.session, user: data.user, error: null };
+};
+
+/**
+ * Request an OAuth authorization URL from Supabase.
+ */
+export const getOAuthAuthorizationUrl = async (
+  provider: OAuthProvider,
+  redirectTo: string,
+): Promise<OAuthAuthorizationResult> => {
+  const client = getAuthClient();
+  const { data, error } = await client.auth.signInWithOAuth({
+    provider,
+    options: {
+      redirectTo,
+      skipBrowserRedirect: true,
+    },
+  });
+
+  if (error) {
+    return { url: null, error: error.message };
+  }
+
+  return { url: data.url, error: null };
+};
+
+/**
+ * Exchange an OAuth callback code for a Supabase session.
+ */
+export const exchangeOAuthCodeForSession = async (
+  code: string,
+): Promise<OAuthExchangeResult> => {
+  const client = getAuthClient();
+  const { data, error } = await client.auth.exchangeCodeForSession(code);
+
+  if (error) {
+    return {
+      session: null,
+      user: null,
+      error: error.message,
+    };
+  }
+
+  return {
+    session: data.session,
+    user: data.user,
+    error: null,
+  };
 };
 
 /**

@@ -74,8 +74,17 @@
    rgba(48,209,88,0.30) 0% → rgba(48,209,88,0.10) 45% → rgba(48,209,88,0.02) 100%
 */
 
-/* ── 卡片选中光感（可用 @apply shadow-[...] 或通过 JS 设置）
-   box-shadow:
-     0 0 0 1px rgba(75,146,255,0.55),
-     0 0 0 4px rgba(47,129,247,0.10);
-*/
+/* ── Autofill override ───────────────────────────────────
+ * Prevents browser from applying yellow/blue autofill bg.
+ * The inset box-shadow at 5000s delay is the standard trick.
+ * ─────────────────────────────────────────────────────── */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 100px var(--bg-1) inset !important;
+  -webkit-text-fill-color: var(--text-primary) !important;
+  caret-color: var(--text-primary);
+  /* Delay bg transition so the yellow never flashes */
+  transition: background-color 5000s ease-in-out 0s;
+}

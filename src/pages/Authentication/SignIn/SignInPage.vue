@@ -2,13 +2,15 @@
 import { ref, computed, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
-import { Mail, Lock, Eye, EyeOff } from "lucide-vue-next";
+import { Mail, Lock, Eye, EyeOff, LoaderCircle } from "lucide-vue-next";
 import AuthLayout from "@/layouts/AuthLayout.vue";
-import { toast } from "vue-sonner";
+import { useToast } from "@/composables/useToast";
+
+const { error: toastError } = useToast();
 
 const router = useRouter();
 const route = useRoute();
-const { signIn, signUp, forgotPassword, resendVerification } = useAuthStore();
+const { signIn, signUp, forgotPassword, resendVerification, startOAuthSignIn } = useAuthStore();
 
 // ─── Mode toggle ─────────────────────────────────────────────────────────────
 type AuthMode = "login" | "register" | "forgot";
@@ -53,7 +55,7 @@ const handleSignIn = async () => {
     router.push("/");
   } catch (err: unknown) {
     const axiosError = err as { response?: { data?: { error?: { message?: string } } } };
-    toast.error(axiosError.response?.data?.error?.message ?? "登录失败，请稍后重试");
+    toastError(axiosError.response?.data?.error?.message ?? "登录失败，请稍后重试");
   }
 };
 
@@ -134,6 +136,10 @@ const handleForgotPassword = async () => {
   }
 };
 
+const handleOAuthSignIn = (provider: "google" | "github") => {
+  startOAuthSignIn(provider);
+};
+
 // Reset form state when switching modes
 watch(currentMode, (_newMode, oldMode) => {
   if (oldMode === "register") {
@@ -173,6 +179,25 @@ watch(currentMode, (_newMode, oldMode) => {
             <p class="font-sans text-[13px] text-t m-0">
               使用邮箱和密码登录您的账号
             </p>
+          </div>
+
+          <div class="flex flex-col gap-3 mb-6">
+            <button
+              data-test="oauth-google"
+              type="button"
+              class="w-full h-10 border border-white/8 rounded-lg bg-bg-2 text-p font-sans text-sm font-500 cursor-pointer transition-[background,border-color] duration-200 hover:bg-bg-3 hover:border-white/12"
+              @click="handleOAuthSignIn('google')"
+            >
+              Continue with Google
+            </button>
+            <button
+              data-test="oauth-github"
+              type="button"
+              class="w-full h-10 border border-white/8 rounded-lg bg-bg-2 text-p font-sans text-sm font-500 cursor-pointer transition-[background,border-color] duration-200 hover:bg-bg-3 hover:border-white/12"
+              @click="handleOAuthSignIn('github')"
+            >
+              Continue with GitHub
+            </button>
           </div>
 
           <form
@@ -247,10 +272,15 @@ watch(currentMode, (_newMode, oldMode) => {
 
             <button
               type="submit"
-              class="w-full h-10 border-none rounded-lg bg-white text-[#0a0b0d] font-sans text-sm font-600 cursor-pointer tracking-[0.01em] transition-[background,opacity] duration-[180ms] enabled:hover:bg-white/88 enabled:active:bg-white/76 disabled:op-35 disabled:cursor-not-allowed"
+              class="w-full h-10 border-none rounded-lg bg-white text-[#0a0b0d] font-sans text-sm font-600 cursor-pointer tracking-[0.01em] transition-[background,opacity] duration-[180ms] enabled:hover:bg-white/88 enabled:active:bg-white/76 disabled:op-35 disabled:cursor-not-allowed flex items-center justify-center"
               :disabled="!isLoginValid || isLoginLoading"
             >
-              {{ isLoginLoading ? "登录中…" : "登录" }}
+              <LoaderCircle
+                v-if="isLoginLoading"
+                :size="18"
+                class="animate-spin"
+              />
+              <span v-else>登录</span>
             </button>
           </form>
 
@@ -278,6 +308,25 @@ watch(currentMode, (_newMode, oldMode) => {
             <p class="font-sans text-[13px] text-t m-0">
               创建账号以开启云端同步
             </p>
+          </div>
+
+          <div class="flex flex-col gap-3 mb-6">
+            <button
+              data-test="oauth-google"
+              type="button"
+              class="w-full h-10 border border-white/8 rounded-lg bg-bg-2 text-p font-sans text-sm font-500 cursor-pointer transition-[background,border-color] duration-200 hover:bg-bg-3 hover:border-white/12"
+              @click="handleOAuthSignIn('google')"
+            >
+              Continue with Google
+            </button>
+            <button
+              data-test="oauth-github"
+              type="button"
+              class="w-full h-10 border border-white/8 rounded-lg bg-bg-2 text-p font-sans text-sm font-500 cursor-pointer transition-[background,border-color] duration-200 hover:bg-bg-3 hover:border-white/12"
+              @click="handleOAuthSignIn('github')"
+            >
+              Continue with GitHub
+            </button>
           </div>
 
           <template v-if="!isRegistered">
@@ -378,10 +427,15 @@ watch(currentMode, (_newMode, oldMode) => {
 
               <button
                 type="submit"
-                class="w-full h-10 border-none rounded-lg bg-white text-[#0a0b0d] font-sans text-sm font-600 cursor-pointer tracking-[0.01em] transition-[background,opacity] duration-[180ms] enabled:hover:bg-white/88 enabled:active:bg-white/76 disabled:op-35 disabled:cursor-not-allowed"
+                class="w-full h-10 border-none rounded-lg bg-white text-[#0a0b0d] font-sans text-sm font-600 cursor-pointer tracking-[0.01em] transition-[background,opacity] duration-[180ms] enabled:hover:bg-white/88 enabled:active:bg-white/76 disabled:op-35 disabled:cursor-not-allowed flex items-center justify-center"
                 :disabled="!isRegValid || isRegLoading"
               >
-                {{ isRegLoading ? "注册中…" : "注册" }}
+                <LoaderCircle
+                  v-if="isRegLoading"
+                  :size="18"
+                  class="animate-spin"
+                />
+                <span v-else>注册</span>
               </button>
             </form>
           </template>
@@ -476,10 +530,15 @@ watch(currentMode, (_newMode, oldMode) => {
 
             <button
               type="submit"
-              class="w-full h-10 border-none rounded-lg bg-white text-[#0a0b0d] font-sans text-sm font-600 cursor-pointer tracking-[0.01em] transition-[background,opacity] duration-[180ms] enabled:hover:bg-white/88 enabled:active:bg-white/76 disabled:op-35 disabled:cursor-not-allowed"
+              class="w-full h-10 border-none rounded-lg bg-white text-[#0a0b0d] font-sans text-sm font-600 cursor-pointer tracking-[0.01em] transition-[background,opacity] duration-[180ms] enabled:hover:bg-white/88 enabled:active:bg-white/76 disabled:op-35 disabled:cursor-not-allowed flex items-center justify-center"
               :disabled="!isForgotValid || isForgotLoading"
             >
-              {{ isForgotLoading ? "发送中…" : "发送重置链接" }}
+              <LoaderCircle
+                v-if="isForgotLoading"
+                :size="18"
+                class="animate-spin"
+              />
+              <span v-else>发送重置链接</span>
             </button>
           </form>
 

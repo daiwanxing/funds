@@ -3,7 +3,7 @@ import { defineStore } from "pinia";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/vue-query";
 import { fetchBootstrap, putWatchlist, importGuestWatchlist } from "@/api/user";
 import * as authApi from "@/api/auth";
-import type { BootstrapResponse, WatchlistItemDTO } from "@/types/auth";
+import type { BootstrapResponse, OAuthProvider, WatchlistItemDTO } from "@/types/auth";
 import { mapWatchlistToFundList } from "@/types/auth";
 import type { FundListItem } from "@/types/fund";
 
@@ -107,6 +107,10 @@ export const useAuthStore = defineStore("auth", () => {
     mutationFn: ({ email }: { email: string }) => authApi.resendVerification(email),
   });
 
+  const startOAuthSignIn = (provider: OAuthProvider) => {
+    authApi.startOAuthSignIn(provider);
+  };
+
   // ── Watchlist mutations ────────────────────────────────────────
   const saveWatchlistMutation = useMutation({
     mutationFn: (watchlist: WatchlistItemDTO[]) => putWatchlist(watchlist),
@@ -144,6 +148,7 @@ export const useAuthStore = defineStore("auth", () => {
     forgotPassword: forgotPasswordMutation,
     resetPassword: resetPasswordMutation,
     resendVerification: resendVerificationMutation,
+    startOAuthSignIn,
 
     // ── Watchlist mutations ────────────────────────────────────
     saveWatchlist: saveWatchlistMutation,

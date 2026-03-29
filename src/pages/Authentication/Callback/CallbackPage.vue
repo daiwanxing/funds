@@ -7,13 +7,41 @@ const router = useRouter();
 
 const status = ref<"loading" | "success" | "error">("loading");
 const message = ref("");
+const title = ref("验证中…");
+const actionLabel = ref("前往登录");
+const actionTarget = ref("/auth/sign-in");
 
 onMounted(() => {
   // Parse the hash fragment for verification result
   const hash = window.location.hash;
+  const [, hashQuery = ""] = hash.split("?");
+  const query = new URLSearchParams(hashQuery);
+
+  if (query.get("source") === "oauth" || query.get("reason") === "oauth_callback_failed") {
+    const provider = query.get("provider");
+    const providerLabel =
+      provider === "google" ? "Google" : provider === "github" ? "GitHub" : "第三方账号";
+
+    if (query.get("status") === "success") {
+      status.value = "success";
+      title.value = "登录成功";
+      message.value = `${providerLabel} 登录成功，您现在可以进入首页了。`;
+      actionLabel.value = "进入首页";
+      actionTarget.value = "/";
+      return;
+    }
+
+    status.value = "error";
+    title.value = "登录失败";
+    message.value = "第三方登录失败，请返回登录页后重试。";
+    actionLabel.value = "前往登录";
+    actionTarget.value = "/auth/sign-in";
+    return;
+  }
 
   if (hash.includes("error")) {
     status.value = "error";
+    title.value = "验证失败";
     // Try to extract error description
     const params = new URLSearchParams(hash.replace(/^#\/?.*?\?/, "").replace(/^#/, ""));
     const errorDesc =
@@ -23,16 +51,18 @@ onMounted(() => {
     message.value = decodeURIComponent(errorDesc);
   } else if (hash.includes("access_token") || hash.includes("type=signup")) {
     status.value = "success";
+    title.value = "验证成功";
     message.value = "邮箱验证成功！您现在可以登录了。";
   } else {
     // Default: assume success if no error indicator
     status.value = "success";
+    title.value = "验证成功";
     message.value = "邮箱验证成功！您现在可以登录了。";
   }
 });
 
 const goToSignIn = () => {
-  router.push("/auth/sign-in");
+  router.push(actionTarget.value);
 };
 </script>
 
@@ -61,7 +91,7 @@ const goToSignIn = () => {
           />
         </div>
         <h1 class="auth-title">
-          {{ status === "loading" ? "验证中…" : status === "success" ? "验证成功" : "验证失败" }}
+          {{ title }}
         </h1>
         <p class="auth-subtitle">
           {{ message }}
@@ -74,7 +104,7 @@ const goToSignIn = () => {
         class="auth-submit"
         @click="goToSignIn"
       >
-        前往登录
+        {{ actionLabel }}
       </button>
     </div>
   </div>
