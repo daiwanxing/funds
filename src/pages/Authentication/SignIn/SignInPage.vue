@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
-import { useAuth } from "@/composables/auth/useAuth";
+import { useAuthStore } from "@/stores/auth";
 import { Mail, Lock, Eye, EyeOff } from "lucide-vue-next";
 import AuthLayout from "@/layouts/AuthLayout.vue";
 import { toast } from "vue-sonner";
 
 const router = useRouter();
 const route = useRoute();
-const { signIn, signUp, forgotPassword, resendVerification } = useAuth();
+const { signIn, signUp, forgotPassword, resendVerification } = useAuthStore();
 
 // ─── Mode toggle ─────────────────────────────────────────────────────────────
 type AuthMode = "login" | "register" | "forgot";
@@ -39,7 +39,7 @@ const loginEmail = ref("");
 const loginPassword = ref("");
 const showLoginPassword = ref(false);
 
-const isLoginLoading = computed(() => signIn.isPending.value);
+const isLoginLoading = computed(() => signIn.isPending);
 const isLoginValid = computed(
   () => loginEmail.value.trim() !== "" && loginPassword.value !== "",
 );
@@ -66,7 +66,7 @@ const regError = ref("");
 const regSuccess = ref("");
 const isRegistered = ref(false);
 
-const isRegLoading = computed(() => signUp.isPending.value);
+const isRegLoading = computed(() => signUp.isPending);
 
 // 密码强度：至少 9 位，包含字母和数字
 const PASSWORD_RE = /^(?=.*[A-Za-z])(?=.*\d).{9,}$/;
@@ -118,7 +118,7 @@ const forgotEmail = ref("");
 const forgotError = ref("");
 const forgotSuccess = ref("");
 
-const isForgotLoading = computed(() => forgotPassword.isPending.value);
+const isForgotLoading = computed(() => forgotPassword.isPending);
 const isForgotValid = computed(() => forgotEmail.value.trim() !== "");
 
 const handleForgotPassword = async () => {
@@ -394,10 +394,10 @@ watch(currentMode, (_newMode, oldMode) => {
               <button
                 type="button"
                 class="w-full h-10 border border-white/6 rounded-lg bg-bg-2 text-s font-sans text-sm font-500 cursor-pointer transition-[background,border-color] duration-200 enabled:hover:bg-bg-3 enabled:hover:border-white/10 disabled:op-50 disabled:cursor-not-allowed"
-                :disabled="resendVerification.isPending.value"
+                :disabled="resendVerification.isPending"
                 @click="handleResend"
               >
-                {{ resendVerification.isPending.value ? "发送中…" : "重新发送验证邮件" }}
+                {{ resendVerification.isPending ? "发送中…" : "重新发送验证邮件" }}
               </button>
               <button
                 type="button"

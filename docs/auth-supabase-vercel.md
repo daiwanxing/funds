@@ -1,8 +1,8 @@
 # Funds Assistant 认证与同步设计
 
-> 版本：v1.0
+> 版本：v1.1
 > 更新：2026-03-29
-> 适用阶段：首期登录注册与云端同步
+> 适用阶段：首期登录注册与云端同步，含第二阶段 OAuth 方案评估
 
 ---
 
@@ -30,13 +30,18 @@
 - 多端冲突合并
 - 复杂权限模型
 
-Google / GitHub OAuth 作为第二阶段预留。
+说明：
+
+- Google / GitHub OAuth 不进入首期交付范围
+- 但已完成可行性评估，适合作为第二阶段增强能力推进
 
 ---
 
 ## 总体架构
 
 采用 `Supabase Auth + Supabase Postgres + Vercel Functions BFF`。
+
+第二阶段引入 Google / GitHub OAuth 时，继续沿用这套架构，不更换认证底座。
 
 职责划分如下：
 
@@ -53,6 +58,7 @@ Google / GitHub OAuth 作为第二阶段预留。
   - 负责邮箱密码注册
   - 负责邮箱验证
   - 负责找回密码与重置密码
+  - 第二阶段负责 Google / GitHub OAuth provider 能力
 - Supabase Postgres：
   - 负责持久化用户自选基金数据
 
@@ -65,6 +71,7 @@ Google / GitHub OAuth 作为第二阶段预留。
 - 推荐使用 `HttpOnly` cookie 维持登录态。
 - 前端通过 `/api/me/bootstrap` 判断当前是否已登录，并拉取业务数据。
 - 游客模式下不建立云端会话。
+- 第二阶段的社交登录也必须落到同一套服务端 cookie，会话策略不分叉。
 
 说明：
 
@@ -88,6 +95,157 @@ Google / GitHub OAuth 作为第二阶段预留。
 
 - 当前 repo 为 fork 版本，旧设置字段后续会删除
 - 首期目标聚焦在登录、注册、找回密码与自选同步主链路
+
+---
+
+## 第二阶段 OAuth 方案评估
+
+### 结论
+
+Google / GitHub OAuth 方案可落地，且值得做。
+
+原因如下：
+
+- 当前项目已经接入 `Supabase Auth`，天然具备扩展 OAuth provider 的基础
+- 现有登录态由 `Vercel Functions` 建立 `HttpOnly` cookie，可继续复用
+- 前端已经统一通过 `/api/auth/*` 和 `/api/me/bootstrap` 消费认证状态，不需要重做首页与同步主链路
+- 目标用户为海外华人和可访问国际网络的中文用户，Google 与 GitHub 都具备实际可用性
+
+### 用户价值判断
+
+- `Google` 更偏通用登录入口，预期对注册转化提升更明显
+- `GitHub` 更偏技术用户和重度互联网用户入口，适合作为补充渠道
+- 保留邮箱密码登录是合理选择，既保留基础可达性，也能承接不愿绑定第三方账号的用户
+
+### 方案对比
+
+#### 方案 A：继续使用 Supabase Auth，并由 BFF 承接 OAuth 发起与回调
+
+这是推荐方案。
+
+做法：
+
+- 前端只调用或跳转到自有接口
+- BFF 发起 Google / GitHub OAuth
+- OAuth 完成后由 BFF 交换 session 并写入现有 auth cookie
+- 前端继续通过 `/api/me/bootstrap` 获取登录态与业务数据
+
+优点：
+
+- 与现有邮箱密码架构完全一致
+- 认证入口统一，不会出现两套 session 维护方式
+- 首次登录导入游客自选、用户资料初始化、登录后 bootstrap 都可直接复用
+
+#### 方案 B：前端直接接 Supabase OAuth，登录完成后再同步到 BFF
+
+不推荐。
+
+问题：
+
+- 邮箱密码登录走 BFF，OAuth 走前端 SDK，会造成认证入口分叉
+- 后续仍需把 session 倒回服务端，边界更复杂
+- 更容易在 cookie、刷新、登出一致性上出现问题
+
+#### 方案 C：更换为 Clerk / Auth.js 等外部认证方案
+
+当前阶段不推荐。
+
+原因：
+
+- 现有认证主链路已经成型
+- 更换底座的收益不足以覆盖迁移成本
+- 会显著增加改造面和测试面
+
+### 推荐方案
+
+第二阶段继续使用 `Supabase Auth + Vercel Functions BFF`，只在现有链路上新增 OAuth 分支，不替换邮箱密码方案。
+
+原则：
+
+- 保留邮箱密码登录、注册、找回密码
+- 新增 `Continue with Google`
+- 新增 `Continue with GitHub`
+- 所有登录方式最终都落到同一套 `HttpOnly` cookie
+- 所有已登录页面仍只依赖 `/api/me/bootstrap`
+
+### 推荐登录流程
+
+#### 1. 前端入口
+
+- 在登录页和注册页增加 Google / GitHub 按钮
+- 点击后跳转到 `GET /api/auth/oauth/start?provider=google`
+- 或 `GET /api/auth/oauth/start?provider=github`
+
+#### 2. BFF 发起 OAuth
+
+- BFF 调用 Supabase OAuth provider 能力
+- 生成跳转 URL 并跳转到对应 provider
+- provider 回调地址指向自有服务端接口，而不是直接落到前端业务页
+
+#### 3. BFF 回调处理
+
+- 新增 `GET /api/auth/oauth/callback`
+- BFF 在该接口中完成 code 交换 session
+- 成功后写入现有 `HttpOnly` auth cookie
+- 同步补齐 `user_profiles` 记录
+- 沿用现有首次登录判定逻辑
+
+#### 4. 前端收口
+
+- BFF 完成 cookie 设置后，再跳回前端
+- 前端进入 `/auth/callback` 或首页
+- 页面继续调用 `/api/me/bootstrap` 完成用户态初始化
+
+### 关键边界与风险
+
+#### 1. 账号合并
+
+- 用户可能先用邮箱密码注册，再使用 Google 或 GitHub 登录
+- 如果 Supabase 侧 provider 邮箱与既有邮箱相同，需要明确是自动合并、提示绑定，还是允许并行账号
+- 该项是第二阶段最需要提前定义的产品规则
+
+建议：
+
+- 优先采用“同邮箱自动识别并归并到同一用户”的方案
+- 若 Supabase provider 配置或实际行为不满足预期，则至少要在 UI 上给出明确提示，避免用户误以为数据丢失
+
+#### 2. 首次登录导入逻辑
+
+- OAuth 登录不能绕开 `first_login_completed`
+- 无论邮箱密码登录还是社交登录，首次登录导入游客自选的规则必须一致
+
+#### 3. 回调路径设计
+
+- 当前前端使用 hash 路由
+- 邮箱验证可以直接落到 `/#/auth/callback`
+- OAuth 更适合先落服务端 callback，再由服务端跳回前端页面
+- 这样更利于写 cookie、兜底错误和统一行为
+
+#### 4. 登录页信息架构
+
+- 当前登录页主文案和表单结构围绕邮箱密码设计
+- 第二阶段接入后，需要调整为“社交登录优先，邮箱密码作为并行方案”或“邮箱密码与社交登录并列”
+- 否则虽然技术接入完成，但转化提升可能有限
+
+### 环境与配置补充
+
+第二阶段需要新增以下配置工作：
+
+- 在 Supabase Dashboard 启用 Google provider
+- 在 Supabase Dashboard 启用 GitHub provider
+- 在 Google Cloud Console 配置 OAuth client 与回调地址
+- 在 GitHub Developer Settings 配置 OAuth App 与回调地址
+- 在 Supabase 和 Vercel 中同步补齐所需环境变量
+
+### 实施优先级建议
+
+建议顺序：
+
+1. 先接入 Google OAuth
+2. 跑通服务端回调、cookie 建立、bootstrap 初始化
+3. 验证首次登录导入游客自选链路
+4. 再接入 GitHub OAuth
+5. 最后处理账号归并与按钮文案优化
 
 ---
 
@@ -276,6 +434,28 @@ Google / GitHub OAuth 作为第二阶段预留。
 - 更新密码
 - 成功后要求重新登录
 
+#### `GET /api/auth/oauth/start`
+
+请求参数示意：
+
+```txt
+provider=google | github
+```
+
+职责：
+
+- 第二阶段发起 OAuth 登录流程
+- 根据 provider 生成第三方授权跳转
+
+#### `GET /api/auth/oauth/callback`
+
+职责：
+
+- 第二阶段接收 OAuth provider 回调
+- 交换 Supabase session
+- 写入现有服务端 auth cookie
+- 之后跳转回前端回调页或首页
+
 ### 用户数据接口
 
 #### `GET /api/me/bootstrap`
@@ -393,7 +573,9 @@ Google / GitHub OAuth 作为第二阶段预留。
 4. 将当前自选基金从本地持久化切换为“游客会话态 / 登录云端态”
 5. 增加首次登录导入确认弹窗与导入接口
 6. 补齐找回密码与重置密码
-7. 第二阶段再引入 Google / GitHub OAuth
+7. 第二阶段再引入 Google OAuth
+8. 再接入 GitHub OAuth
+9. 处理账号归并策略与登录页优化
 
 ---
 
@@ -403,7 +585,7 @@ Google / GitHub OAuth 作为第二阶段预留。
 
 - Google 登录
 - GitHub 登录
+- 邮箱密码与第三方账号绑定 / 归并策略
 - 更多账户绑定策略
 - 多设备冲突合并
 - 更多云端用户偏好同步
-

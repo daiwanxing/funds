@@ -5,7 +5,7 @@ import { usePreferences } from "@/composables/preferences";
 import { useFundData } from "@/composables/fund";
 import { useGlobalIndices } from "@/composables/index";
 import { useHoliday } from "@/composables/holiday";
-import { useAuth } from "@/composables/auth/useAuth";
+import { useAuthStore } from "@/stores/auth";
 import { useGuestWatchlist } from "@/composables/watchlist/useGuestWatchlist";
 import { GlobalTicker } from "./components/GlobalTicker";
 import { StatusBar } from "./components/StatusBar";
@@ -19,7 +19,7 @@ import { Bot, X } from "lucide-vue-next";
 
 const preferences = usePreferences();
 useHoliday();
-const auth = useAuth();
+const auth = useAuthStore();
 const guestWatchlist = useGuestWatchlist();
 
 const cloneFundList = (items: FundListItem[]): FundListItem[] => {
@@ -32,8 +32,8 @@ const cloneFundList = (items: FundListItem[]): FundListItem[] => {
 
 const watchlistState = ref<FundListItem[]>([]);
 const activeWatchlistSource = computed(() => {
-  return auth.isAuthenticated.value
-    ? auth.cloudWatchlist.value
+  return auth.isAuthenticated
+    ? auth.cloudWatchlist
     : guestWatchlist.items.value;
 });
 
@@ -44,7 +44,7 @@ const syncWatchlistState = (items: FundListItem[]) => {
 const persistWatchlist = async (watchlist: FundListItem[]) => {
   const nextWatchlist = cloneFundList(watchlist);
 
-  if (auth.isAuthenticated.value) {
+  if (auth.isAuthenticated) {
     await auth.saveWatchlist.mutateAsync(mapFundListToWatchlist(nextWatchlist));
     return;
   }
@@ -87,7 +87,7 @@ const { searchOptions, loading: isSearching } = useFundSearch(searchQuery);
 
 const lastUpdateTime = ref<Date>();
 const shouldShowImportDialog = computed(() => {
-  return auth.shouldShowImportPrompt.value && guestWatchlist.items.value.length > 0;
+  return auth.shouldShowImportPrompt && guestWatchlist.items.value.length > 0;
 });
 
 const normalizeSelectedFundCode = () => {

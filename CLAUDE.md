@@ -55,7 +55,7 @@ pnpm test:run     # 运行测试
 | ESLint 规则与约束 | `.rules/LINT.md` |
 | 设计令牌、样式约定 | `src/styles/tokens.css` · `uno.config.ts` |
 | API 数据获取与缓存策略 | `src/composables/fund/useFundData.ts` |
-| 全局状态结构 | `src/stores/fund.ts` |
+| 全局状态结构 | `src/stores/fund.ts` · `src/stores/auth.ts` |
 | 交易时间判断逻辑 | `src/utils/marketStatus.ts` |
 | 路由定义 | `src/router.ts` |
 | 构建与代理配置 | `vite.config.ts` |
@@ -67,7 +67,7 @@ src/
 ├── pages/        # 页面（多单词命名，Page 后缀）
 ├── components/   # 纯展示 UI 组件
 ├── composables/  # 业务逻辑（按领域分目录）
-├── stores/       # Pinia 状态
+├── stores/       # Pinia 状态（fund.ts · auth.ts）
 ├── types/        # 类型定义（按领域分文件）
 ├── utils/        # 工具函数
 └── styles/       # 全局 CSS 令牌
