@@ -48,15 +48,7 @@ const clearQuery = () => {
     
     <!-- Search Input Box -->
     <div class="relative w-full h-[36px] bg-[#1a1a1c] border border-white/5 rounded-lg flex items-center shadow-inner overflow-hidden focus-within:border-[#3B82F6]/50 transition-colors group">
-      <!-- Loading Sun spinner -->
-      <div
-        v-if="isSearching"
-        class="w-4 h-4 ml-3 flex items-center justify-center shrink-0 text-[#3B82F6] opacity-80"
-      >
-        <span class="w-[14px] h-[14px] border-[2px] border-[#3B82F6] border-t-transparent rounded-full animate-spin" />
-      </div>
       <Search
-        v-else
         class="w-4 h-4 ml-3 shrink-0 text-white/30 group-focus-within:text-[#3B82F6] transition-colors"
       />
       
@@ -70,7 +62,7 @@ const clearQuery = () => {
       <button 
         v-if="query" 
         @click="clearQuery" 
-        class="w-5 h-5 mr-2 rounded-full flex items-center justify-center bg-white/10 hover:bg-white/20 text-white/60 transition-colors cursor-pointer"
+        class="w-5 h-5 mr-2 shrink-0 rounded-full flex items-center justify-center bg-white/10 hover:bg-white/20 text-white/60 transition-colors cursor-pointer"
       >
         <X class="w-3 h-3" />
       </button>
