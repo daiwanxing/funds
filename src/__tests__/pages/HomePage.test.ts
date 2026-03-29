@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { mount, flushPromises } from "@vue/test-utils";
 import { defineComponent, ref, nextTick } from "vue";
-import HomePage from "@/pages/HomePage.vue";
+import HomePage from "@/pages/Home/HomePage.vue";
 import FundSavedList from "@/pages/Home/components/FundSavedList.vue";
 import type { FundItem, FundListItem } from "@/types/fund";
 

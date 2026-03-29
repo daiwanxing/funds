@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { mount } from "@vue/test-utils";
-import StatusBar from "@/components/StatusBar/StatusBar.vue";
+import StatusBar from "@/pages/Home/components/StatusBar/StatusBar.vue";
 
 vi.mock("@/utils/marketStatus", () => ({
   isDuringDate: () => false,

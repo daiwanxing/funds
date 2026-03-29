@@ -2,7 +2,7 @@
 import { ref, computed, onMounted, onUnmounted } from "vue";
 import { isDuringDate } from "@/utils/marketStatus";
 import { Activity, Settings2 } from "lucide-vue-next";
-import packageJson from "../../../package.json";
+import packageJson from "../../../../../package.json";
 
 const props = defineProps<{
   lastUpdateTime?: Date;

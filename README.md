@@ -84,19 +84,43 @@ Firefox 扩展商店暂已下架 ~~插件已上架火狐 Firefox 扩展商店：
 
 ## 运行调试开发
 
-需要 node 环境，先执行
-`npm i`
-安装依赖
+需要 Node 20.19+ 与 pnpm。
 
-调试模式执行
-`npm run watch:dev`
-生成 dist 文件夹，浏览器选择“加载已解压的扩展程序”
+安装依赖：
 
-打包与发布先执行
-`npm run build`
-生成 dist 文件夹，再执行
-`npm run build-zip`
-通过从 manifest.json 文件中读取 name 和 version 字段,构建{name}-v{version}.zip 这种格式的压缩文件。
+```bash
+pnpm install
+```
+
+默认开发模式：
+
+```bash
+pnpm dev
+```
+
+该命令会启动 `vercel dev`，同时提供：
+
+- Vite 前端开发服务器
+- `api/*.ts` 本地函数
+- `vercel.json` 中定义的 rewrites
+
+其中 `pnpm dev` / `pnpm dev:vercel` 会先通过 `scripts/dev-vercel.sh` 拉起 `vercel dev`；而 `vercel dev` 在本地会继续通过 `vercel.json` 的 `devCommand` 拉起 `pnpm dev:ui` 作为前端服务，避免递归调用 `pnpm dev` 本身。
+
+本项目登录、注册、bootstrap、自选同步等核心链路依赖本地 API，因此日常联调应默认使用 `pnpm dev`。
+
+仅做纯页面样式调试时，可使用：
+
+```bash
+pnpm dev:ui
+```
+
+注意：`pnpm dev:ui` 只启动 Vite，不会本地托管 `/api/auth/*`、`/api/me/*` 等接口，相关请求可能返回 `404`。
+
+生产构建：
+
+```bash
+pnpm build
+```
 
 ## 更新说明
 
@@ -369,4 +393,3 @@ Firefox 扩展商店暂已下架 ~~插件已上架火狐 Firefox 扩展商店：
 ## 隐私协议
 
 [点击跳转](https://x2rr.github.io/funds/privacy.html)  
-

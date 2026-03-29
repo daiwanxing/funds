@@ -10,8 +10,9 @@
     "node": ">=20.19.0"
   },
   "scripts": {
-    "dev": "vite",
-    "dev:vercel": "zsh -lc 'set -a && source .env.local && set +a && exec npx vercel dev'",
+    "dev": "zsh ./scripts/dev-vercel.sh",
+    "dev:ui": "vite",
+    "dev:vercel": "zsh ./scripts/dev-vercel.sh",
     "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview",
     "test": "vitest",
@@ -37,6 +38,7 @@
     "pinia": "^3.0.4",
     "vue": "^3.5.0",
     "vue-router": "^4.5.0",
+    "vue-sonner": "^2.0.9",
     "xlsx": "^0.18.5",
     "zod": "^4.3.6"
   },

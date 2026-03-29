@@ -4,32 +4,22 @@ const routes = [
   {
     path: "/",
     name: "HomePage",
-    component: () => import("./pages/HomePage.vue"),
+    component: () => import("./pages/Home/HomePage.vue"),
   },
   {
     path: "/auth/sign-in",
     name: "AuthSignIn",
-    component: () => import("./pages/auth/AuthSignInPage.vue"),
-  },
-  {
-    path: "/auth/sign-up",
-    name: "AuthSignUp",
-    component: () => import("./pages/auth/AuthSignUpPage.vue"),
-  },
-  {
-    path: "/auth/forgot-password",
-    name: "AuthForgotPassword",
-    component: () => import("./pages/auth/AuthForgotPasswordPage.vue"),
+    component: () => import("./pages/auth/SignIn/SignInPage.vue"),
   },
   {
     path: "/auth/reset-password",
     name: "AuthResetPassword",
-    component: () => import("./pages/auth/AuthResetPasswordPage.vue"),
+    component: () => import("./pages/auth/ResetPassword/ResetPasswordPage.vue"),
   },
   {
     path: "/auth/callback",
     name: "AuthCallback",
-    component: () => import("./pages/auth/AuthCallbackPage.vue"),
+    component: () => import("./pages/auth/Callback/CallbackPage.vue"),
   },
 ];
 
