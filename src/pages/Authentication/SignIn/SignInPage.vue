@@ -254,7 +254,7 @@ watch(currentMode, (_newMode, oldMode) => {
             </button>
           </form>
 
-          <div class="text-center mt-6 pt-5 border-t border-white/6">
+          <div class="text-center mt-6 pt-5 border-t border-white/6 border-x-0 border-b-0">
             <span class="font-sans text-[13px] text-t mr-1">还没有账号？</span>
             <button
               type="button"
@@ -409,7 +409,7 @@ watch(currentMode, (_newMode, oldMode) => {
             </div>
           </template>
 
-          <div class="text-center mt-6 pt-5 border-t border-white/6">
+          <div class="text-center mt-6 pt-5 border-t border-white/6 border-x-0 border-b-0">
             <span class="font-sans text-[13px] text-t mr-1">已有账号？</span>
             <button
               type="button"
@@ -483,7 +483,7 @@ watch(currentMode, (_newMode, oldMode) => {
             </button>
           </form>
 
-          <div class="text-center mt-6 pt-5 border-t border-white/6">
+          <div class="text-center mt-6 pt-5 border-t border-white/6 border-x-0 border-b-0">
             <button
               type="button"
               class="font-sans text-[13px] text-accent no-underline transition-colors duration-200 hover:text-accent-hover bg-none border-none p-0 cursor-pointer"
