@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Globe as GlobeIcon } from "lucide-vue-next";
+import BrandLogo from "@/components/BrandLogo.vue";
 import { AUTH_GLOBE_MARKETS } from "@/pages/Authentication/components/Globe/authGlobeMarkets";
 import Globe from "@/pages/Authentication/components/Globe/Globe.vue";
 </script>
@@ -9,11 +9,11 @@ import Globe from "@/pages/Authentication/components/Globe/Globe.vue";
     <!-- 极简 Logo 浮动区 -->
     <header class="absolute top-0 left-0 w-full h-20 flex items-center px-8 bg-transparent z-10 pointer-events-none">
       <div class="flex items-center gap-3 pointer-events-auto">
-        <GlobeIcon
-          class="text-accent"
-          :size="20"
+        <BrandLogo
+          class="text-p"
+          :size="34"
         />
-        <span class="font-mono font-700 text-[18px] tracking-[-0.5px] text-p">FundStation</span>
+        <span class="font-sans font-700 text-[18px] tracking-[-0.5px] text-p">Funds Assistant</span>
       </div>
     </header>
 

@@ -1,4 +1,4 @@
-# FundStation — Dashboard 布局原型 v4
+# Funds Assistant — Dashboard 布局原型 v4
 
 > 产品定位：以「用户自选基金列表」为核心的 **实时基金决策系统**
 > 设计锚点：彭博终端（Bloomberg Terminal）专业交易大屏的沉浸感 + AI 辅助决策

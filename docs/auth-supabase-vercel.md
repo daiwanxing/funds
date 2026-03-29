@@ -1,4 +1,4 @@
-# FundStation 认证与同步设计
+# Funds Assistant 认证与同步设计
 
 > 版本：v1.0
 > 更新：2026-03-29

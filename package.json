@@ -1,8 +1,8 @@
 {
-  "name": "fundstation",
+  "name": "Funds Assistant",
   "version": "3.0.0",
   "private": true,
-  "description": "FundStation — 自选基金驾驶舱",
+  "description": "Funds Assistant — 自选基金驾驶舱",
   "author": "LiuRabt",
   "license": "GPL-3.0",
   "type": "module",

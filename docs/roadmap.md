@@ -1,4 +1,4 @@
-# FundStation — 开发阶段规划
+# Funds Assistant — 开发阶段规划
 
 > 版本：v1.0
 > 更新：2026-03-27

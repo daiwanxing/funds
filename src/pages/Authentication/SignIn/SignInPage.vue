@@ -168,7 +168,7 @@ watch(currentMode, (_newMode, oldMode) => {
         >
           <div class="text-center mb-8">
             <h1 class="font-sans text-xl font-600 text-p m-0 mb-2">
-              登录 FundStation
+              登录 Funds Assistant
             </h1>
             <p class="font-sans text-[13px] text-t m-0">
               使用邮箱和密码登录您的账号
@@ -273,7 +273,7 @@ watch(currentMode, (_newMode, oldMode) => {
         >
           <div class="text-center mb-8">
             <h1 class="font-sans text-xl font-600 text-p m-0 mb-2">
-              注册 FundStation
+              注册 Funds Assistant
             </h1>
             <p class="font-sans text-[13px] text-t m-0">
               创建账号以开启云端同步
