@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import BrandLogo from "@/components/BrandLogo.vue";
-import { AUTH_GLOBE_MARKETS } from "@/pages/Authentication/components/Globe/authGlobeMarkets";
 import Globe from "@/pages/Authentication/components/Globe/Globe.vue";
+import { useAuthGlobeMarkets } from "@/pages/Authentication/composables/useAuthGlobeMarkets";
+
+const authGlobeMarkets = useAuthGlobeMarkets();
 </script>
 
 <template>
@@ -32,7 +34,7 @@ import Globe from "@/pages/Authentication/components/Globe/Globe.vue";
           </div>
 
           <div class="w-[min(68%,544px)] aspect-square op-96 mt-[136px] ml-6">
-            <Globe :items="AUTH_GLOBE_MARKETS" />
+            <Globe :items="authGlobeMarkets.items.value" />
           </div>
         </div>
       </section>
