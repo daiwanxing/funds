@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { FundItem } from "@/types/fund";
+import { BarChart2, Info } from 'lucide-vue-next';
 
 defineProps<{
   items: FundItem[];
@@ -112,15 +113,28 @@ const emit = defineEmits<{
       v-else
       class="flex-1 flex flex-col items-center justify-center pb-20"
     >
-      <div class="w-16 h-16 rounded-2xl bg-white/[0.03] border border-white/5 flex items-center justify-center mb-5">
-        <span class="text-2xl">📊</span>
+      <div class="relative w-14 h-14 rounded-2xl border border-white/5 flex items-center justify-center mb-4">
+        <BarChart2
+          class="w-6 h-6 text-white/20"
+          :stroke-width="2"
+        />
       </div>
-      <p class="text-[14px] font-bold text-white mb-2 font-sans tracking-wide">
-        添加你的第一只基金
+      <p class="text-[14px] font-medium text-white/50 mb-2 font-sans tracking-wide">
+        自选列表为空
       </p>
-      <p class="text-[12px] text-white/40 text-center mx-6 leading-relaxed font-sans">
-        从上方搜索框输入基金代码或缩写，快速加入自选列表。
+      <p class="text-[12px] text-white/30 text-center mx-6 leading-relaxed font-sans mb-6">
+        通过上方搜索框<br>添加基金至自选
       </p>
+      
+      <div class="w-8 h-[1px] bg-white/5 mb-6" />
+      
+      <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#3B82F6]/20 hover:bg-[#3B82F6]/5 transition-colors cursor-default">
+        <Info
+          class="w-3.5 h-3.5 text-[#3B82F6]"
+          :stroke-width="2"
+        />
+        <span class="text-[12px] text-[#3B82F6] font-sans tracking-wide">支持基金名称、代码</span>
+      </div>
     </div>
   </div>
 </template>

@@ -1,23 +1,21 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { Search, Plus, Check } from 'lucide-vue-next';
-import { useSettings } from '@/composables/settings';
 import type { SearchFundItem } from '@/composables/fund/useFundSearch';
 
-defineProps<{
+const props = defineProps<{
   query: string;
   options: SearchFundItem[];
   loading: boolean;
+  addedCodes: string[];
 }>();
 
 const emit = defineEmits<{
   (e: 'add', code: string): void;
 }>();
 
-const settings = useSettings();
-
 const addedKeys = computed(() => {
-  return new Set(settings.fundListM.value.map(f => f.code));
+  return new Set(props.addedCodes);
 });
 
 const highlightText = (text: string, query: string) => {

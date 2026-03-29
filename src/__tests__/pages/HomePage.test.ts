@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { mount, flushPromises } from "@vue/test-utils";
-import { ref, nextTick } from "vue";
+import { defineComponent, ref, nextTick } from "vue";
 import HomePage from "@/pages/HomePage.vue";
 import FundSavedList from "@/pages/Home/components/FundSavedList.vue";
 import type { FundItem, FundListItem } from "@/types/fund";
@@ -30,6 +30,29 @@ const fundDataState = {
   loadingList: ref(false),
 };
 
+const authState = {
+  bootstrap: {
+    refetch: vi.fn(),
+  },
+  isAuthenticated: ref(false),
+  cloudWatchlist: ref<FundListItem[]>([]),
+  isFirstLogin: ref(false),
+  shouldShowImportPrompt: ref(false),
+  saveWatchlist: {
+    mutateAsync: vi.fn(),
+  },
+  importGuest: {
+    mutateAsync: vi.fn(),
+  },
+  dismissImportPrompt: vi.fn(),
+};
+
+const guestWatchlistState = {
+  items: ref<FundListItem[]>([]),
+  replaceAll: vi.fn(),
+  clear: vi.fn(),
+};
+
 const globalIndicesState = {
   dataList: ref([]),
   isLoading: ref(false),
@@ -45,7 +68,10 @@ vi.mock("@/composables/settings", () => ({
 }));
 
 vi.mock("@/composables/fund", () => ({
-  useFundData: () => fundDataState,
+  useFundData: vi.fn((watchlistRef) => {
+    capturedWatchlistRef = watchlistRef;
+    return fundDataState;
+  }),
 }));
 
 vi.mock("@/composables/index", () => ({
@@ -54,6 +80,14 @@ vi.mock("@/composables/index", () => ({
 
 vi.mock("@/composables/holiday", () => ({
   useHoliday: () => holidayState,
+}));
+
+vi.mock("@/composables/auth/useAuth", () => ({
+  useAuth: () => authState,
+}));
+
+vi.mock("@/composables/watchlist/useGuestWatchlist", () => ({
+  useGuestWatchlist: () => guestWatchlistState,
 }));
 
 vi.mock("@/composables/fund/useFundSearch", () => ({
@@ -73,6 +107,51 @@ vi.mock("@/utils/marketStatus", async () => {
     ...actual,
     loadHoliday: vi.fn().mockResolvedValue(undefined),
   };
+});
+
+let capturedWatchlistRef: { value: FundListItem[] } | undefined;
+
+const WatchlistHeaderStub = defineComponent({
+  name: "WatchlistHeader",
+  props: {
+    savedCount: {
+      type: Number,
+      default: 0,
+    },
+  },
+  template: "<div data-test='saved-count'>{{ savedCount }}</div>",
+});
+
+const FundSearchListStub = defineComponent({
+  name: "FundSearchList",
+  props: {
+    addedCodes: {
+      type: Array,
+      default: () => [],
+    },
+  },
+  template: "<div data-test='search-added-codes'>{{ (addedCodes as string[]).join(',') }}</div>",
+});
+
+const GuestImportDialogStub = defineComponent({
+  name: "GuestImportDialog",
+  props: {
+    open: {
+      type: Boolean,
+      default: false,
+    },
+    guestCount: {
+      type: Number,
+      default: 0,
+    },
+  },
+  emits: ["confirm", "cancel"],
+  template: `
+    <div v-if="open">
+      <button data-test="confirm-import" @click="$emit('confirm')">confirm {{ guestCount }}</button>
+      <button data-test="cancel-import" @click="$emit('cancel')">cancel</button>
+    </div>
+  `,
 });
 
 const createFundItem = (fundcode: string): FundItem => ({
@@ -97,8 +176,9 @@ const mountPage = async () => {
       stubs: {
         GlobalTicker: { template: "<div />" },
         StatusBar: { template: "<div />" },
-        WatchlistHeader: { template: "<div />" },
-        FundSearchList: { template: "<div />" },
+        WatchlistHeader: WatchlistHeaderStub,
+        FundSearchList: FundSearchListStub,
+        GuestImportDialog: GuestImportDialogStub,
       },
     },
   });
@@ -131,13 +211,26 @@ describe("HomePage selection behavior", () => {
     fundDataState.dataListDft.value = [];
     fundDataState.allGains.value = [0, 0];
     fundDataState.allCostGains.value = [0, 0];
+    fundDataState.loadingList.value = false;
 
     globalIndicesState.refetch.mockReset();
     holidayState.loadFromStorage.mockReset();
+    authState.bootstrap.refetch.mockReset();
+    authState.isAuthenticated.value = false;
+    authState.cloudWatchlist.value = [];
+    authState.isFirstLogin.value = false;
+    authState.shouldShowImportPrompt.value = false;
+    authState.saveWatchlist.mutateAsync.mockReset();
+    authState.importGuest.mutateAsync.mockReset();
+    authState.dismissImportPrompt.mockReset();
+    guestWatchlistState.items.value = [];
+    guestWatchlistState.replaceAll.mockReset();
+    guestWatchlistState.clear.mockReset();
+    capturedWatchlistRef = undefined;
   });
 
-  it("selects the first fund on initial load when no valid selection exists", async () => {
-    settingsState.fundListM.value = [
+  it("uses guest watchlist as the active source when unauthenticated", async () => {
+    guestWatchlistState.items.value = [
       { code: "000001", num: 0 },
       { code: "000002", num: 0 },
     ];
@@ -146,12 +239,18 @@ describe("HomePage selection behavior", () => {
 
     const wrapper = await mountPage();
 
+    expect(capturedWatchlistRef?.value).toEqual([
+      { code: "000001", num: 0, cost: 0 },
+      { code: "000002", num: 0, cost: 0 },
+    ]);
+    expect(wrapper.get("[data-test='saved-count']").text()).toBe("2");
+
     const savedList = wrapper.getComponent(FundSavedList);
     expect(savedList.props("activeCode")).toBe("000001");
   });
 
   it("shows loading state instead of empty state while the first saved-fund request is pending", async () => {
-    settingsState.fundListM.value = [{ code: "000001", num: 0 }];
+    guestWatchlistState.items.value = [{ code: "000001", num: 0 }];
     fundDataState.loadingList.value = true;
     fundDataState.dataList.value = [];
     fundDataState.dataListDft.value = [];
@@ -162,8 +261,28 @@ describe("HomePage selection behavior", () => {
     expect(wrapper.text()).toContain("正在同步自选持仓");
   });
 
+  it("switches to cloud watchlist when authenticated", async () => {
+    authState.isAuthenticated.value = true;
+    authState.cloudWatchlist.value = [
+      { code: "000001", num: 0 },
+      { code: "000002", num: 0 },
+    ];
+    guestWatchlistState.items.value = [{ code: "000003", num: 0 }];
+    fundDataState.dataList.value = [createFundItem("000001"), createFundItem("000002")];
+    fundDataState.dataListDft.value = [createFundItem("000001"), createFundItem("000002")];
+
+    const wrapper = await mountPage();
+
+    expect(capturedWatchlistRef?.value).toEqual([
+      { code: "000001", num: 0, cost: 0 },
+      { code: "000002", num: 0, cost: 0 },
+    ]);
+    expect(wrapper.get("[data-test='saved-count']").text()).toBe("2");
+    expect(wrapper.getComponent(FundSavedList).props("activeCode")).toBe("000001");
+  });
+
   it("falls back to the first remaining fund when the current selection disappears", async () => {
-    settingsState.fundListM.value = [
+    guestWatchlistState.items.value = [
       { code: "000001", num: 0 },
       { code: "000002", num: 0 },
     ];
@@ -173,7 +292,7 @@ describe("HomePage selection behavior", () => {
 
     const wrapper = await mountPage();
 
-    settingsState.fundListM.value = [{ code: "000001", num: 0 }];
+    guestWatchlistState.items.value = [{ code: "000001", num: 0 }];
     fundDataState.dataList.value = [createFundItem("000001")];
     fundDataState.dataListDft.value = [createFundItem("000001")];
     await nextTick();
@@ -184,18 +303,71 @@ describe("HomePage selection behavior", () => {
   it("selects the first fund when the list transitions from empty to non-empty and clears when emptied", async () => {
     const wrapper = await mountPage();
 
-    settingsState.fundListM.value = [{ code: "000003", num: 0 }];
+    guestWatchlistState.items.value = [{ code: "000003", num: 0 }];
     fundDataState.dataList.value = [createFundItem("000003")];
     fundDataState.dataListDft.value = [createFundItem("000003")];
     await nextTick();
 
     expect(wrapper.getComponent(FundSavedList).props("activeCode")).toBe("000003");
 
-    settingsState.fundListM.value = [];
+    guestWatchlistState.items.value = [];
     fundDataState.dataList.value = [];
     fundDataState.dataListDft.value = [];
     await nextTick();
 
     expect(wrapper.getComponent(FundSavedList).props("activeCode")).toBeNull();
+  });
+
+  it("opens the guest import dialog for first-login users with local guest funds", async () => {
+    authState.isAuthenticated.value = true;
+    authState.isFirstLogin.value = true;
+    authState.shouldShowImportPrompt.value = true;
+    authState.cloudWatchlist.value = [];
+    guestWatchlistState.items.value = [
+      { code: "000001", num: 0 },
+      { code: "000002", num: 0 },
+    ];
+
+    const wrapper = await mountPage();
+
+    expect(wrapper.get("[data-test='confirm-import']").text()).toContain("2");
+  });
+
+  it("imports guest watchlist on confirmation and clears the guest session", async () => {
+    authState.isAuthenticated.value = true;
+    authState.isFirstLogin.value = true;
+    authState.shouldShowImportPrompt.value = true;
+    authState.cloudWatchlist.value = [];
+    guestWatchlistState.items.value = [
+      { code: "005827", num: 10, cost: 1.7 },
+      { code: "000001", num: 5, cost: 0 },
+    ];
+
+    const wrapper = await mountPage();
+
+    await wrapper.get("[data-test='confirm-import']").trigger("click");
+
+    expect(authState.importGuest.mutateAsync).toHaveBeenCalledWith([
+      { fundCode: "005827", num: 10, cost: 1.7, sortOrder: 0 },
+      { fundCode: "000001", num: 5, cost: 0, sortOrder: 1 },
+    ]);
+    expect(guestWatchlistState.clear).toHaveBeenCalledTimes(1);
+    expect(authState.dismissImportPrompt).toHaveBeenCalledTimes(1);
+  });
+
+  it("dismisses the guest import dialog without importing when canceled", async () => {
+    authState.isAuthenticated.value = true;
+    authState.isFirstLogin.value = true;
+    authState.shouldShowImportPrompt.value = true;
+    authState.cloudWatchlist.value = [];
+    guestWatchlistState.items.value = [{ code: "005827", num: 10, cost: 1.7 }];
+
+    const wrapper = await mountPage();
+
+    await wrapper.get("[data-test='cancel-import']").trigger("click");
+
+    expect(authState.importGuest.mutateAsync).not.toHaveBeenCalled();
+    expect(guestWatchlistState.clear).not.toHaveBeenCalled();
+    expect(authState.dismissImportPrompt).toHaveBeenCalledTimes(1);
   });
 });

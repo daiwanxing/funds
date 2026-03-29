@@ -42,7 +42,7 @@ const fundQuoteResponse = {
   },
 };
 
-const mountUseFundData = () => {
+const mountUseFundData = (options?: Parameters<typeof useFundData>[3]) => {
   const fundListM = ref([{ code: "005827", num: 100, cost: 1.7 }]);
   const userId = ref("test-user");
   const sortTypeObj = ref({ name: null, type: null });
@@ -58,7 +58,7 @@ const mountUseFundData = () => {
 
   const Host = defineComponent({
     setup() {
-      exposed = useFundData(fundListM, userId, sortTypeObj);
+      exposed = useFundData(fundListM, userId, sortTypeObj, options);
       return () => null;
     },
   });
@@ -96,6 +96,27 @@ describe("useFundData", () => {
       }),
     );
     expect(exposed.dataList.value[0].gains).toBeCloseTo(1.31, 2);
+
+    wrapper.unmount();
+    queryClient.clear();
+  });
+
+  it("persists the updated watchlist through the injected callback when adding funds", async () => {
+    mockedFetchFundQuotes.mockResolvedValue(fundQuoteResponse.data.Datas);
+    const persistWatchlist = vi.fn();
+
+    const { exposed, wrapper, queryClient } = mountUseFundData({
+      persistWatchlist,
+    });
+
+    await flushPromises();
+
+    exposed.addFund(["000001"]);
+
+    expect(persistWatchlist).toHaveBeenCalledWith([
+      { code: "005827", num: 100, cost: 1.7 },
+      { code: "000001", num: 0, cost: 0 },
+    ]);
 
     wrapper.unmount();
     queryClient.clear();

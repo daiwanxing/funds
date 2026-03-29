@@ -68,23 +68,42 @@ const handleSubmit = async () => {
         <div class="auth-icon">
           <ShieldCheck :size="24" />
         </div>
-        <h1 class="auth-title">重置密码</h1>
-        <p class="auth-subtitle">设置一个新密码</p>
+        <h1 class="auth-title">
+          重置密码
+        </h1>
+        <p class="auth-subtitle">
+          设置一个新密码
+        </p>
       </div>
 
-      <form class="auth-form" @submit.prevent="handleSubmit">
-        <div v-if="errorMessage" class="auth-error">
+      <form
+        class="auth-form"
+        @submit.prevent="handleSubmit"
+      >
+        <div
+          v-if="errorMessage"
+          class="auth-error"
+        >
           {{ errorMessage }}
         </div>
 
-        <div v-if="successMessage" class="auth-success">
+        <div
+          v-if="successMessage"
+          class="auth-success"
+        >
           {{ successMessage }}
         </div>
 
         <div class="form-group">
-          <label for="reset-password" class="form-label">新密码</label>
+          <label
+            for="reset-password"
+            class="form-label"
+          >新密码</label>
           <div class="input-wrapper">
-            <Lock :size="16" class="input-icon" />
+            <Lock
+              :size="16"
+              class="input-icon"
+            />
             <input
               id="reset-password"
               v-model="password"
@@ -92,22 +111,34 @@ const handleSubmit = async () => {
               placeholder="至少 6 位"
               autocomplete="new-password"
               class="form-input"
-            />
+            >
             <button
               type="button"
               class="password-toggle"
               @click="showPassword = !showPassword"
             >
-              <Eye v-if="!showPassword" :size="16" />
-              <EyeOff v-else :size="16" />
+              <Eye
+                v-if="!showPassword"
+                :size="16"
+              />
+              <EyeOff
+                v-else
+                :size="16"
+              />
             </button>
           </div>
         </div>
 
         <div class="form-group">
-          <label for="reset-confirm" class="form-label">确认新密码</label>
+          <label
+            for="reset-confirm"
+            class="form-label"
+          >确认新密码</label>
           <div class="input-wrapper">
-            <Lock :size="16" class="input-icon" />
+            <Lock
+              :size="16"
+              class="input-icon"
+            />
             <input
               id="reset-confirm"
               v-model="confirmPassword"
@@ -116,9 +147,12 @@ const handleSubmit = async () => {
               autocomplete="new-password"
               class="form-input"
               :class="{ 'input-error': passwordMismatch }"
-            />
+            >
           </div>
-          <span v-if="passwordMismatch" class="field-error">
+          <span
+            v-if="passwordMismatch"
+            class="field-error"
+          >
             两次输入的密码不一致
           </span>
         </div>
@@ -133,7 +167,10 @@ const handleSubmit = async () => {
       </form>
 
       <div class="auth-footer">
-        <router-link to="/auth/sign-in" class="auth-link">
+        <router-link
+          to="/auth/sign-in"
+          class="auth-link"
+        >
           返回登录
         </router-link>
       </div>

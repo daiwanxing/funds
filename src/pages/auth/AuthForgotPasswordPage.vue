@@ -34,23 +34,42 @@ const handleSubmit = async () => {
         <div class="auth-icon">
           <KeyRound :size="24" />
         </div>
-        <h1 class="auth-title">找回密码</h1>
-        <p class="auth-subtitle">输入注册邮箱，我们将发送重置链接</p>
+        <h1 class="auth-title">
+          找回密码
+        </h1>
+        <p class="auth-subtitle">
+          输入注册邮箱，我们将发送重置链接
+        </p>
       </div>
 
-      <form class="auth-form" @submit.prevent="handleSubmit">
-        <div v-if="errorMessage" class="auth-error">
+      <form
+        class="auth-form"
+        @submit.prevent="handleSubmit"
+      >
+        <div
+          v-if="errorMessage"
+          class="auth-error"
+        >
           {{ errorMessage }}
         </div>
 
-        <div v-if="successMessage" class="auth-success">
+        <div
+          v-if="successMessage"
+          class="auth-success"
+        >
           {{ successMessage }}
         </div>
 
         <div class="form-group">
-          <label for="forgot-email" class="form-label">邮箱</label>
+          <label
+            for="forgot-email"
+            class="form-label"
+          >邮箱</label>
           <div class="input-wrapper">
-            <Mail :size="16" class="input-icon" />
+            <Mail
+              :size="16"
+              class="input-icon"
+            />
             <input
               id="forgot-email"
               v-model="email"
@@ -58,7 +77,7 @@ const handleSubmit = async () => {
               placeholder="name@example.com"
               autocomplete="email"
               class="form-input"
-            />
+            >
           </div>
         </div>
 
@@ -72,7 +91,10 @@ const handleSubmit = async () => {
       </form>
 
       <div class="auth-footer">
-        <router-link to="/auth/sign-in" class="auth-link">
+        <router-link
+          to="/auth/sign-in"
+          class="auth-link"
+        >
           返回登录
         </router-link>
       </div>

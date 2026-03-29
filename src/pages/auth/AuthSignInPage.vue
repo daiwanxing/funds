@@ -35,19 +35,35 @@ const handleSubmit = async () => {
         <div class="auth-icon">
           <LogIn :size="24" />
         </div>
-        <h1 class="auth-title">登录 FundStation</h1>
-        <p class="auth-subtitle">使用邮箱和密码登录您的账号</p>
+        <h1 class="auth-title">
+          登录 FundStation
+        </h1>
+        <p class="auth-subtitle">
+          使用邮箱和密码登录您的账号
+        </p>
       </div>
 
-      <form class="auth-form" @submit.prevent="handleSubmit">
-        <div v-if="errorMessage" class="auth-error">
+      <form
+        class="auth-form"
+        @submit.prevent="handleSubmit"
+      >
+        <div
+          v-if="errorMessage"
+          class="auth-error"
+        >
           {{ errorMessage }}
         </div>
 
         <div class="form-group">
-          <label for="sign-in-email" class="form-label">邮箱</label>
+          <label
+            for="sign-in-email"
+            class="form-label"
+          >邮箱</label>
           <div class="input-wrapper">
-            <Mail :size="16" class="input-icon" />
+            <Mail
+              :size="16"
+              class="input-icon"
+            />
             <input
               id="sign-in-email"
               v-model="email"
@@ -55,14 +71,20 @@ const handleSubmit = async () => {
               placeholder="name@example.com"
               autocomplete="email"
               class="form-input"
-            />
+            >
           </div>
         </div>
 
         <div class="form-group">
-          <label for="sign-in-password" class="form-label">密码</label>
+          <label
+            for="sign-in-password"
+            class="form-label"
+          >密码</label>
           <div class="input-wrapper">
-            <Lock :size="16" class="input-icon" />
+            <Lock
+              :size="16"
+              class="input-icon"
+            />
             <input
               id="sign-in-password"
               v-model="password"
@@ -70,20 +92,29 @@ const handleSubmit = async () => {
               placeholder="输入密码"
               autocomplete="current-password"
               class="form-input"
-            />
+            >
             <button
               type="button"
               class="password-toggle"
               @click="showPassword = !showPassword"
             >
-              <Eye v-if="!showPassword" :size="16" />
-              <EyeOff v-else :size="16" />
+              <Eye
+                v-if="!showPassword"
+                :size="16"
+              />
+              <EyeOff
+                v-else
+                :size="16"
+              />
             </button>
           </div>
         </div>
 
         <div class="form-actions-secondary">
-          <router-link to="/auth/forgot-password" class="auth-link">
+          <router-link
+            to="/auth/forgot-password"
+            class="auth-link"
+          >
             忘记密码？
           </router-link>
         </div>
@@ -99,7 +130,10 @@ const handleSubmit = async () => {
 
       <div class="auth-footer">
         <span class="auth-footer-text">还没有账号？</span>
-        <router-link to="/auth/sign-up" class="auth-link">
+        <router-link
+          to="/auth/sign-up"
+          class="auth-link"
+        >
           注册
         </router-link>
       </div>

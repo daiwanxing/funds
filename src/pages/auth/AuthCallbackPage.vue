@@ -47,9 +47,18 @@ const goToSignIn = () => {
             'auth-icon--error': status === 'error',
           }"
         >
-          <CheckCircle v-if="status === 'success'" :size="24" />
-          <XCircle v-else-if="status === 'error'" :size="24" />
-          <div v-else class="loader" />
+          <CheckCircle
+            v-if="status === 'success'"
+            :size="24"
+          />
+          <XCircle
+            v-else-if="status === 'error'"
+            :size="24"
+          />
+          <div
+            v-else
+            class="loader"
+          />
         </div>
         <h1 class="auth-title">
           {{ status === "loading" ? "验证中…" : status === "success" ? "验证成功" : "验证失败" }}

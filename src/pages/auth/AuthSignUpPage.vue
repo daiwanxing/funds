@@ -60,20 +60,36 @@ const handleResend = async () => {
         <div class="auth-icon">
           <UserPlus :size="24" />
         </div>
-        <h1 class="auth-title">注册 FundStation</h1>
-        <p class="auth-subtitle">创建账号以开启云端同步</p>
+        <h1 class="auth-title">
+          注册 FundStation
+        </h1>
+        <p class="auth-subtitle">
+          创建账号以开启云端同步
+        </p>
       </div>
 
       <template v-if="!isRegistered">
-        <form class="auth-form" @submit.prevent="handleSubmit">
-          <div v-if="errorMessage" class="auth-error">
+        <form
+          class="auth-form"
+          @submit.prevent="handleSubmit"
+        >
+          <div
+            v-if="errorMessage"
+            class="auth-error"
+          >
             {{ errorMessage }}
           </div>
 
           <div class="form-group">
-            <label for="sign-up-email" class="form-label">邮箱</label>
+            <label
+              for="sign-up-email"
+              class="form-label"
+            >邮箱</label>
             <div class="input-wrapper">
-              <Mail :size="16" class="input-icon" />
+              <Mail
+                :size="16"
+                class="input-icon"
+              />
               <input
                 id="sign-up-email"
                 v-model="email"
@@ -81,14 +97,20 @@ const handleResend = async () => {
                 placeholder="name@example.com"
                 autocomplete="email"
                 class="form-input"
-              />
+              >
             </div>
           </div>
 
           <div class="form-group">
-            <label for="sign-up-password" class="form-label">密码</label>
+            <label
+              for="sign-up-password"
+              class="form-label"
+            >密码</label>
             <div class="input-wrapper">
-              <Lock :size="16" class="input-icon" />
+              <Lock
+                :size="16"
+                class="input-icon"
+              />
               <input
                 id="sign-up-password"
                 v-model="password"
@@ -96,22 +118,34 @@ const handleResend = async () => {
                 placeholder="至少 6 位"
                 autocomplete="new-password"
                 class="form-input"
-              />
+              >
               <button
                 type="button"
                 class="password-toggle"
                 @click="showPassword = !showPassword"
               >
-                <Eye v-if="!showPassword" :size="16" />
-                <EyeOff v-else :size="16" />
+                <Eye
+                  v-if="!showPassword"
+                  :size="16"
+                />
+                <EyeOff
+                  v-else
+                  :size="16"
+                />
               </button>
             </div>
           </div>
 
           <div class="form-group">
-            <label for="sign-up-confirm" class="form-label">确认密码</label>
+            <label
+              for="sign-up-confirm"
+              class="form-label"
+            >确认密码</label>
             <div class="input-wrapper">
-              <Lock :size="16" class="input-icon" />
+              <Lock
+                :size="16"
+                class="input-icon"
+              />
               <input
                 id="sign-up-confirm"
                 v-model="confirmPassword"
@@ -120,9 +154,12 @@ const handleResend = async () => {
                 autocomplete="new-password"
                 class="form-input"
                 :class="{ 'input-error': passwordMismatch }"
-              />
+              >
             </div>
-            <span v-if="passwordMismatch" class="field-error">
+            <span
+              v-if="passwordMismatch"
+              class="field-error"
+            >
               两次输入的密码不一致
             </span>
           </div>
@@ -139,7 +176,10 @@ const handleResend = async () => {
 
       <template v-else>
         <div class="auth-success-panel">
-          <div v-if="successMessage" class="auth-success">
+          <div
+            v-if="successMessage"
+            class="auth-success"
+          >
             {{ successMessage }}
           </div>
           <button
@@ -150,7 +190,10 @@ const handleResend = async () => {
           >
             {{ resendVerification.isPending.value ? "发送中…" : "重新发送验证邮件" }}
           </button>
-          <router-link to="/auth/sign-in" class="auth-link auth-link--block">
+          <router-link
+            to="/auth/sign-in"
+            class="auth-link auth-link--block"
+          >
             前往登录
           </router-link>
         </div>
@@ -158,7 +201,10 @@ const handleResend = async () => {
 
       <div class="auth-footer">
         <span class="auth-footer-text">已有账号？</span>
-        <router-link to="/auth/sign-in" class="auth-link">
+        <router-link
+          to="/auth/sign-in"
+          class="auth-link"
+        >
           登录
         </router-link>
       </div>

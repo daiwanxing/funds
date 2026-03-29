@@ -15,7 +15,11 @@ const emit = defineEmits<{
 <template>
   <Teleport to="body">
     <Transition name="dialog">
-      <div v-if="open" class="dialog-overlay" @click.self="emit('cancel')">
+      <div
+        v-if="open"
+        class="dialog-overlay"
+        @click.self="emit('cancel')"
+      >
         <div class="dialog-card">
           <button
             type="button"
@@ -30,7 +34,9 @@ const emit = defineEmits<{
             <CloudUpload :size="28" />
           </div>
 
-          <h2 class="dialog-title">导入本地自选基金</h2>
+          <h2 class="dialog-title">
+            导入本地自选基金
+          </h2>
           <p class="dialog-message">
             检测到您当前浏览器中有
             <strong>{{ guestCount }}</strong>

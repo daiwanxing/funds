@@ -34,9 +34,29 @@ export interface SettingsState {
   RealtimeIndcode: string | null;
 }
 
+export interface PersistedSettings {
+  seciList: string[];
+  darkMode: boolean;
+  normalFontSize: boolean;
+  isLiveUpdate: boolean;
+  showAmount: boolean;
+  showGains: boolean;
+  showCost: boolean;
+  showCostRate: boolean;
+  showGSZ: boolean;
+  showBadge: number;
+  BadgeContent: number;
+  BadgeType: number;
+  userId: string;
+  grayscaleValue: number;
+  opacityValue: number;
+  sortTypeObj: SortTypeState;
+  RealtimeFundcode: string | null;
+  RealtimeIndcode: string | null;
+}
+
 /** localStorage 中持久化的完整配置结构 */
-export interface StorageSchema extends Partial<SettingsState> {
-  fundList?: string[];
+export interface StorageSchema extends Partial<PersistedSettings> {
   holiday?: HolidayData;
   version?: string;
 }

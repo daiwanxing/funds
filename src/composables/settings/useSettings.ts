@@ -11,10 +11,8 @@ export type { SettingsState };
 const SETTINGS_KEYS = [
   "RealtimeFundcode",
   "RealtimeIndcode",
-  "fundListM",
   "showAmount",
   "showGains",
-  "fundList",
   "seciList",
   "darkMode",
   "normalFontSize",
@@ -75,17 +73,7 @@ export const useSettings = () => {
       storage.get(
         SETTINGS_KEYS,
         (res) => {
-          if (res.fundListM) {
-            fundListM.value = res.fundListM;
-          } else {
-            // 如果不存在新版的 fundListM，尝试读取旧版本的 fundList，若都没配置过，就彻底置空不乱塞。
-            const fundList = res.fundList ?? [];
-            fundListM.value = fundList.map((code: string) => ({
-              code,
-              num: 0,
-            }));
-            storage.set({ fundListM: fundListM.value });
-          }
+          fundListM.value = [];
 
           if (res.userId) {
             userId.value = res.userId;

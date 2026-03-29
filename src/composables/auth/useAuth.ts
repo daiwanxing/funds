@@ -1,4 +1,4 @@
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/vue-query";
 import { fetchBootstrap, putWatchlist, importGuestWatchlist } from "@/api/user";
 import * as authApi from "@/api/auth";
@@ -112,6 +112,14 @@ export const useAuth = () => {
   const dismissImportPrompt = () => {
     importPromptDismissed.value = true;
   };
+
+  watch(
+    () => profile.value?.email ?? null,
+    () => {
+      importPromptDismissed.value = false;
+    },
+    { immediate: true },
+  );
 
   return {
     // Bootstrap

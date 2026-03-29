@@ -1,6 +1,5 @@
 import { ref, computed, watch, type Ref } from "vue";
 import { useQuery } from "@tanstack/vue-query";
-import { storage } from "@/utils/storage";
 import { resolveFundQuote } from "./quote";
 import { useSettings } from "@/composables/settings";
 import { isDuringDate } from "@/utils/marketStatus";
@@ -12,6 +11,10 @@ import type {
   FundSortableField,
 } from "@/types/fund";
 import type { SortDirection, SortTypeState } from "@/types/settings";
+
+interface UseFundDataOptions {
+  persistWatchlist?: (watchlist: FundListItem[]) => void | Promise<void>;
+}
 
 const calculateMoney = (val: { dwjz: number | null; num: number }): number => {
   return parseFloat(((val.dwjz ?? 0) * (val.num ?? 0)).toFixed(2));
@@ -59,11 +62,22 @@ export const useFundData = (
   fundListM: Ref<FundListItem[]>,
   userId: Ref<string>,
   sortTypeObj: Ref<SortTypeState>,
+  options: UseFundDataOptions = {},
 ) => {
   const settings = useSettings();
   const dataList = ref<FundItem[]>([]);
   const dataListDft = ref<FundItem[]>([]);
   const loading = ref(false);
+
+  const persistWatchlist = (watchlist: FundListItem[]): void => {
+    void options.persistWatchlist?.(
+      watchlist.map((item) => ({
+        code: item.code,
+        num: item.num ?? 0,
+        cost: item.cost ?? 0,
+      })),
+    );
+  };
 
   const fundListQuery = useQuery({
     queryKey: ["fundData", computed(() => fundListM.value.map(f => f.code).join(",")), userId],
@@ -141,31 +155,32 @@ export const useFundData = (
   };
 
   const addFund = (codes: string[]): void => {
+    let changed = false;
     codes.forEach((code) => {
-      fundListM.value.push({ code, num: 0 });
+      if (fundListM.value.some((item) => item.code === code)) return;
+      fundListM.value.push({ code, num: 0, cost: 0 });
+      changed = true;
     });
-    storage.set({ fundListM: fundListM.value }, () => {
-      fetchData();
-    });
+    if (!changed) return;
+    persistWatchlist(fundListM.value);
+    void fetchData();
   };
 
   const deleteFund = (id: string): void => {
     fundListM.value = fundListM.value.filter((f) => f.code !== id);
-    storage.set({ fundListM: fundListM.value }, () => {
-      dataList.value = dataList.value.filter((f) => f.fundcode !== id);
-      dataListDft.value = dataListDft.value.filter((f) => f.fundcode !== id);
-    });
+    persistWatchlist(fundListM.value);
+    dataList.value = dataList.value.filter((f) => f.fundcode !== id);
+    dataListDft.value = dataListDft.value.filter((f) => f.fundcode !== id);
   };
 
   const updateFundNum = (item: FundItem): void => {
     const fund = fundListM.value.find((f) => f.code === item.fundcode);
     if (fund) {
       fund.num = item.num;
-      storage.set({ fundListM: fundListM.value }, () => {
-        item.amount = calculateMoney(item);
-        item.gains = calculate(item, item.hasReplace);
-        item.costGains = calculateCost(item);
-      });
+      persistWatchlist(fundListM.value);
+      item.amount = calculateMoney(item);
+      item.gains = calculate(item, item.hasReplace);
+      item.costGains = calculateCost(item);
     }
   };
 
@@ -173,10 +188,9 @@ export const useFundData = (
     const fund = fundListM.value.find((f) => f.code === item.fundcode);
     if (fund) {
       fund.cost = item.cost;
-      storage.set({ fundListM: fundListM.value }, () => {
-        item.costGains = calculateCost(item);
-        item.costGainsRate = calculateCostRate(item);
-      });
+      persistWatchlist(fundListM.value);
+      item.costGains = calculateCost(item);
+      item.costGainsRate = calculateCostRate(item);
     }
   };
 

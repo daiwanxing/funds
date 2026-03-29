@@ -32,6 +32,12 @@ pnpm test:run     # 运行测试
 - 允许在 `src/api/` 中直接使用 `axios`，但 `src/pages/`、`src/components/`、`src/composables/`、`src/utils/` 中禁止直接写 `axios` 请求。
 - `src/api/` 只负责纯请求与响应映射，不负责 Vue 状态、storage 写入或其他副作用。
 
+## Auth / Persistence Rule
+
+- 登录态用户的自选基金主数据源是 `/api/me/bootstrap` 和 `/api/me/watchlist`，不得再从 `localStorage` 读取或写入登录用户的自选基金。
+- 游客模式下的自选基金只允许存放在 `sessionStorage`。
+- `localStorage` 仅保留本地展示偏好、缓存和非账号数据，不得继续承担自选基金持久化职责。
+
 ## 知识地图
 
 | 想了解… | 去哪里找 |
