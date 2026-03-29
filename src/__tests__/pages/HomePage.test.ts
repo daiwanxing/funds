@@ -150,6 +150,18 @@ describe("HomePage selection behavior", () => {
     expect(savedList.props("activeCode")).toBe("000001");
   });
 
+  it("shows loading state instead of empty state while the first saved-fund request is pending", async () => {
+    settingsState.fundListM.value = [{ code: "000001", num: 0 }];
+    fundDataState.loadingList.value = true;
+    fundDataState.dataList.value = [];
+    fundDataState.dataListDft.value = [];
+
+    const wrapper = await mountPage();
+
+    expect(wrapper.text()).not.toContain("添加你的第一只基金");
+    expect(wrapper.text()).toContain("正在同步自选持仓");
+  });
+
   it("falls back to the first remaining fund when the current selection disappears", async () => {
     settingsState.fundListM.value = [
       { code: "000001", num: 0 },

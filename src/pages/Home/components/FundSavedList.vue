@@ -3,6 +3,7 @@ import type { FundItem } from "@/types/fund";
 
 defineProps<{
   items: FundItem[];
+  loading: boolean;
   activeCode?: string | null;
 }>();
 
@@ -76,6 +77,37 @@ const emit = defineEmits<{
     </ul>
 
     <!-- Empty State -->
+    <div
+      v-else-if="loading"
+      class="flex-1 px-4 py-4 flex flex-col gap-3 overflow-hidden"
+    >
+      <div class="pt-12 pb-6 flex flex-col items-center justify-center gap-2 font-sans">
+        <div class="flex items-center gap-2 text-[#7fb0ff] text-[13px] tracking-wide">
+          <span class="w-2 h-2 rounded-full bg-[#3B82F6] animate-pulse" />
+          <span>正在同步自选持仓</span>
+        </div>
+        <p class="text-[11px] text-white/35 tracking-wide">
+          正在拉取最新估值与收益数据
+        </p>
+      </div>
+
+      <div
+        v-for="index in 4"
+        :key="index"
+        class="px-1 py-3 border-b border-white/[0.04] flex items-start justify-between gap-5 animate-pulse"
+      >
+        <div class="flex-1 flex flex-col gap-2">
+          <div class="h-3.5 w-34 rounded bg-white/[0.06]" />
+          <div class="h-3 w-24 rounded bg-white/[0.04]" />
+        </div>
+        <div class="flex items-start gap-[6px] shrink-0 pt-0.5">
+          <div class="h-4 w-11 rounded bg-white/[0.06]" />
+          <div class="h-4 w-14 rounded bg-white/[0.06]" />
+          <div class="h-4 w-[52px] rounded bg-white/[0.06]" />
+        </div>
+      </div>
+    </div>
+
     <div
       v-else
       class="flex-1 flex flex-col items-center justify-center pb-20"

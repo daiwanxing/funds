@@ -123,6 +123,7 @@ onMounted(async () => {
       <template v-else>
         <FundSavedList 
           :items="fundData.dataList.value"
+          :loading="fundData.loadingList.value"
           :active-code="selectedFundCode"
           @select="selectFund"
         />
