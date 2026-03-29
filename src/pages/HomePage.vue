@@ -6,7 +6,7 @@ import { useGlobalIndices } from "@/composables/index";
 import { useHoliday } from "@/composables/holiday";
 import { GlobalTicker } from "@/components/GlobalTicker";
 import { StatusBar } from "@/components/StatusBar";
-import ZoneBHeader from "./Home/components/ZoneBHeader.vue";
+import WatchlistHeader from "./Home/components/WatchlistHeader.vue";
 import FundSavedList from "./Home/components/FundSavedList.vue";
 import FundSearchList from "./Home/components/FundSearchList.vue";
 import { useFundSearch } from "@/composables/fund/useFundSearch";
@@ -97,14 +97,14 @@ onMounted(async () => {
     class="dashboard"
   >
     <!-- ── Zone A: 全景走马灯 ────────────────────── -->
-    <header class="zone-a">
+    <header class="market-ticker">
       <!-- Phase 2: <GlobalTicker /> -->
       <GlobalTicker :data-list="globalIndices.dataList.value" />
     </header>
 
     <!-- ── Zone B: 自选核心控制台 ─────────────────── -->
-    <main class="zone-b flex flex-col h-full overflow-hidden bg-[#161618]">
-      <ZoneBHeader 
+    <main class="watchlist-panel flex flex-col h-full overflow-hidden bg-[#161618]">
+      <WatchlistHeader 
         v-model:query="searchQuery"
         :is-searching="isSearching"
         :saved-count="settings.fundListM.value.length"
@@ -168,7 +168,7 @@ onMounted(async () => {
     </main>
 
     <!-- ── Zone C: 基金详情面板（全局常驻）────── -->
-    <aside class="zone-c">
+    <aside class="fund-detail">
       <!-- Phase 3: <FundDetail :code="selectedFundCode" /> -->
       <div class="h-full flex flex-col">
         <!-- Tab 栏占位 -->
@@ -190,7 +190,7 @@ onMounted(async () => {
     </aside>
 
     <!-- ── Zone E: 状态栏 ────────────────────────── -->
-    <footer class="zone-e">
+    <footer class="status-bar">
       <StatusBar
         :last-update-time="lastUpdateTime"
       />
@@ -199,7 +199,7 @@ onMounted(async () => {
     <!-- ── Zone D: AI FAB（有基金时显示）────────── -->
     <button
       v-if="hasFunds"
-      class="zone-d-fab"
+      class="ai-fab"
       title="AI 洞察"
       @click="aiDrawerOpen = true"
     >
@@ -210,14 +210,14 @@ onMounted(async () => {
     <Transition name="drawer">
       <div
         v-if="aiDrawerOpen"
-        class="zone-d-overlay"
+        class="ai-drawer-overlay"
         @click="aiDrawerOpen = false"
       />
     </Transition>
     <Transition name="drawer">
       <aside
         v-if="aiDrawerOpen"
-        class="zone-d-drawer"
+        class="ai-drawer"
       >
         <div class="h-full flex flex-col bg-bg-3 border-l border-white/6">
           <div class="flex items-center justify-between px-5 py-4 border-b border-white/6 shrink-0">
@@ -262,33 +262,33 @@ onMounted(async () => {
 
 /* 移除隐藏控制，保证 60 40 划分 */
 
-.zone-a {
+.market-ticker {
   grid-area: ticker;
   background-color: var(--bg-1);
   border-bottom: 1px solid var(--border-subtle);
 }
 
-.zone-b {
+.watchlist-panel {
   grid-area: console;
   overflow-y: auto;
   background-color: var(--bg-1);
   border-right: 1px solid var(--border-subtle);
 }
 
-.zone-c {
+.fund-detail {
   grid-area: detail;
   overflow-y: auto;
   background-color: var(--bg-1);
 }
 
-.zone-e {
+.status-bar {
   grid-area: status;
   background-color: var(--bg-0);
   border-top: 1px solid var(--border-subtle);
 }
 
 /* ── Zone D FAB ─────────────────────────────── */
-.zone-d-fab {
+.ai-fab {
   position: fixed;
   right: 24px;
   bottom: 56px;
@@ -306,13 +306,13 @@ onMounted(async () => {
   box-shadow: 0 4px 16px rgba(47, 129, 247, 0.4);
   transition: background-color 0.2s, transform 0.2s;
 }
-.zone-d-fab:hover {
+.ai-fab:hover {
   background-color: var(--accent-hover);
   transform: scale(1.05);
 }
 
 /* ── Zone D Overlay ─────────────────────────── */
-.zone-d-overlay {
+.ai-drawer-overlay {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.4);
@@ -320,8 +320,8 @@ onMounted(async () => {
   z-index: 299;
 }
 
-/* ── Zone D Drawer ──────────────────────────── */
-.zone-d-drawer {
+/* ── AI Drawer ──────────────────────────── */
+.ai-drawer {
   position: fixed;
   top: 48px;
   right: 0;
@@ -339,8 +339,8 @@ onMounted(async () => {
 .drawer-leave-to {
   opacity: 0;
 }
-.zone-d-drawer.drawer-enter-from,
-.zone-d-drawer.drawer-leave-to {
+.ai-drawer.drawer-enter-from,
+.ai-drawer.drawer-leave-to {
   transform: translateX(100%);
 }
 </style>
