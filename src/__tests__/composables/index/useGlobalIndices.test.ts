@@ -74,7 +74,12 @@ describe("useGlobalIndices", () => {
       {
         code: "100.SPX",
         prePrice: 5818.01,
-        points: [5818.01, 5844.2, 5890.11],
+        points: [
+          { price: 5818.01, elapsedMinutes: 0, time: "21:30" },
+          { price: 5844.2, elapsedMinutes: 120, time: "23:30" },
+          { price: 5890.11, elapsedMinutes: 390, time: "04:00" },
+        ],
+        sessionMinutes: 390,
         isTodayData: true,
       },
     ]);
@@ -86,7 +91,12 @@ describe("useGlobalIndices", () => {
       expect.objectContaining({
         f12: "SPX",
         prePrice: 5818.01,
-        trendPoints: [5818.01, 5844.2, 5890.11],
+        trendPoints: [
+          { price: 5818.01, elapsedMinutes: 0, time: "21:30" },
+          { price: 5844.2, elapsedMinutes: 120, time: "23:30" },
+          { price: 5890.11, elapsedMinutes: 390, time: "04:00" },
+        ],
+        trendSessionMinutes: 390,
       }),
     ]);
 

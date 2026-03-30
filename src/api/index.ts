@@ -3,11 +3,69 @@ import type {
   GlobalIndexSnapshot,
   GlobalIndicesSnapshotApiResponse,
   GlobalIndexTrendApiResponse,
+  GlobalIndexTrendPoint,
   GlobalIndexTrendItem,
   IndexItem,
 } from "@/types/market";
 
 const INDEX_FIELDS = "f2,f3,f4,f12,f13,f14";
+type TradingWindow = readonly [string, string];
+
+interface MarketSessionConfig {
+  timeZone: string;
+  sessions: TradingWindow[];
+}
+
+const MARKET_SESSION_CONFIG: Record<string, MarketSessionConfig> = {
+  "1.000001": {
+    timeZone: "Asia/Shanghai",
+    sessions: [["09:30", "11:30"], ["13:00", "15:00"]],
+  },
+  "0.399001": {
+    timeZone: "Asia/Shanghai",
+    sessions: [["09:30", "11:30"], ["13:00", "15:00"]],
+  },
+  "1.000300": {
+    timeZone: "Asia/Shanghai",
+    sessions: [["09:30", "11:30"], ["13:00", "15:00"]],
+  },
+  "0.399006": {
+    timeZone: "Asia/Shanghai",
+    sessions: [["09:30", "11:30"], ["13:00", "15:00"]],
+  },
+  "100.XIN9": {
+    timeZone: "Asia/Shanghai",
+    sessions: [["09:30", "11:30"], ["13:00", "15:00"]],
+  },
+  "100.HSI": {
+    timeZone: "Asia/Hong_Kong",
+    sessions: [["09:30", "12:00"], ["13:00", "16:00"]],
+  },
+  "100.N225": {
+    timeZone: "Asia/Tokyo",
+    sessions: [["09:00", "11:30"], ["12:30", "15:30"]],
+  },
+  "100.VNINDEX": {
+    timeZone: "Asia/Ho_Chi_Minh",
+    sessions: [["09:15", "11:30"], ["13:00", "15:00"]],
+  },
+  "100.NDX": {
+    timeZone: "America/New_York",
+    sessions: [["09:30", "16:00"]],
+  },
+  "100.SPX": {
+    timeZone: "America/New_York",
+    sessions: [["09:30", "16:00"]],
+  },
+  "100.DJIA": {
+    timeZone: "America/New_York",
+    sessions: [["09:30", "16:00"]],
+  },
+  "107.VIXY": {
+    timeZone: "America/New_York",
+    sessions: [["09:30", "16:00"]],
+  },
+};
 
 export const fetchIndexSnapshots = async (
   secids: string[],
@@ -19,46 +77,185 @@ export const fetchIndexSnapshots = async (
   return data?.data?.diff ?? [];
 };
 
-/** 获取北京时间（UTC+8）的今日日期字符串，格式：YYYY-MM-DD */
-const getTodayBJT = (): string => {
-  const now = new Date();
-  const bjt = new Date(now.getTime() + (8 * 60 + now.getTimezoneOffset()) * 60 * 1000);
-  const y = bjt.getFullYear();
-  const m = String(bjt.getMonth() + 1).padStart(2, "0");
-  const d = String(bjt.getDate()).padStart(2, "0");
-  return `${y}-${m}-${d}`;
+interface ParsedTrendPoint {
+  marketDate: string;
+  marketTime: string;
+  displayTime: string;
+  price: number;
+}
+
+const toMinutes = (value: string): number => {
+  const [hours, minutes] = value.split(":").map(Number);
+  return hours * 60 + minutes;
+};
+
+const getTotalSessionMinutes = (sessions: TradingWindow[]): number => {
+  return sessions.reduce((total, [start, end]) => {
+    return total + (toMinutes(end) - toMinutes(start));
+  }, 0);
+};
+
+const getElapsedTradingMinutes = (
+  time: string,
+  sessions: TradingWindow[],
+): number | null => {
+  let elapsed = 0;
+  const target = toMinutes(time);
+
+  for (const [start, end] of sessions) {
+    const startMinutes = toMinutes(start);
+    const endMinutes = toMinutes(end);
+
+    if (target < startMinutes) {
+      return null;
+    }
+
+    if (target <= endMinutes) {
+      return elapsed + (target - startMinutes);
+    }
+
+    elapsed += endMinutes - startMinutes;
+  }
+
+  return null;
+};
+
+const getDateTimePartsInTimeZone = (
+  date: Date,
+  timeZone: string,
+): { date: string; time: string } => {
+  const formatter = new Intl.DateTimeFormat("en-CA", {
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+  const parts = formatter.formatToParts(date);
+  const valueByType = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+
+  return {
+    date: `${valueByType.year}-${valueByType.month}-${valueByType.day}`,
+    time: `${valueByType.hour}:${valueByType.minute}`,
+  };
+};
+
+const parseTrendPoint = (
+  trend: string,
+  config: MarketSessionConfig,
+): ParsedTrendPoint | null => {
+  const [dateTimePart, pricePart] = trend.split(",");
+  if (!dateTimePart || !pricePart) return null;
+
+  const price = parseFloat(pricePart);
+  const normalizedDateTime = dateTimePart.replace(" ", "T") + ":00+08:00";
+  const date = new Date(normalizedDateTime);
+
+  if (Number.isNaN(date.getTime()) || Number.isNaN(price)) return null;
+
+  const marketParts = getDateTimePartsInTimeZone(date, config.timeZone);
+  const [, displayTime = ""] = dateTimePart.split(" ");
+
+  return {
+    marketDate: marketParts.date,
+    marketTime: marketParts.time,
+    displayTime,
+    price,
+  };
+};
+
+const pickSessionDate = (
+  dates: string[],
+  currentMarketDate: string,
+  currentMarketTime: string,
+  sessions: TradingWindow[],
+): string => {
+  const latestDate = dates.at(-1) ?? "";
+  if (!latestDate) return "";
+
+  const firstSessionStart = sessions[0]?.[0] ?? "00:00";
+  if (
+    dates.includes(currentMarketDate) &&
+    currentMarketTime >= firstSessionStart
+  ) {
+    return currentMarketDate;
+  }
+
+  const earlierDates = dates.filter((date) => date < currentMarketDate);
+  return earlierDates.at(-1) ?? latestDate;
+};
+
+const isIntradaySession = (
+  currentMarketTime: string,
+  sessions: TradingWindow[],
+): boolean => {
+  const firstSessionStart = sessions[0]?.[0] ?? "00:00";
+  const lastSessionEnd = sessions.at(-1)?.[1] ?? "23:59";
+  return currentMarketTime >= firstSessionStart && currentMarketTime <= lastSessionEnd;
 };
 
 export const fetchIndexTrends = async (
   secids: string[],
 ): Promise<GlobalIndexTrendItem[]> => {
-  const todayBJT = getTodayBJT();
-
   const responses = await Promise.all(
     secids.map(async (code) => {
-      const url = `/api/index/api/qt/stock/trends2/get?secid=${code}&fields1=f1,f2&fields2=f51,f53&_=${Date.now()}`;
+      const config = MARKET_SESSION_CONFIG[code] ?? MARKET_SESSION_CONFIG["1.000001"];
+      const url = `/api/kline/api/qt/stock/trends2/get?secid=${code}&fields1=f1,f2&fields2=f51,f53&ndays=2&_=${Date.now()}`;
       const { data } = await axios.get<GlobalIndexTrendApiResponse>(url);
       const trendData = data?.data;
 
       if (!trendData) {
-        return { code, prePrice: 0, points: [], isTodayData: false };
+        return {
+          code,
+          prePrice: 0,
+          points: [],
+          sessionMinutes: getTotalSessionMinutes(config.sessions),
+          isTodayData: false,
+        };
       }
 
-      const trends = trendData.trends ?? [];
+      const currentMarket = getDateTimePartsInTimeZone(new Date(), config.timeZone);
+      const parsedPoints = (trendData.trends ?? [])
+        .map((trend) => parseTrendPoint(trend, config))
+        .filter((point): point is ParsedTrendPoint => point !== null);
+      const availableDates = [...new Set(parsedPoints.map((point) => point.marketDate))].sort();
+      const targetDate = pickSessionDate(
+        availableDates,
+        currentMarket.date,
+        currentMarket.time,
+        config.sessions,
+      );
+      const sessionMinutes = getTotalSessionMinutes(config.sessions);
+      const points: GlobalIndexTrendPoint[] = parsedPoints
+        .filter((point) => point.marketDate === targetDate)
+        .filter((point) => {
+          if (targetDate !== currentMarket.date) return true;
+          if (!isIntradaySession(currentMarket.time, config.sessions)) return true;
+          return point.marketTime <= currentMarket.time;
+        })
+        .map((point) => {
+          const elapsedMinutes = getElapsedTradingMinutes(
+            point.marketTime,
+            config.sessions,
+          );
+          if (elapsedMinutes === null) return null;
 
-      // f51 格式为 "YYYY-MM-DD HH:mm"，取第一个点的日期部分判断是否为今日
-      const firstDate = trends[0]?.split(",")[0]?.slice(0, 10) ?? "";
-      const isTodayData = firstDate === todayBJT;
-
-      const points = trends
-        .map((item) => parseFloat(item.split(",")[1]))
-        .filter((point) => !Number.isNaN(point));
+          return {
+            price: point.price,
+            elapsedMinutes,
+            time: point.displayTime,
+          };
+        })
+        .filter((point): point is GlobalIndexTrendPoint => point !== null);
 
       return {
         code,
         prePrice: trendData.prePrice ?? 0,
         points,
-        isTodayData,
+        sessionMinutes,
+        isTodayData: targetDate === currentMarket.date,
       };
     }),
   );

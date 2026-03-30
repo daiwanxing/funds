@@ -12,9 +12,10 @@ export interface GlobalIndexSnapshot {
 
 /** 全球指数展示数据项 */
 export interface GlobalIndexItem extends GlobalIndexSnapshot {
-  prePrice?: number;       // 昨收价
-  trendPoints?: number[];  // 分时价格曲线
-  isTodayData?: boolean;   // 分时数据是否属于今天
+  prePrice?: number;               // 昨收价
+  trendPoints?: GlobalIndexTrendPoint[];  // 分时价格曲线
+  trendSessionMinutes?: number;   // 一个完整交易日对应的分钟数
+  isTodayData?: boolean;          // 分时数据是否属于今天
 }
 
 /** 自选指数数据项（板块行情） */
@@ -40,9 +41,16 @@ export interface GlobalIndexTrendApiResponse {
   };
 }
 
+export interface GlobalIndexTrendPoint {
+  price: number;
+  elapsedMinutes: number;
+  time: string;
+}
+
 export interface GlobalIndexTrendItem {
   code: string;
   prePrice: number;
-  points: number[];
+  points: GlobalIndexTrendPoint[];
+  sessionMinutes: number;
   isTodayData: boolean; // 数据日期是否为今天
 }

@@ -9,6 +9,8 @@ const props = defineProps<{
 // 提取数据
 const points = computed(() => props.item.trendPoints || []);
 const prePrice = computed(() => props.item.prePrice || 0);
+const totalSessionMinutes = computed(() => props.item.trendSessionMinutes || 0);
+const priceValues = computed(() => points.value.map((point) => point.price));
 
 // 是否上涨（如果有实时 f3 则用 f3，否则用分时最后一个点和昨收对比，兜底默认涨）
 const isUp = computed(() => {
@@ -16,7 +18,7 @@ const isUp = computed(() => {
     return Number(props.item.f3) > 0;
   }
   if (points.value.length > 0 && prePrice.value > 0) {
-    return points.value[points.value.length - 1] > prePrice.value;
+    return points.value[points.value.length - 1].price > prePrice.value;
   }
   return true;
 });
@@ -29,25 +31,32 @@ const gradientId = computed(() => `spark-grad-${props.item.f12}`); // 唯一渐�
 const WIDTH = 80;
 const HEIGHT = 35;
 
+const resolvePointX = (elapsedMinutes: number): number => {
+  if (totalSessionMinutes.value <= 0) return 0;
+  return (elapsedMinutes / totalSessionMinutes.value) * WIDTH;
+};
+
 const chartPath = computed(() => {
   if (points.value.length === 0) return "";
 
-  const p = points.value;
+  const p = priceValues.value;
   const max = Math.max(...p);
   const min = Math.min(...p);
   const range = max - min;
+  const firstX = resolvePointX(points.value[0].elapsedMinutes);
+  const lastX = resolvePointX(points.value[points.value.length - 1].elapsedMinutes);
 
   // 如果没有任何波动，画一条中间的平线
   if (range === 0) {
-    return `M 0 ${HEIGHT / 2} L ${WIDTH} ${HEIGHT / 2}`;
+    return `M ${firstX.toFixed(2)} ${(HEIGHT / 2).toFixed(2)} L ${lastX.toFixed(2)} ${(HEIGHT / 2).toFixed(2)}`;
   }
 
   // 构造 SVG Path
-  const dx = WIDTH / (p.length - 1 || 1);
-  const pathData = p.map((val, i) => {
+  const pathData = points.value.map((point, i) => {
+    const val = p[i];
     // val 归一化并反转坐标轴（SVG 坐标原点在左上角）
     const y = HEIGHT - ((val - min) / range) * HEIGHT;
-    const x = i * dx;
+    const x = resolvePointX(point.elapsedMinutes);
     return `${i === 0 ? "M" : "L"} ${x.toFixed(2)} ${y.toFixed(2)}`;
   });
 
@@ -56,8 +65,9 @@ const chartPath = computed(() => {
 
 const chartAreaPath = computed(() => {
   if (!chartPath.value) return "";
+  const lastX = resolvePointX(points.value[points.value.length - 1].elapsedMinutes);
   // 构建闭合区域，用于填充底部渐变
-  return `${chartPath.value} L ${WIDTH} ${HEIGHT} L 0 ${HEIGHT} Z`;
+  return `${chartPath.value} L ${lastX.toFixed(2)} ${HEIGHT} L ${resolvePointX(points.value[0].elapsedMinutes).toFixed(2)} ${HEIGHT} Z`;
 });
 </script>
 
