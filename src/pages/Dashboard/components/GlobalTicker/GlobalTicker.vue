@@ -5,6 +5,7 @@ import TickerCard from "./TickerCard.vue";
 
 const props = defineProps<{
   dataList: GlobalIndexItem[];
+  isLoading?: boolean;
 }>();
 
 const wrapperRef = ref<HTMLElement | null>(null);
@@ -12,6 +13,8 @@ const trackContentRef = ref<HTMLElement | null>(null);
 
 const isMarqueeEnabled = ref(false);
 const animationDuration = ref(0);
+/** 数据已就绪，用于控制 track 的淡入以及走马灯启动 */
+const isDataReady = ref(false);
 // 滚动速度常量，单位：像素/秒 (值越大滚动越快，50是一个相对适中的阅读速度)
 const SCROLL_SPEED = 50;
 
@@ -32,7 +35,7 @@ let resizeObserver: ResizeObserver | null = null;
 
 onMounted(() => {
   resizeObserver = new ResizeObserver(() => {
-    updateMarquee();
+    if (isDataReady.value) updateMarquee();
   });
   if (wrapperRef.value) resizeObserver.observe(wrapperRef.value);
   if (trackContentRef.value) resizeObserver.observe(trackContentRef.value);
@@ -44,11 +47,15 @@ onUnmounted(() => {
 
 watch(
   () => props.dataList,
-  async () => {
+  async (list) => {
+    if (!list || list.length === 0) return;
+    // 数据到达后先让 DOM 渲染完，再量尺寸启动跑马灯
+    await nextTick();
+    isDataReady.value = true;
     await nextTick();
     updateMarquee();
   },
-  { deep: true },
+  { deep: true, immediate: true },
 );
 </script>
 
@@ -74,10 +81,29 @@ watch(
       <div class="absolute left-0 top-0 bottom-0 w-16 z-10 pointer-events-none bg-gradient-to-r from-[#0d0f12] to-transparent" />
       <div class="absolute right-0 top-0 bottom-0 w-16 z-10 pointer-events-none bg-gradient-to-l from-[#0d0f12] to-transparent" />
 
-      <!-- 跑马灯轨道 -->
+      <!-- 加载骨架屏 -->
       <div
+        v-if="isLoading || !isDataReady"
+        class="ticker-skeleton flex items-center h-full gap-4 px-4"
+      >
+        <div
+          v-for="i in 8"
+          :key="i"
+          class="skeleton-item flex items-center gap-2"
+        >
+          <div class="skeleton-chart" />
+          <div class="flex flex-col gap-1">
+            <div class="skeleton-line w-12" />
+            <div class="skeleton-line w-8" />
+          </div>
+        </div>
+      </div>
+
+      <!-- 跑马灯轨道（数据就绪后淡入） -->
+      <div
+        v-else
         class="ticker-track flex items-center h-full"
-        :class="{ 'is-animating': isMarqueeEnabled }"
+        :class="{ 'is-animating': isMarqueeEnabled, 'track-visible': isDataReady }"
         :style="isMarqueeEnabled ? { animationDuration: `${animationDuration}s` } : {}"
       >
         <!-- 第一份：用于测量实际需要的宽度 -->
@@ -113,8 +139,57 @@ watch(
   width: 100%;
 }
 
+/* ── 骨架屏 ──────────────────────────── */
+.ticker-skeleton {
+  width: max-content;
+}
+
+.skeleton-item {
+  min-width: 160px;
+  padding: 0 20px;
+}
+
+.skeleton-chart {
+  width: 80px;
+  height: 35px;
+  border-radius: 4px;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.04) 25%,
+    rgba(255, 255, 255, 0.09) 50%,
+    rgba(255, 255, 255, 0.04) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.6s infinite;
+}
+
+.skeleton-line {
+  height: 10px;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.04) 25%,
+    rgba(255, 255, 255, 0.09) 50%,
+    rgba(255, 255, 255, 0.04) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.6s infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ── 轨道 ────────────────────────────── */
 .ticker-track {
   width: max-content;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.ticker-track.track-visible {
+  opacity: 1;
 }
 
 .ticker-track.is-animating {

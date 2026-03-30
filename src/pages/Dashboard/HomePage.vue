@@ -159,7 +159,7 @@ onMounted(async () => {
     <!-- ── Zone A: 全景走马灯 ────────────────────── -->
     <header class="market-ticker">
       <!-- Phase 2: <GlobalTicker /> -->
-      <GlobalTicker :data-list="globalIndices.dataList.value" />
+      <GlobalTicker :data-list="globalIndices.dataList.value" :is-loading="globalIndices.isLoading.value" />
     </header>
 
     <!-- ── Zone B: 自选核心控制台 ─────────────────── -->

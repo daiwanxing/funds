@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
+import { Motion } from "motion-v";
 import type { GlobalIndexItem } from "@/composables/index/useGlobalIndices";
 
 const props = defineProps<{
@@ -102,23 +103,39 @@ const chartAreaPath = computed(() => {
           </linearGradient>
         </defs>
 
-        <path
+        <!-- 走势折线：使用 motion pathLength 实现从左至右绘制动画 -->
+        <Motion
+          as="path"
           :d="chartPath"
           fill="none"
           :stroke="isUp ? 'var(--rise-primary)' : 'var(--fall-primary)'"
           stroke-width="1.8"
           stroke-linejoin="round"
           stroke-linecap="round"
+          :initial="{ pathLength: 0, opacity: 0 }"
+          :animate="{ pathLength: 1, opacity: 1 }"
+          :transition="{ pathLength: { duration: 1.2, ease: 'easeOut' }, opacity: { duration: 0.3 } }"
         />
-        <path
+        <!-- 填充区域：延迟淡入，等线条绘制完再显示 -->
+        <Motion
+          as="path"
           :d="chartAreaPath"
           :fill="`url(#${gradientId})`"
+          :initial="{ opacity: 0 }"
+          :animate="{ opacity: 1 }"
+          :transition="{ delay: 0.8, duration: 0.6, ease: 'easeOut' }"
         />
       </svg>
     </div>
 
-    <!-- 右侧：数值信息 -->
-    <div class="flex flex-col justify-center min-w-[76px]">
+    <!-- 右侧：数值信息（随图表一起淡入） -->
+    <Motion
+      as="div"
+      class="flex flex-col justify-center min-w-[76px]"
+      :initial="{ opacity: 0, x: 4 }"
+      :animate="{ opacity: 1, x: 0 }"
+      :transition="{ delay: 0.6, duration: 0.5, ease: 'easeOut' }"
+    >
       <div class="flex items-center mb-0.5">
         <span class="text-[11px] font-medium text-white/50 tracking-wide">{{ item.f14 }}</span>
       </div>
@@ -134,7 +151,7 @@ const chartAreaPath = computed(() => {
           {{ Number(item.f3) > 0 ? "+" : "" }}{{ item.f3 }}%
         </span>
       </div>
-    </div>
+    </Motion>
   </div>
 </template>
 
