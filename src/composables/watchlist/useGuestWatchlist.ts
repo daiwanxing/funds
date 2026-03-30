@@ -1,7 +1,7 @@
 import { ref } from "vue";
 import type { FundListItem } from "@/types/fund";
 
-const GUEST_STORAGE_KEY = "fs_guest_watchlist";
+import { GUEST_STORAGE_KEY } from "@/constants";
 
 /**
  * Guest watchlist composable — sessionStorage-backed watchlist

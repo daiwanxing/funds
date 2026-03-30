@@ -7,7 +7,8 @@ import type { BootstrapResponse, OAuthProvider, WatchlistItemDTO } from "@/types
 import { mapWatchlistToFundList } from "@/types/auth";
 import type { FundListItem } from "@/types/fund";
 
-export const BOOTSTRAP_QUERY_KEY = ["auth", "bootstrap"] as const;
+import { BOOTSTRAP_QUERY_KEY } from "@/constants";
+export { BOOTSTRAP_QUERY_KEY };
 
 /**
  * Auth store — 全局单例，持有登录态与用户信息。

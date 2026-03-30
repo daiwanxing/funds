@@ -6,7 +6,7 @@ import type { BootstrapResponse, WatchlistItemDTO } from "@/types/auth";
 import { mapWatchlistToFundList } from "@/types/auth";
 import type { FundListItem } from "@/types/fund";
 
-const BOOTSTRAP_KEY = ["auth", "bootstrap"] as const;
+import { BOOTSTRAP_QUERY_KEY } from "@/constants";
 
 /**
  * Auth composable — provides bootstrap query, auth mutations,
@@ -17,7 +17,7 @@ export const useAuth = () => {
 
   // ── Bootstrap query ──────────────────────────────
   const bootstrap = useQuery<BootstrapResponse>({
-    queryKey: [...BOOTSTRAP_KEY],
+    queryKey: [...BOOTSTRAP_QUERY_KEY],
     queryFn: fetchBootstrap,
     staleTime: 5 * 60 * 1000, // 5 min
     retry: 1,
@@ -46,7 +46,7 @@ export const useAuth = () => {
     mutationFn: ({ email, password }: { email: string; password: string }) =>
       authApi.signIn(email, password),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [...BOOTSTRAP_KEY] });
+      queryClient.invalidateQueries({ queryKey: [...BOOTSTRAP_QUERY_KEY] });
     },
   });
 
@@ -54,7 +54,7 @@ export const useAuth = () => {
   const signOutMutation = useMutation({
     mutationFn: authApi.signOut,
     onSuccess: () => {
-      queryClient.setQueryData([...BOOTSTRAP_KEY], { authenticated: false });
+      queryClient.setQueryData([...BOOTSTRAP_QUERY_KEY], { authenticated: false });
     },
   });
 
@@ -85,7 +85,7 @@ export const useAuth = () => {
   const saveWatchlistMutation = useMutation({
     mutationFn: (watchlist: WatchlistItemDTO[]) => putWatchlist(watchlist),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [...BOOTSTRAP_KEY] });
+      queryClient.invalidateQueries({ queryKey: [...BOOTSTRAP_QUERY_KEY] });
     },
   });
 
@@ -93,7 +93,7 @@ export const useAuth = () => {
   const importGuestMutation = useMutation({
     mutationFn: (watchlist: WatchlistItemDTO[]) => importGuestWatchlist(watchlist),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [...BOOTSTRAP_KEY] });
+      queryClient.invalidateQueries({ queryKey: [...BOOTSTRAP_QUERY_KEY] });
     },
   });
 

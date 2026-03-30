@@ -6,8 +6,8 @@ import { fetchIndexTrends } from "@/api/index";
 import {
   GLOBAL_INDICES,
   GLOBAL_INDEX_TRENDS_QUERY_KEY,
-  mergeGlobalIndexSnapshotsWithTrends,
-} from "./globalIndices";
+} from "@/constants";
+import { mergeGlobalIndexSnapshotsWithTrends } from "./globalIndices";
 import { useGlobalIndexSnapshots } from "./useGlobalIndexSnapshots";
 import type {
   GlobalIndexItem,

@@ -1,7 +1,7 @@
 import { computed, toValue, type MaybeRefOrGetter } from "vue";
 import { useQuery } from "@tanstack/vue-query";
 import { fetchIndexSnapshots } from "@/api/index";
-import { GLOBAL_INDICES, GLOBAL_INDEX_SNAPSHOT_QUERY_KEY } from "./globalIndices";
+import { GLOBAL_INDICES, GLOBAL_INDEX_SNAPSHOT_QUERY_KEY } from "@/constants";
 import type { GlobalIndexSnapshot } from "@/types/market";
 
 export interface UseGlobalIndexSnapshotsOptions {

@@ -5,6 +5,7 @@ import { useAuthStore } from "@/stores/auth";
 import { Mail, Lock, Eye, EyeOff, LoaderCircle } from "lucide-vue-next";
 import AuthLayout from "@/layouts/AuthLayout.vue";
 import { useToast } from "@/composables/useToast";
+import { PASSWORD_RE } from "@/constants";
 
 const { error: toastError } = useToast();
 
@@ -71,7 +72,6 @@ const isRegistered = ref(false);
 const isRegLoading = computed(() => signUp.isPending);
 
 // 密码强度：至少 9 位，包含字母和数字
-const PASSWORD_RE = /^(?=.*[A-Za-z])(?=.*\d).{9,}$/;
 const isPasswordStrong = computed(() => PASSWORD_RE.test(regPassword.value));
 const passwordWeak = computed(
   () => regPassword.value !== "" && !isPasswordStrong.value,

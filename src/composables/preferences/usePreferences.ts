@@ -8,28 +8,7 @@ import type {
 
 export type { PreferencesState };
 
-const PREFERENCE_KEYS = [
-  "RealtimeFundcode",
-  "RealtimeIndcode",
-  "showAmount",
-  "showGains",
-  "seciList",
-  "darkMode",
-  "normalFontSize",
-  "isLiveUpdate",
-  "showCost",
-  "showCostRate",
-  "showGSZ",
-  "version",
-  "showBadge",
-  "BadgeContent",
-  "BadgeType",
-  "userId",
-  "grayscaleValue",
-  "opacityValue",
-  "sortTypeObj",
-  "holiday",
-] as const;
+import { PREFERENCE_KEYS } from "@/constants";
 
 const isEdit = ref(false);
 const isReady = ref(false);

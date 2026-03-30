@@ -8,64 +8,7 @@ import type {
   IndexItem,
 } from "@/types/market";
 
-const INDEX_FIELDS = "f2,f3,f4,f12,f13,f14";
-type TradingWindow = readonly [string, string];
-
-interface MarketSessionConfig {
-  timeZone: string;
-  sessions: TradingWindow[];
-}
-
-const MARKET_SESSION_CONFIG: Record<string, MarketSessionConfig> = {
-  "1.000001": {
-    timeZone: "Asia/Shanghai",
-    sessions: [["09:30", "11:30"], ["13:00", "15:00"]],
-  },
-  "0.399001": {
-    timeZone: "Asia/Shanghai",
-    sessions: [["09:30", "11:30"], ["13:00", "15:00"]],
-  },
-  "1.000300": {
-    timeZone: "Asia/Shanghai",
-    sessions: [["09:30", "11:30"], ["13:00", "15:00"]],
-  },
-  "0.399006": {
-    timeZone: "Asia/Shanghai",
-    sessions: [["09:30", "11:30"], ["13:00", "15:00"]],
-  },
-  "100.XIN9": {
-    timeZone: "Asia/Shanghai",
-    sessions: [["09:30", "11:30"], ["13:00", "15:00"]],
-  },
-  "100.HSI": {
-    timeZone: "Asia/Hong_Kong",
-    sessions: [["09:30", "12:00"], ["13:00", "16:00"]],
-  },
-  "100.N225": {
-    timeZone: "Asia/Tokyo",
-    sessions: [["09:00", "11:30"], ["12:30", "15:30"]],
-  },
-  "100.VNINDEX": {
-    timeZone: "Asia/Ho_Chi_Minh",
-    sessions: [["09:15", "11:30"], ["13:00", "15:00"]],
-  },
-  "100.NDX": {
-    timeZone: "America/New_York",
-    sessions: [["09:30", "16:00"]],
-  },
-  "100.SPX": {
-    timeZone: "America/New_York",
-    sessions: [["09:30", "16:00"]],
-  },
-  "100.DJIA": {
-    timeZone: "America/New_York",
-    sessions: [["09:30", "16:00"]],
-  },
-  "107.VIXY": {
-    timeZone: "America/New_York",
-    sessions: [["09:30", "16:00"]],
-  },
-};
+import { INDEX_FIELDS, MARKET_SESSION_CONFIG, type MarketSessionConfig, type TradingWindow } from "@/constants";
 
 export const fetchIndexSnapshots = async (
   secids: string[],

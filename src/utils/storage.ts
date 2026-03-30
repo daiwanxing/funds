@@ -1,6 +1,6 @@
 import type { PreferencesStorageSchema } from "@/types/preferences";
 
-const STORAGE_KEY = "funds_config";
+import { STORAGE_KEY } from "@/constants";
 
 const getAll = (): PreferencesStorageSchema => {
   try {
