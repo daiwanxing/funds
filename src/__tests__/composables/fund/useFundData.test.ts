@@ -101,6 +101,67 @@ describe("useFundData", () => {
     queryClient.clear();
   });
 
+  it("uses exchange realtime price fields for ETF quotes when valuation fields are unavailable", async () => {
+    mockedFetchFundQuotes.mockResolvedValueOnce([
+      {
+        FCODE: "560580",
+        SHORTNAME: "电力ETF南方",
+        PDATE: "2026-03-27",
+        NAV: "1.2364",
+        NAVCHGRT: "-0.96",
+        GSZ: null,
+        GSZZL: null,
+        GZTIME: null,
+        NEWPRICE: "1.1880",
+        CHANGERATIO: "-3.81",
+        HQDATE: "2026-03-30 09:55:09",
+      },
+    ]);
+
+    const fundListM = ref([{ code: "560580", num: 100, cost: 1.2 }]);
+    const userId = ref("test-user");
+    const sortTypeObj = ref({ name: null, type: null });
+    const queryClient = new QueryClient({
+      defaultOptions: {
+        queries: {
+          retry: false,
+        },
+      },
+    });
+
+    let exposed!: ReturnType<typeof useFundData>;
+
+    const Host = defineComponent({
+      setup() {
+        exposed = useFundData(fundListM, userId, sortTypeObj);
+        return () => null;
+      },
+    });
+
+    const wrapper = mount(Host, {
+      global: {
+        plugins: [[VueQueryPlugin, { queryClient }]],
+      },
+    });
+
+    await flushPromises();
+
+    expect(exposed.dataList.value).toHaveLength(1);
+    expect(exposed.dataList.value[0]).toEqual(
+      expect.objectContaining({
+        fundcode: "560580",
+        gsz: 1.188,
+        gszzl: -3.81,
+        gztime: "2026-03-30 09:55:09",
+        hasReplace: false,
+      }),
+    );
+    expect(exposed.dataList.value[0].gains).toBeCloseTo(-4.84, 2);
+
+    wrapper.unmount();
+    queryClient.clear();
+  });
+
   it("persists the updated watchlist through the injected callback when adding funds", async () => {
     mockedFetchFundQuotes.mockResolvedValue(fundQuoteResponse.data.Datas);
     const persistWatchlist = vi.fn();

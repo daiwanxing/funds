@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { FundItem } from "@/types/fund";
+import { formatQuoteTime } from "@/utils/formatters";
 import { BarChart2, Info } from 'lucide-vue-next';
 
 defineProps<{
@@ -23,7 +24,8 @@ const emit = defineEmits<{
       <div class="flex items-center gap-[6px] shrink-0">
         <span class="w-11 text-right">估值</span>
         <span class="w-14 text-right">涨跌幅</span>
-        <span class="w-[52px] text-right">今日收益</span>
+        <span class="w-[52px] text-right">估算收益</span>
+        <span class="w-[52px] text-right">更新时间</span>
       </div>
     </div>
 
@@ -66,12 +68,17 @@ const emit = defineEmits<{
             </span>
           </span>
            
-          <!-- Today's Earnings -->
+          <!-- 估算收益 -->
           <span
             class="w-[52px] text-right text-[12px] font-bold"
             :class="item.gains > 0 ? 'text-up' : item.gains < 0 ? 'text-down' : 'text-white/30'"
           >
             {{ item.gains > 0 ? '+¥' + item.gains.toFixed(2) : item.gains < 0 ? '-¥' + Math.abs(item.gains).toFixed(2) : '¥0' }}
+          </span>
+
+          <!-- 更新时间 -->
+          <span class="w-[52px] text-right text-[11px] text-white/30">
+            {{ formatQuoteTime(item.gztime) }}
           </span>
         </div>
       </li>

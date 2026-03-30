@@ -57,7 +57,7 @@ openssl rand -hex 32
 
 - **Authentication → Providers → Google / GitHub**
   - 将 provider 控制台中的 callback 配置为：
-    - `https://<your-project-ref>.supabase.co/auth/v1/callback`
+    - `https://fwcijmyvaodoxdbmpmav.supabase.co/auth/v1/callback`
 
 说明：
 
@@ -70,7 +70,7 @@ openssl rand -hex 32
 先在 Supabase 控制台里找到 `project ref`，然后执行：
 
 ```bash
-npx supabase link --project-ref <your-project-ref>
+npx supabase link --project-ref fwcijmyvaodoxdbmpmav
 pnpm supabase:db:push
 ```
 

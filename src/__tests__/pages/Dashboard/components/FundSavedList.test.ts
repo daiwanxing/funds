@@ -45,4 +45,30 @@ describe("FundSavedList", () => {
     expect(wrapper.text()).toContain("基金000001");
     expect(wrapper.text()).not.toContain("正在同步自选持仓");
   });
+
+  it("formats quote update time as HH:mm for intraday values", () => {
+    const wrapper = mount(FundSavedList, {
+      props: {
+        items: [createFundItem("000001")],
+        loading: false,
+        activeCode: "000001",
+      },
+    });
+
+    expect(wrapper.text()).toContain("15:00");
+    expect(wrapper.text()).not.toContain("2026-03-28 15:00");
+  });
+
+  it("formats quote update time as MM-DD when only the trade date is available", () => {
+    const wrapper = mount(FundSavedList, {
+      props: {
+        items: [{ ...createFundItem("000001"), gztime: "2026-03-28" }],
+        loading: false,
+        activeCode: "000001",
+      },
+    });
+
+    expect(wrapper.text()).toContain("03-28");
+    expect(wrapper.text()).not.toContain("2026-03-28");
+  });
 });

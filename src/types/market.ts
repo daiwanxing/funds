@@ -12,8 +12,9 @@ export interface GlobalIndexSnapshot {
 
 /** 全球指数展示数据项 */
 export interface GlobalIndexItem extends GlobalIndexSnapshot {
-  prePrice?: number;    // 昨收价
-  trendPoints?: number[]; // 分时价格曲线
+  prePrice?: number;       // 昨收价
+  trendPoints?: number[];  // 分时价格曲线
+  isTodayData?: boolean;   // 分时数据是否属于今天
 }
 
 /** 自选指数数据项（板块行情） */
@@ -43,4 +44,5 @@ export interface GlobalIndexTrendItem {
   code: string;
   prePrice: number;
   points: number[];
+  isTodayData: boolean; // 数据日期是否为今天
 }

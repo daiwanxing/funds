@@ -75,6 +75,7 @@ describe("useGlobalIndices", () => {
         code: "100.SPX",
         prePrice: 5818.01,
         points: [5818.01, 5844.2, 5890.11],
+        isTodayData: true,
       },
     ]);
 

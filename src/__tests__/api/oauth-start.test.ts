@@ -1,17 +1,19 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+const createClient = vi.fn(() => ({
+  auth: {
+    signInWithOAuth,
+  },
+}));
 const signInWithOAuth = vi.fn();
 
 vi.mock("@supabase/supabase-js", () => ({
-  createClient: vi.fn(() => ({
-    auth: {
-      signInWithOAuth,
-    },
-  })),
+  createClient,
 }));
 
 beforeEach(() => {
   vi.resetModules();
+  createClient.mockClear();
   signInWithOAuth.mockReset();
   process.env.APP_URL = "https://funds.example";
   process.env.SUPABASE_URL = "https://supabase.example";
@@ -51,6 +53,22 @@ describe("OAuth start helpers", () => {
     expect(supabaseAuth.isOAuthProvider?.("github")).toBe(true);
     expect(supabaseAuth.isOAuthProvider?.("wechat")).toBe(false);
     expect(supabaseAuth.isOAuthProvider?.("")).toBe(false);
+  });
+
+  it("creates the Supabase auth client in PKCE mode for OAuth flows", async () => {
+    await import("../../../api/_lib/supabase-auth.ts");
+
+    expect(createClient).toHaveBeenCalledWith(
+      "https://supabase.example",
+      "anon-key",
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false,
+          flowType: "pkce",
+        },
+      },
+    );
   });
 
   it("requests an OAuth authorization URL from Supabase for a supported provider", async () => {

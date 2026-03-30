@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { formatNum, getGuid } from "@/utils/formatters";
+import { formatNum, formatQuoteTime, getGuid } from "@/utils/formatters";
 
 describe("formatNum", () => {
   it("formats small numbers with 2 decimal places", () => {
@@ -54,5 +54,23 @@ describe("getGuid", () => {
   it("generates unique values", () => {
     const guids = new Set(Array.from({ length: 100 }, () => getGuid()));
     expect(guids.size).toBe(100);
+  });
+});
+
+describe("formatQuoteTime", () => {
+  it("returns hour and minute when the quote timestamp contains seconds", () => {
+    expect(formatQuoteTime("2026-03-30 09:55:09")).toBe("09:55");
+  });
+
+  it("returns hour and minute when the quote timestamp contains only hour and minute", () => {
+    expect(formatQuoteTime("2026-03-30 10:00")).toBe("10:00");
+  });
+
+  it("returns month and day when quote timestamp only contains a date", () => {
+    expect(formatQuoteTime("2026-03-30")).toBe("03-30");
+  });
+
+  it("returns placeholder when quote timestamp is missing", () => {
+    expect(formatQuoteTime("")).toBe("--");
   });
 });

@@ -40,6 +40,16 @@ pnpm test:run     # 运行测试
 - 允许在 `src/api/` 中直接使用 `axios`，但 `src/pages/`、`src/components/`、`src/composables/`、`src/utils/` 中禁止直接写 `axios` 请求。
 - `src/api/` 只负责纯请求与响应映射，不负责 Vue 状态、storage 写入或其他副作用。
 
+## Market Data Rule
+
+- 基金行情默认主数据源是东方财富 `FundMNewApi/FundMNFInfo`，由 `src/api/fund.ts` 统一拉取。
+- 普通场外基金优先使用主接口中的实时估值字段 `GSZ / GSZZL / GZTIME`。
+- 场内基金、ETF 等若主接口不提供估值字段，但提供交易所实时字段 `NEWPRICE / CHANGERATIO / HQDATE`，则前端按这组字段展示实时涨跌幅与更新时间。
+- 若主接口既没有基金估值字段，也没有交易所实时字段，则补打一条东方财富 `fundgz.1234567.com.cn/js/<code>.js`，用返回的 `gsz / gszzl / gztime` 补全实时估值。
+- 行情解析顺序与回退规则集中在 `src/composables/fund/quote.ts`，不要在页面组件里直接分支判断不同基金类型。
+- 自选列表里的“更新时间”展示的是单只基金行情记录自带的时间字段，不是前端本地刷新时间。
+- 底部状态栏“最后更新”展示的是本次列表数据完成刷新时的本地时间戳。
+
 ## Auth / Persistence Rule
 
 - 登录态用户的自选基金主数据源是 `/api/me/bootstrap` 和 `/api/me/watchlist`，不得再从 `localStorage` 读取或写入登录用户的自选基金。

@@ -10,6 +10,10 @@
       "destination": "https://fundmobapi.eastmoney.com/$1"
     },
     {
+      "source": "/api/fundgz/(.*)",
+      "destination": "https://fundgz.1234567.com.cn/$1"
+    },
+    {
       "source": "/api/search/(.*)",
       "destination": "https://fundsuggest.eastmoney.com/$1"
     },

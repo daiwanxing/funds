@@ -85,7 +85,6 @@ const selectFund = (code: string) => {
 const searchQuery = ref("");
 const { searchOptions, loading: isSearching } = useFundSearch(searchQuery);
 
-const lastUpdateTime = ref<Date>();
 const shouldShowImportDialog = computed(() => {
   return auth.shouldShowImportPrompt && guestWatchlist.items.value.length > 0;
 });
@@ -116,13 +115,6 @@ watch(
   {
     immediate: true,
     deep: true,
-  },
-);
-
-watch(
-  () => fundData.dataListDft.value,
-  () => {
-    lastUpdateTime.value = new Date();
   },
 );
 
@@ -260,9 +252,7 @@ onMounted(async () => {
 
     <!-- ── Zone E: 状态栏 ────────────────────────── -->
     <footer class="status-bar">
-      <StatusBar
-        :last-update-time="lastUpdateTime"
-      />
+      <StatusBar />
     </footer>
 
     <GuestImportDialog

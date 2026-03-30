@@ -67,6 +67,9 @@ export interface FundQuoteResponseItem {
   GSZ: string | null;
   GSZZL: string | null;
   GZTIME: string | null;
+  NEWPRICE?: string | null;
+  CHANGERATIO?: string | null;
+  HQDATE?: string | null;
 }
 
 /** 基金行情接口响应 */

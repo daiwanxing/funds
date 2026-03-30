@@ -9,7 +9,7 @@
 | 变量名 | 说明 | 获取位置 |
 |---|---|---|
 | `APP_URL` | 应用对外访问地址，用于拼接认证回调与 OAuth callback | 本地：`http://localhost:3000`；生产：你的正式域名 |
-| `SUPABASE_URL` | Supabase 项目地址，例如 `https://xxx.supabase.co` | Supabase Dashboard → Settings → API |
+| `SUPABASE_URL` | Supabase 项目地址，当前项目为 `https://fwcijmyvaodoxdbmpmav.supabase.co` | Supabase Dashboard → Settings → API |
 | `SUPABASE_ANON_KEY` | Supabase 匿名公钥 | Supabase Dashboard → Settings → API |
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key，仅服务端使用，严禁暴露到前端 | Supabase Dashboard → Settings → API |
 | `AUTH_COOKIE_SECRET` | 登录态 cookie 使用的服务端密钥，建议用 `openssl rand -hex 32` 生成 | 自行生成 |
@@ -67,7 +67,7 @@
 你还需要在 **Google Cloud Console → APIs & Services → Credentials** 中创建 OAuth Client，并配置：
 
 - Authorized redirect URI：
-  - `https://<your-project-ref>.supabase.co/auth/v1/callback`
+  - `https://fwcijmyvaodoxdbmpmav.supabase.co/auth/v1/callback`
 
 之后将以下信息填回 Supabase：
 
@@ -89,7 +89,7 @@
 你还需要在 **GitHub Developer Settings → OAuth Apps** 中创建或修改 OAuth App，并配置：
 
 - Authorization callback URL：
-  - `https://<your-project-ref>.supabase.co/auth/v1/callback`
+  - `https://fwcijmyvaodoxdbmpmav.supabase.co/auth/v1/callback`
 
 之后将以下信息填回 Supabase：
 
@@ -116,7 +116,7 @@
 
 ```env
 APP_URL=http://localhost:3000
-SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_URL=https://fwcijmyvaodoxdbmpmav.supabase.co
 SUPABASE_ANON_KEY=your-anon-key
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 AUTH_COOKIE_SECRET=your-random-hex-secret
@@ -126,7 +126,7 @@ AUTH_COOKIE_SECRET=your-random-hex-secret
 
 ```bash
 npx supabase login
-npx supabase link --project-ref <your-project-ref>
+npx supabase link --project-ref fwcijmyvaodoxdbmpmav
 pnpm supabase:db:push
 ```
 
@@ -191,8 +191,8 @@ pnpm vercel:pull-env
 
 同时还需要单独确认 provider 控制台中的 callback：
 
-- Google OAuth redirect URI = `https://<your-project-ref>.supabase.co/auth/v1/callback`
-- GitHub OAuth callback URL = `https://<your-project-ref>.supabase.co/auth/v1/callback`
+- Google OAuth redirect URI = `https://fwcijmyvaodoxdbmpmav.supabase.co/auth/v1/callback`
+- GitHub OAuth callback URL = `https://fwcijmyvaodoxdbmpmav.supabase.co/auth/v1/callback`
 
 ### 2. 配置 Supabase
 
@@ -216,7 +216,7 @@ pnpm vercel:pull-env
 
 - 创建 OAuth Client
 - 填入回调地址：
-  - `https://<your-project-ref>.supabase.co/auth/v1/callback`
+  - `https://fwcijmyvaodoxdbmpmav.supabase.co/auth/v1/callback`
 
 然后把 Google 的：
 
@@ -231,7 +231,7 @@ pnpm vercel:pull-env
 
 - 创建或修改 OAuth App
 - 填入回调地址：
-  - `https://<your-project-ref>.supabase.co/auth/v1/callback`
+  - `https://fwcijmyvaodoxdbmpmav.supabase.co/auth/v1/callback`
 
 然后把 GitHub 的：
 

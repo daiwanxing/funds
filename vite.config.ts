@@ -19,6 +19,11 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/fund/, ""),
       },
+      "/api/fundgz": {
+        target: "https://fundgz.1234567.com.cn",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/fundgz/, ""),
+      },
       "/api/search": {
         target: "https://fundsuggest.eastmoney.com",
         changeOrigin: true,

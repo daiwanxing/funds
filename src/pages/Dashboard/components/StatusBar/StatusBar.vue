@@ -1,44 +1,20 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from "vue";
+import { ref } from "vue";
 import { isDuringDate } from "@/utils/marketStatus";
-import { Activity, Settings2 } from "lucide-vue-next";
+import { useIntervalFn } from "@vueuse/core";
+import { Settings2 } from "lucide-vue-next";
 import packageJson from "../../../../../package.json";
-
-const props = defineProps<{
-  lastUpdateTime?: Date;
-}>();
 
 const emit = defineEmits<{
   (e: "settings"): void;
 }>();
 
-// 1. 市场开市休市状态感知
-const isMarketOpen = ref(false);
-let timer: ReturnType<typeof setInterval> | null = null;
+// 市场开市休市状态感知（每分钟复查一次）
+const isMarketOpen = ref(isDuringDate());
 
-const checkMarket = () => {
+useIntervalFn(() => {
   isMarketOpen.value = isDuringDate();
-};
-
-onMounted(() => {
-  checkMarket();
-  // 每隔一分钟检查一次市场状态
-  timer = setInterval(checkMarket, 60000);
-});
-
-onUnmounted(() => {
-  if (timer) clearInterval(timer);
-});
-
-// 2. 最后更新时间格式化
-const formattedTime = computed(() => {
-  if (!props.lastUpdateTime) return "--:--:--";
-  const d = props.lastUpdateTime;
-  const h = String(d.getHours()).padStart(2, "0");
-  const m = String(d.getMinutes()).padStart(2, "0");
-  const s = String(d.getSeconds()).padStart(2, "0");
-  return `${h}:${m}:${s}`;
-});
+}, 60000);
 
 const appVersion = `v${packageJson.version}`;
 </script>
@@ -58,18 +34,6 @@ const appVersion = `v${packageJson.version}`;
 
       <!-- 分隔线 -->
       <span class="w-[1px] h-3 bg-white/6 mx-1" />
-
-      <!-- 最后更新时间 -->
-      <span class="flex items-center gap-1.5">
-        <Activity
-          class="w-3.5 h-3.5 opacity-70"
-          :stroke-width="2"
-        />
-        最后更新 <span
-          class="font-medium text-s"
-          style="letter-spacing: 0.5px;"
-        >{{ formattedTime }}</span>
-      </span>
     </div>
 
     <!-- 右侧区域 -->

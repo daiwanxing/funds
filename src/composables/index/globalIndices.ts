@@ -40,6 +40,7 @@ export const mergeGlobalIndexSnapshotsWithTrends = (
       ...snapshot,
       prePrice: trendData?.prePrice || fallbackPre,
       trendPoints: trendData?.points,
+      isTodayData: trendData?.isTodayData ?? false,
     };
   });
 };
