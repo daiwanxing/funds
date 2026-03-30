@@ -74,6 +74,7 @@ vi.mock("lucide-vue-next", () => ({
   Lock: defineComponent({ name: "LockIconStub", template: "<span />" }),
   Eye: defineComponent({ name: "EyeIconStub", template: "<span />" }),
   EyeOff: defineComponent({ name: "EyeOffIconStub", template: "<span />" }),
+  LoaderCircle: defineComponent({ name: "LoaderCircleIconStub", template: "<span />" }),
 }));
 
 vi.mock("@/composables/index", () => ({

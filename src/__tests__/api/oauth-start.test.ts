@@ -56,7 +56,8 @@ describe("OAuth start helpers", () => {
   });
 
   it("creates the Supabase auth client in PKCE mode for OAuth flows", async () => {
-    await import("../../../api/_lib/supabase-auth.ts");
+    const supabaseAuth = await import("../../../api/_lib/supabase-auth.ts");
+    supabaseAuth.getAuthClient?.();
 
     expect(createClient).toHaveBeenCalledWith(
       "https://supabase.example",

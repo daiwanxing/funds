@@ -22,6 +22,7 @@ export const getAuthClient = (): SupabaseClient => {
       auth: {
         autoRefreshToken: false,
         persistSession: false,
+        flowType: "pkce",
       },
     });
   }
