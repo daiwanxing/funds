@@ -142,7 +142,7 @@ pnpm dev
 
 - `APP_URL` 保持为 `http://localhost:3000`
 - Supabase Redirect URLs 已包含 `http://localhost:3000/api/auth/oauth/callback`
-- Google / GitHub 控制台也已加入同一条 callback 地址
+- Google / GitHub 控制台中的 callback 仍然保持为 `https://fwcijmyvaodoxdbmpmav.supabase.co/auth/v1/callback`
 
 ---
 
