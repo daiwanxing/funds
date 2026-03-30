@@ -1,16 +1,19 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const exchangeCodeForSession = vi.fn();
+let latestAuthOptions: Record<string, unknown> | undefined;
 const upsert = vi.fn();
 const from = vi.fn(() => ({
   upsert,
 }));
-const createClient = vi.fn((_: string, key: string) => {
+const createClient = vi.fn((_: string, key: string, options?: { auth?: Record<string, unknown> }) => {
   if (key === process.env.SUPABASE_SERVICE_ROLE_KEY) {
     return {
       from,
     };
   }
+
+  latestAuthOptions = options?.auth;
 
   return {
     auth: {
@@ -27,6 +30,7 @@ beforeEach(() => {
   vi.resetModules();
   createClient.mockClear();
   exchangeCodeForSession.mockReset();
+  latestAuthOptions = undefined;
   from.mockClear();
   upsert.mockReset();
   process.env.APP_URL = "https://funds.example";
@@ -90,6 +94,58 @@ describe("OAuth callback helpers", () => {
     });
 
     expect(exchangeCodeForSession).toHaveBeenCalledWith("oauth-code");
+  });
+
+  it("reads the stored PKCE verifier from cookies when exchanging the callback code", async () => {
+    exchangeCodeForSession.mockImplementationOnce(async () => {
+      const storage = latestAuthOptions?.storage as
+        | { getItem?: (key: string) => Promise<string | null> | string | null }
+        | undefined;
+      const verifier = await storage?.getItem?.("sb-test-auth-token-code-verifier");
+
+      if (!verifier) {
+        return {
+          data: { session: null, user: null },
+          error: { message: "missing pkce verifier" },
+        };
+      }
+
+      return {
+        data: {
+          session: {
+            access_token: "access-token",
+            refresh_token: "refresh-token",
+          },
+          user: {
+            id: "user-1",
+            email: "user@example.com",
+          },
+        },
+        error: null,
+      };
+    });
+
+    const { default: handler } = await import("../../../api/auth/oauth/callback.ts");
+    const res = createResponse();
+
+    await handler(
+      {
+        method: "GET",
+        query: {
+          code: "oauth-code",
+          provider: "google",
+        },
+        headers: {
+          cookie: "fs_pkce_code_verifier=pkce-verifier%2F",
+        },
+      } as never,
+      res as never,
+    );
+
+    expect(res.statusCode).toBe(302);
+    expect(res.headers.Location).toBe(
+      "https://funds.example/#/auth/callback?status=success&source=oauth&provider=google",
+    );
   });
 
   it("exports an OAuth callback handler", async () => {
@@ -178,6 +234,45 @@ describe("OAuth callback helpers", () => {
     expect(res.statusCode).toBe(302);
     expect(res.headers.Location).toBe(
       "https://funds.example/#/auth/callback?status=error&reason=oauth_callback_failed",
+    );
+  });
+
+  it("redirects back to the current request origin after a successful local OAuth callback", async () => {
+    exchangeCodeForSession.mockResolvedValue({
+      data: {
+        session: {
+          access_token: "access-token",
+          refresh_token: "refresh-token",
+        },
+        user: {
+          id: "user-1",
+          email: "user@example.com",
+        },
+      },
+      error: null,
+    });
+
+    const { default: handler } = await import("../../../api/auth/oauth/callback.ts");
+    const res = createResponse();
+
+    await handler(
+      {
+        method: "GET",
+        query: {
+          code: "oauth-code",
+          provider: "github",
+        },
+        headers: {
+          host: "localhost:3000",
+          "x-forwarded-proto": "http",
+        },
+      } as never,
+      res as never,
+    );
+
+    expect(res.statusCode).toBe(302);
+    expect(res.headers.Location).toBe(
+      "http://localhost:3000/#/auth/callback?status=success&source=oauth&provider=github",
     );
   });
 });

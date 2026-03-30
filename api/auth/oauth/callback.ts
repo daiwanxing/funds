@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { setAuthCookies } from "../../_lib/auth-cookie.js";
-import { buildAppUrl } from "../../_lib/app-url.js";
+import { buildRequestAppUrl } from "../../_lib/app-url.js";
 import { getAdminClient } from "../../_lib/supabase-admin.js";
 import { exchangeOAuthCodeForSession, isOAuthProvider } from "../../_lib/supabase-auth.js";
 
@@ -13,20 +13,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       .status(302)
       .setHeader(
         "Location",
-        buildAppUrl("/auth/callback?status=error&reason=oauth_callback_failed"),
+        buildRequestAppUrl(req, "/auth/callback?status=error&reason=oauth_callback_failed"),
       )
       .end();
     return;
   }
 
-  const result = await exchangeOAuthCodeForSession(code);
+  const result = await exchangeOAuthCodeForSession(code, req, res);
 
   if (result.error || !result.session || !result.user) {
     res
       .status(302)
       .setHeader(
         "Location",
-        buildAppUrl("/auth/callback?status=error&reason=oauth_callback_failed"),
+        buildRequestAppUrl(req, "/auth/callback?status=error&reason=oauth_callback_failed"),
       )
       .end();
     return;
@@ -47,7 +47,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     .status(302)
     .setHeader(
       "Location",
-      buildAppUrl(`/auth/callback?status=success&source=oauth&provider=${provider}`),
+      buildRequestAppUrl(req, `/auth/callback?status=success&source=oauth&provider=${provider}`),
     )
     .end();
 }

@@ -117,8 +117,8 @@ describe("SignInPage OAuth entry points", () => {
   it("renders Google and GitHub OAuth buttons on the login view", async () => {
     const wrapper = await mountPage();
 
-    expect(wrapper.text()).toContain("Continue with Google");
-    expect(wrapper.text()).toContain("Continue with GitHub");
+    expect(wrapper.find("button[data-test='oauth-google']").exists()).toBe(true);
+    expect(wrapper.find("button[data-test='oauth-github']").exists()).toBe(true);
   });
 
   it("renders the same OAuth buttons on the register view", async () => {
@@ -126,8 +126,8 @@ describe("SignInPage OAuth entry points", () => {
 
     const wrapper = await mountPage();
 
-    expect(wrapper.text()).toContain("Continue with Google");
-    expect(wrapper.text()).toContain("Continue with GitHub");
+    expect(wrapper.find("button[data-test='oauth-google']").exists()).toBe(true);
+    expect(wrapper.find("button[data-test='oauth-github']").exists()).toBe(true);
   });
 
   it("starts the Google OAuth flow when the user clicks the Google button", async () => {

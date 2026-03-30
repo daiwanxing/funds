@@ -1,11 +1,20 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const createClient = vi.fn(() => ({
-  auth: {
-    signInWithOAuth,
-  },
-}));
-const signInWithOAuth = vi.fn();
+let latestAuthOptions: Record<string, unknown> | undefined;
+
+const signInWithOAuth = vi.fn<
+  (payload: unknown) => Promise<{ data: { url: string | null }; error: { message: string } | null }>
+>();
+const createClient = vi.fn();
+
+createClient.mockImplementation((_url: string, _key: string, options?: { auth?: Record<string, unknown> }) => {
+  latestAuthOptions = options?.auth;
+  return {
+    auth: {
+      signInWithOAuth,
+    },
+  };
+});
 
 vi.mock("@supabase/supabase-js", () => ({
   createClient,
@@ -15,6 +24,11 @@ beforeEach(() => {
   vi.resetModules();
   createClient.mockClear();
   signInWithOAuth.mockReset();
+  latestAuthOptions = undefined;
+  signInWithOAuth.mockResolvedValue({
+    data: { url: "https://supabase.example/oauth/default" },
+    error: null,
+  });
   process.env.APP_URL = "https://funds.example";
   process.env.SUPABASE_URL = "https://supabase.example";
   process.env.SUPABASE_ANON_KEY = "anon-key";
@@ -26,7 +40,7 @@ const createResponse = () => {
   return {
     statusCode: 200,
     body: undefined as unknown,
-    headers: {} as Record<string, string>,
+    headers: {} as Record<string, string | string[]>,
     status(code: number) {
       this.statusCode = code;
       return this;
@@ -35,7 +49,14 @@ const createResponse = () => {
       this.body = payload;
       return this;
     },
-    setHeader(name: string, value: string) {
+    setHeader(name: string, value: string | string[]) {
+      if (name === "Set-Cookie" && this.headers[name]) {
+        const current = this.headers[name];
+        this.headers[name] = Array.isArray(current)
+          ? [...current, ...(Array.isArray(value) ? value : [value])]
+          : [current, ...(Array.isArray(value) ? value : [value])];
+        return this;
+      }
       this.headers[name] = value;
       return this;
     },
@@ -99,6 +120,35 @@ describe("OAuth start helpers", () => {
     });
   });
 
+  it("stores the PKCE code verifier in a response cookie before redirecting to Supabase", async () => {
+    signInWithOAuth.mockImplementationOnce(async () => {
+      const storage = latestAuthOptions?.storage as
+        | { setItem?: (key: string, value: string) => Promise<void> | void }
+        | undefined;
+      await storage?.setItem?.("sb-test-auth-token-code-verifier", "pkce-verifier/");
+
+      return {
+        data: { url: "https://supabase.example/oauth/google/start" },
+        error: null,
+      };
+    });
+
+    const { default: handler } = await import("../../../api/auth/oauth/start.ts");
+    const res = createResponse();
+
+    await handler(
+      {
+        method: "GET",
+        query: { provider: "google" },
+      } as never,
+      res as never,
+    );
+
+    expect(res.headers["Set-Cookie"]).toEqual(
+      expect.stringContaining("fs_pkce_code_verifier="),
+    );
+  });
+
   it("exports an OAuth start handler", async () => {
     const modules = import.meta.glob("../../../api/auth/oauth/start.ts");
     const loader = modules["../../../api/auth/oauth/start.ts"];
@@ -150,6 +200,38 @@ describe("OAuth start helpers", () => {
       provider: "google",
       options: {
         redirectTo: "https://funds.example/api/auth/oauth/callback?provider=google",
+        skipBrowserRedirect: true,
+      },
+    });
+    expect(res.statusCode).toBe(302);
+    expect(res.headers.Location).toBe("https://supabase.example/oauth/google/start");
+  });
+
+  it("prefers the current request origin over APP_URL when building the OAuth callback", async () => {
+    signInWithOAuth.mockResolvedValue({
+      data: { url: "https://supabase.example/oauth/google/start" },
+      error: null,
+    });
+
+    const { default: handler } = await import("../../../api/auth/oauth/start.ts");
+    const res = createResponse();
+
+    await handler(
+      {
+        method: "GET",
+        query: { provider: "google" },
+        headers: {
+          host: "localhost:3000",
+          "x-forwarded-proto": "http",
+        },
+      } as never,
+      res as never,
+    );
+
+    expect(signInWithOAuth).toHaveBeenCalledWith({
+      provider: "google",
+      options: {
+        redirectTo: "http://localhost:3000/api/auth/oauth/callback?provider=google",
         skipBrowserRedirect: true,
       },
     });

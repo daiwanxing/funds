@@ -8,7 +8,7 @@
 
 | 变量名 | 说明 | 获取位置 |
 |---|---|---|
-| `APP_URL` | 应用对外访问地址，用于拼接认证回调与 OAuth callback | 本地：`http://localhost:3000`；生产：你的正式域名 |
+| `APP_URL` | 应用对外访问地址，用于拼接认证回调与 OAuth callback | 本地：`http://localhost:4310`；生产：你的正式域名 |
 | `SUPABASE_URL` | Supabase 项目地址，当前项目为 `https://fwcijmyvaodoxdbmpmav.supabase.co` | Supabase Dashboard → Settings → API |
 | `SUPABASE_ANON_KEY` | Supabase 匿名公钥 | Supabase Dashboard → Settings → API |
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key，仅服务端使用，严禁暴露到前端 | Supabase Dashboard → Settings → API |
@@ -24,10 +24,10 @@
 
 - **Site URL**
   - 当前只有一套生产 Supabase 项目时，建议直接填你的正式域名：`https://funds-inky.vercel.app`
-  - 如需本地联调，可临时保留 `http://localhost:3000` 在 Redirect URLs 白名单中，无需单独再建一套本地 Supabase
+  - 如需本地联调，可临时保留 `http://localhost:4310` 在 Redirect URLs 白名单中，无需单独再建一套本地 Supabase
 
 - **Redirect URLs** 白名单建议包含：
-  - `http://localhost:3000/#/auth/callback`
+  - `http://localhost:4310/#/auth/callback`
   - `https://funds-inky.vercel.app/#/auth/callback`
 
 ### OAuth 回调地址
@@ -36,7 +36,7 @@
 
 在 **Supabase Dashboard → Authentication → URL Configuration → Redirect URLs** 中补充：
 
-- 本地 OAuth callback：`http://localhost:3000/api/auth/oauth/callback`
+- 本地 OAuth callback：`http://localhost:4310/api/auth/oauth/callback`
 - 生产 OAuth callback：`https://funds-inky.vercel.app/api/auth/oauth/callback`
 
 说明：
@@ -115,7 +115,7 @@
 ### 1. 创建 `.env.local`
 
 ```env
-APP_URL=http://localhost:3000
+APP_URL=http://localhost:4310
 SUPABASE_URL=https://fwcijmyvaodoxdbmpmav.supabase.co
 SUPABASE_ANON_KEY=your-anon-key
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
@@ -140,8 +140,8 @@ pnpm dev
 
 如果要测试 OAuth，本地还需要同时确认：
 
-- `APP_URL` 保持为 `http://localhost:3000`
-- Supabase Redirect URLs 已包含 `http://localhost:3000/api/auth/oauth/callback`
+- `APP_URL` 保持为 `http://localhost:4310`
+- Supabase Redirect URLs 已包含 `http://localhost:4310/api/auth/oauth/callback`
 - Google / GitHub 控制台中的 callback 仍然保持为 `https://fwcijmyvaodoxdbmpmav.supabase.co/auth/v1/callback`
 
 ---
@@ -160,7 +160,7 @@ pnpm dev
 
 - Production `APP_URL`：`https://funds-inky.vercel.app`
 - Preview `APP_URL`：建议先不要启用 OAuth，除非你把 preview 域名也同步加入 Supabase、Google、GitHub 的回调白名单
-- Development `APP_URL`：`http://localhost:3000`
+- Development `APP_URL`：`http://localhost:4310`
 
 注意：
 
@@ -180,7 +180,7 @@ pnpm vercel:pull-env
 
 需要先明确：
 
-- 本地联调域名：`http://localhost:3000`
+- 本地联调域名：`http://localhost:4310`
 - 正式生产域名：`https://funds-inky.vercel.app`
 
 这两个地址必须在以下位置保持一致：
@@ -200,8 +200,8 @@ pnpm vercel:pull-env
 
 - Site URL 已正确设置
 - 以下地址都在 Redirect URLs 白名单中：
-  - `http://localhost:3000/#/auth/callback`
-  - `http://localhost:3000/api/auth/oauth/callback`
+  - `http://localhost:4310/#/auth/callback`
+  - `http://localhost:4310/api/auth/oauth/callback`
   - `https://funds-inky.vercel.app/#/auth/callback`
   - `https://funds-inky.vercel.app/api/auth/oauth/callback`
 

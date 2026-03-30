@@ -28,7 +28,7 @@ cp .env.example .env.local
 
 然后在 `.env.local` 中填入：
 
-- `APP_URL=http://localhost:3000`
+- `APP_URL=http://localhost:4310`
 - `SUPABASE_URL`
 - `SUPABASE_ANON_KEY`
 - `SUPABASE_SERVICE_ROLE_KEY`
@@ -50,9 +50,9 @@ openssl rand -hex 32
 
 - **Authentication → URL Configuration**
   - Site URL：`https://funds-inky.vercel.app`
-  - Redirect URL：`http://localhost:3000/#/auth/callback`
+  - Redirect URL：`http://localhost:4310/#/auth/callback`
   - Redirect URL：`https://funds-inky.vercel.app/#/auth/callback`
-  - Redirect URL：`http://localhost:3000/api/auth/oauth/callback`
+  - Redirect URL：`http://localhost:4310/api/auth/oauth/callback`
   - Redirect URL：`https://funds-inky.vercel.app/api/auth/oauth/callback`
 
 - **Authentication → Providers → Google / GitHub**
@@ -91,7 +91,7 @@ pnpm supabase:db:push
 
 当前建议值：
 
-- Development：`http://localhost:3000`
+- Development：`http://localhost:4310`
 - Production：`https://funds-inky.vercel.app`
 
 如果你希望把 Vercel 中的变量拉回本地：
@@ -108,7 +108,13 @@ pnpm dev:vercel
 
 然后验证：
 
-1. 打开 `http://localhost:3000/#/auth/sign-in`
+1. 打开 `http://localhost:4310/#/auth/sign-in`
+
+补充说明：
+
+- 本项目本地 OAuth 联调固定使用 `4310` 端口
+- `pnpm dev` / `pnpm dev:vercel` 会通过 `vercel dev --listen 4310` 固定监听该端口
+- 如果 `4310` 已被占用，启动应直接失败，先释放端口再继续联调
 2. 使用邮箱密码注册
 3. 完成邮箱验证
 4. 登录

@@ -1,5 +1,7 @@
+import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { createClient, type SupabaseClient, type Session, type User } from "@supabase/supabase-js";
 import { getEnv } from "./env.js";
+import { createPkceCookieStorage } from "./oauth-pkce-cookie.js";
 
 let _authClient: SupabaseClient | null = null;
 
@@ -27,6 +29,21 @@ export const getAuthClient = (): SupabaseClient => {
     });
   }
   return _authClient;
+};
+
+const getOAuthAuthClient = (
+  req: Pick<VercelRequest, "headers">,
+  res?: VercelResponse,
+): SupabaseClient => {
+  const env = getEnv();
+  return createClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+      flowType: "pkce",
+      storage: createPkceCookieStorage(req, res),
+    },
+  });
 };
 
 export interface SignUpResult {
@@ -108,8 +125,10 @@ export const signIn = async (
 export const getOAuthAuthorizationUrl = async (
   provider: OAuthProvider,
   redirectTo: string,
+  req?: Pick<VercelRequest, "headers">,
+  res?: VercelResponse,
 ): Promise<OAuthAuthorizationResult> => {
-  const client = getAuthClient();
+  const client = req ? getOAuthAuthClient(req, res) : getAuthClient();
   const { data, error } = await client.auth.signInWithOAuth({
     provider,
     options: {
@@ -130,8 +149,10 @@ export const getOAuthAuthorizationUrl = async (
  */
 export const exchangeOAuthCodeForSession = async (
   code: string,
+  req?: Pick<VercelRequest, "headers">,
+  res?: VercelResponse,
 ): Promise<OAuthExchangeResult> => {
-  const client = getAuthClient();
+  const client = req ? getOAuthAuthClient(req, res) : getAuthClient();
   const { data, error } = await client.auth.exchangeCodeForSession(code);
 
   if (error) {

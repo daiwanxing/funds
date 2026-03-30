@@ -177,28 +177,10 @@ watch(currentMode, (_newMode, oldMode) => {
               登录 Funds Assistant
             </h1>
             <p class="font-sans text-[13px] text-t m-0">
-              使用邮箱和密码登录您的账号
+              登录以开启云端同步
             </p>
           </div>
 
-          <div class="flex flex-col gap-3 mb-6">
-            <button
-              data-test="oauth-google"
-              type="button"
-              class="w-full h-10 border border-white/8 rounded-lg bg-bg-2 text-p font-sans text-sm font-500 cursor-pointer transition-[background,border-color] duration-200 hover:bg-bg-3 hover:border-white/12"
-              @click="handleOAuthSignIn('google')"
-            >
-              Continue with Google
-            </button>
-            <button
-              data-test="oauth-github"
-              type="button"
-              class="w-full h-10 border border-white/8 rounded-lg bg-bg-2 text-p font-sans text-sm font-500 cursor-pointer transition-[background,border-color] duration-200 hover:bg-bg-3 hover:border-white/12"
-              @click="handleOAuthSignIn('github')"
-            >
-              Continue with GitHub
-            </button>
-          </div>
 
           <form
             class="flex flex-col gap-5"
@@ -272,7 +254,7 @@ watch(currentMode, (_newMode, oldMode) => {
 
             <button
               type="submit"
-              class="w-full h-10 border-none rounded-lg bg-white text-[#0a0b0d] font-sans text-sm font-600 cursor-pointer tracking-[0.01em] transition-[background,opacity] duration-[180ms] enabled:hover:bg-white/88 enabled:active:bg-white/76 disabled:op-35 disabled:cursor-not-allowed flex items-center justify-center"
+              class="w-full h-10 border-none rounded-lg bg-white text-[#0a0b0d] font-sans text-sm font-600 cursor-pointer tracking-[0.01em] transition-[background,opacity] duration-[180ms] enabled:hover:bg-white/88 enabled:active:bg-white/76 disabled:op-50 disabled:cursor-not-allowed flex items-center justify-center"
               :disabled="!isLoginValid || isLoginLoading"
             >
               <LoaderCircle
@@ -284,7 +266,45 @@ watch(currentMode, (_newMode, oldMode) => {
             </button>
           </form>
 
-          <div class="text-center mt-6 pt-5 border-t border-white/6 border-x-0 border-b-0">
+          <!-- ── OAuth ─────────────────────────────── -->
+          <div class="flex items-center gap-3 my-6">
+            <div class="flex-1 h-px bg-white/8" />
+            <span class="font-sans text-[11px] text-d tracking-widest select-none">或</span>
+            <div class="flex-1 h-px bg-white/8" />
+          </div>
+          <div
+            class="flex justify-center"
+            :style="{ gap: '20px' }"
+          >
+            <button
+              data-test="oauth-google"
+              type="button"
+              title="使用 Google 登录"
+              class="oauth-icon-btn"
+              @click="handleOAuthSignIn('google')"
+            >
+              <img
+                src="/google-svgrepo-com.svg"
+                alt="Google"
+                class="w-5 h-5"
+              >
+            </button>
+            <button
+              data-test="oauth-github"
+              type="button"
+              title="使用 GitHub 登录"
+              class="oauth-icon-btn"
+              @click="handleOAuthSignIn('github')"
+            >
+              <img
+                src="/github-svgrepo-com.svg"
+                alt="GitHub"
+                class="w-5 h-5"
+              >
+            </button>
+          </div>
+
+          <div class="text-center mt-6">
             <span class="font-sans text-[13px] text-t mr-1">还没有账号？</span>
             <button
               type="button"
@@ -310,24 +330,6 @@ watch(currentMode, (_newMode, oldMode) => {
             </p>
           </div>
 
-          <div class="flex flex-col gap-3 mb-6">
-            <button
-              data-test="oauth-google"
-              type="button"
-              class="w-full h-10 border border-white/8 rounded-lg bg-bg-2 text-p font-sans text-sm font-500 cursor-pointer transition-[background,border-color] duration-200 hover:bg-bg-3 hover:border-white/12"
-              @click="handleOAuthSignIn('google')"
-            >
-              Continue with Google
-            </button>
-            <button
-              data-test="oauth-github"
-              type="button"
-              class="w-full h-10 border border-white/8 rounded-lg bg-bg-2 text-p font-sans text-sm font-500 cursor-pointer transition-[background,border-color] duration-200 hover:bg-bg-3 hover:border-white/12"
-              @click="handleOAuthSignIn('github')"
-            >
-              Continue with GitHub
-            </button>
-          </div>
 
           <template v-if="!isRegistered">
             <form
@@ -427,7 +429,7 @@ watch(currentMode, (_newMode, oldMode) => {
 
               <button
                 type="submit"
-                class="w-full h-10 border-none rounded-lg bg-white text-[#0a0b0d] font-sans text-sm font-600 cursor-pointer tracking-[0.01em] transition-[background,opacity] duration-[180ms] enabled:hover:bg-white/88 enabled:active:bg-white/76 disabled:op-35 disabled:cursor-not-allowed flex items-center justify-center"
+                class="w-full h-10 border-none rounded-lg bg-white text-[#0a0b0d] font-sans text-sm font-600 cursor-pointer tracking-[0.01em] transition-[background,opacity] duration-[180ms] enabled:hover:bg-white/88 enabled:active:bg-white/76 disabled:op-50 disabled:cursor-not-allowed flex items-center justify-center"
                 :disabled="!isRegValid || isRegLoading"
               >
                 <LoaderCircle
@@ -463,7 +465,42 @@ watch(currentMode, (_newMode, oldMode) => {
             </div>
           </template>
 
-          <div class="text-center mt-6 pt-5 border-t border-white/6 border-x-0 border-b-0">
+          <!-- ── OAuth ─────────────────────────────── -->
+          <div class="flex items-center gap-3 my-6">
+            <div class="flex-1 h-px bg-white/8" />
+            <span class="font-sans text-[11px] text-d tracking-widest select-none">或</span>
+            <div class="flex-1 h-px bg-white/8" />
+          </div>
+          <div class="flex justify-center gap-5">
+            <button
+              data-test="oauth-google"
+              type="button"
+              title="使用 Google 注册"
+              class="oauth-icon-btn"
+              @click="handleOAuthSignIn('google')"
+            >
+              <img
+                src="/google-svgrepo-com.svg"
+                alt="Google"
+                class="w-5 h-5"
+              >
+            </button>
+            <button
+              data-test="oauth-github"
+              type="button"
+              title="使用 GitHub 注册"
+              class="oauth-icon-btn"
+              @click="handleOAuthSignIn('github')"
+            >
+              <img
+                src="/github-svgrepo-com.svg"
+                alt="GitHub"
+                class="w-5 h-5"
+              >
+            </button>
+          </div>
+
+          <div class="text-center mt-6">
             <span class="font-sans text-[13px] text-t mr-1">已有账号？</span>
             <button
               type="button"
@@ -582,5 +619,18 @@ watch(currentMode, (_newMode, oldMode) => {
 .slide-right-leave-to {
   opacity: 0;
   transform: translateX(28px);
+}
+
+/* ── OAuth icon buttons ───────────────────────── */
+.oauth-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: pointer;
 }
 </style>
