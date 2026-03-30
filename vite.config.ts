@@ -13,6 +13,7 @@ export default defineConfig({
   server: {
     host: "127.0.0.1",
     port: Number(process.env.PORT ?? 3000),
+    strictPort: false,
     proxy: {
       "/api/fund": {
         target: "https://fundmobapi.eastmoney.com",
