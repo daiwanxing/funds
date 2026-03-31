@@ -4,6 +4,7 @@ import { useAuthStore } from "@/stores/auth";
 import { Ellipsis, User, LogOut } from "lucide-vue-next";
 import { Dropdown, DropdownItem } from "@/components/ui/Dropdown";
 import { Dialog } from "@/components/ui/Dialog";
+import BrandLogo from "@/components/BrandLogo.vue";
 
 const emit = defineEmits<{
   (e: "login"): void;
@@ -81,7 +82,7 @@ const confirmLogout = async () => {
             @click="handleProfileClick" 
           />
           <DropdownItem 
-            :icon="LogOut" 
+            :icon="LogOut"
             label="退出登录" 
             danger
             @click="handleLogoutClick" 
@@ -109,36 +110,54 @@ const confirmLogout = async () => {
     </div>
   </div>
 
-  <!-- 退出登录确认弹窗 -->
+  <!-- 定制化极简高质感退出弹窗 (参考图2风格) -->
   <Dialog
     v-model:open="showLogoutDialog"
-    title="退出登录"
-    size="sm"
+    hide-header
+    size="auto"
+    panel-class="!bg-black !border !border-white/10 overflow-hidden"
   >
-    <div class="py-2">
-      <p class="text-[13px] text-white/60 mb-2 leading-relaxed font-sans">
-        确认要退出当前账号 <strong class="text-white/90 font-medium">{{ auth.nickname || 'wanxing dai' }}</strong> 吗？
+    <div class="w-[320px] bg-black flex flex-col items-center px-8 py-8">
+      <!-- 顶端图标区 -->
+      <div class="mb-6 flex items-center justify-center">
+        <!-- 品牌标识 -->
+        <BrandLogo 
+          :size="40" 
+          class="text-white" 
+        />
+      </div>
+
+      <!-- 标题 -->
+      <h2 class="text-[17px] font-bold text-white mb-2 text-center tracking-wide font-sans">
+        登出当前账号？
+      </h2>
+
+      <!-- 描述文案 -->
+      <p class="text-[14px] text-white/50 text-center mb-6 leading-relaxed font-sans mt-0">
+        退出后将丢失数据云端同步
       </p>
+
+      <!-- 纵向排列的方形按钮 (同登录框标准) -->
+      <div class="w-full flex flex-col gap-5">
+        <button 
+          class="w-full h-10 border-none rounded-lg bg-white text-[#0a0b0d] font-sans text-sm font-600 cursor-pointer tracking-wide transition-[background,opacity] duration-[180ms] hover:bg-white/90 flex items-center justify-center"
+          @click="confirmLogout"
+        >
+          登出
+        </button>
+        <button 
+          class="w-full h-10 border-none rounded-lg bg-white/10 text-white font-sans text-sm font-600 cursor-pointer tracking-wide transition-[background,opacity] duration-[180ms] hover:bg-white/20 flex items-center justify-center"
+          @click="showLogoutDialog = false"
+        >
+          取消
+        </button>
+      </div>
     </div>
-    
-    <template #footer>
-      <button 
-        class="px-4 py-1.5 rounded-md text-[13px] font-medium text-white/60 hover:text-white/90 hover:bg-white/5 transition-colors font-sans"
-        @click="showLogoutDialog = false"
-      >
-        取消
-      </button>
-      <button 
-        class="px-4 py-1.5 rounded-md text-[13px] font-medium text-white shadow-sm bg-red-500/80 hover:bg-red-500 transition-colors font-sans ml-2"
-        @click="confirmLogout"
-      >
-        确认退出
-      </button>
-    </template>
   </Dialog>
 </template>
 
 <style scoped>
+/* 原有的 guest-badge 样式保持不变 */
 .guest-badge {
   padding: 0;
   border: none;
@@ -154,4 +173,5 @@ const confirmLogout = async () => {
 .guest-badge:hover {
   color: rgba(255, 255, 255, 0.8);
 }
+
 </style>

@@ -6,13 +6,17 @@ import { X } from "lucide-vue-next";
 
 export interface DialogProps {
   /** Dialog panel width variant */
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "md" | "lg" | "auto";
   /** Optional title shown in the header */
   title?: string;
   /** Close when clicking the backdrop (default: true) */
   closeOnBackdropClick?: boolean;
   /** Close on ESC key press (default: true) */
   closeOnEsc?: boolean;
+  /** Hide the default header (including close button and title) */
+  hideHeader?: boolean;
+  /** Custom class for the panel */
+  panelClass?: string;
 }
 
 const props = withDefaults(defineProps<DialogProps>(), {
@@ -20,6 +24,8 @@ const props = withDefaults(defineProps<DialogProps>(), {
   title: undefined,
   closeOnBackdropClick: true,
   closeOnEsc: true,
+  hideHeader: false,
+  panelClass: "",
 });
 
 const open = defineModel<boolean>("open", { default: false });
@@ -60,6 +66,7 @@ const sizeMap = {
   sm: "360px",
   md: "480px",
   lg: "640px",
+  auto: "auto",
 };
 </script>
 
@@ -79,6 +86,7 @@ const sizeMap = {
         <motion.div
           key="dialog-panel"
           class="dialog-panel"
+          :class="panelClass"
           role="dialog"
           aria-modal="true"
           :aria-labelledby="title ? 'dialog-title' : undefined"
@@ -95,7 +103,10 @@ const sizeMap = {
           @click.stop
         >
           <!-- Header ─────────────────────────────────── -->
-          <div class="dialog-header">
+          <div 
+            v-if="!hideHeader" 
+            class="dialog-header"
+          >
             <!-- Close button on the LEFT (user-specified) -->
             <button
               id="dialog-close-btn"
@@ -122,7 +133,10 @@ const sizeMap = {
           </div>
 
           <!-- Content ─────────────────────────────────── -->
-          <div class="dialog-content">
+          <div 
+            class="dialog-content" 
+            :class="{ '!p-0': hideHeader }"
+          >
             <slot />
           </div>
 
