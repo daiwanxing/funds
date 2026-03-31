@@ -2,7 +2,7 @@
 import { ref } from "vue";
 import { isDuringDate } from "@/utils/marketStatus";
 import { useIntervalFn } from "@vueuse/core";
-import { Settings2, UserCircle2 } from "lucide-vue-next";
+import { Settings2 } from "lucide-vue-next";
 import { useAuthStore } from "@/stores/auth";
 import packageJson from "../../../../../package.json";
 
@@ -48,10 +48,6 @@ const appVersion = `v${packageJson.version}`;
         class="guest-badge"
         @click="emit('login')"
       >
-        <UserCircle2
-          class="w-3.5 h-3.5"
-          :stroke-width="2"
-        />
         游客模式
       </button>
 
@@ -83,24 +79,18 @@ const appVersion = `v${packageJson.version}`;
 
 <style scoped>
 .guest-badge {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 2px 8px;
-  border: 1px solid rgba(245, 158, 11, 0.25);
-  border-radius: 4px;
-  background: rgba(245, 158, 11, 0.08);
-  color: rgb(251, 191, 36);
-  font-family: var(--font-sans);
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.4);
+  font-family: var(--font-mono);
   font-size: 11px;
-  font-weight: 500;
+  font-weight: 400;
   cursor: pointer;
-  transition: background 0.2s, border-color 0.2s, color 0.2s;
+  transition: color 0.15s ease;
 }
 
 .guest-badge:hover {
-  background: rgba(245, 158, 11, 0.14);
-  border-color: rgba(245, 158, 11, 0.4);
-  color: rgb(253, 224, 71);
+  color: rgba(255, 255, 255, 0.75);
 }
 </style>

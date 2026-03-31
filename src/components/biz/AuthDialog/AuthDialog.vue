@@ -13,7 +13,6 @@ const handleSuccess = () => {
   <Dialog
     v-model:open="open"
     size="sm"
-    title="登录 Funds Assistant"
   >
     <AuthForm @success="handleSuccess" />
   </Dialog>

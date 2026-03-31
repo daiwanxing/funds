@@ -164,8 +164,6 @@ const sizeMap = {
   border-radius: 16px;
   background: var(--bg-2);
   border: 1px solid var(--border-default);
-  /* Accent top line — terminal header feel */
-  border-top: 2px solid var(--accent-primary);
   box-shadow:
     0 0 0 1px rgba(255, 255, 255, 0.04) inset,
     0 4px 16px rgba(0, 0, 0, 0.5),
@@ -179,7 +177,6 @@ const sizeMap = {
   align-items: center;
   gap: 10px;
   padding: 14px 20px;
-  border-bottom: 1px solid var(--border-subtle);
   flex-shrink: 0;
 }
 
@@ -193,23 +190,22 @@ const sizeMap = {
   height: 28px;
   border-radius: 8px;
   background: transparent;
-  border: 1px solid transparent;
-  color: var(--text-tertiary);
+  border: none;
+  color: #fff;
   cursor: pointer;
   transition:
     background 0.15s ease,
-    border-color 0.15s ease,
-    color 0.15s ease;
+    opacity 0.15s ease;
 }
 
 .dialog-close-btn:hover {
   background: var(--bg-3);
-  border-color: var(--border-default);
-  color: var(--text-primary);
+  opacity: 0.7;
 }
 
 .dialog-close-btn:active {
   background: var(--bg-4);
+  opacity: 0.5;
 }
 
 /* ── Title ────────────────────────────────────────────── */
