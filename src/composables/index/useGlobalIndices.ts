@@ -27,6 +27,7 @@ export const useGlobalIndices = () => {
     refetchInterval: snapshotRefetchInterval,
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,
+    retry: false,
   });
 
   const trendsQuery = useQuery({
@@ -39,6 +40,7 @@ export const useGlobalIndices = () => {
         ? 300_000
         : false
     )),
+    retry: false,
   });
 
   const dataList = computed<GlobalIndexItem[]>(() => {
@@ -55,9 +57,5 @@ export const useGlobalIndices = () => {
   return {
     dataList,
     isLoading,
-    refetch: () => {
-      snapshotQuery.refetch();
-      trendsQuery.refetch();
-    },
   };
 };

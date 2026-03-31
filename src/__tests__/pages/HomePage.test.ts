@@ -37,6 +37,7 @@ const authShouldShowImportPrompt = ref(false);
 const authState = {
   bootstrap: {
     refetch: vi.fn(),
+    isPending: ref(false),
   },
   get isAuthenticated() {
     return authIsAuthenticated.value;
@@ -227,6 +228,7 @@ describe("HomePage selection behavior", () => {
     globalIndicesState.refetch.mockReset();
     holidayState.loadFromStorage.mockReset();
     authState.bootstrap.refetch.mockReset();
+    authState.bootstrap.isPending.value = false;
     authIsAuthenticated.value = false;
     authCloudWatchlist.value = [];
     authIsFirstLogin.value = false;
@@ -270,6 +272,18 @@ describe("HomePage selection behavior", () => {
 
     expect(wrapper.text()).not.toContain("添加你的第一只基金");
     expect(wrapper.text()).toContain("正在同步自选持仓");
+  });
+
+  it("keeps the dashboard shell visible while preferences are still booting", async () => {
+    settingsState.load.mockImplementation(() => new Promise(() => {}));
+    settingsState.isReady.value = false;
+    authState.bootstrap.isPending.value = true;
+
+    const wrapper = await mountPage();
+
+    expect(wrapper.get("[data-test='saved-count']").text()).toBe("0");
+    expect(wrapper.text()).toContain("正在同步自选持仓");
+    expect(wrapper.text()).not.toContain("自选列表为空");
   });
 
   it("switches to cloud watchlist when authenticated", async () => {
@@ -380,5 +394,14 @@ describe("HomePage selection behavior", () => {
     expect(authState.importGuest.mutateAsync).not.toHaveBeenCalled();
     expect(guestWatchlistState.clear).not.toHaveBeenCalled();
     expect(authState.dismissImportPrompt).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not manually refetch dashboard queries on mount", async () => {
+    await mountPage();
+
+    expect(settingsState.load).toHaveBeenCalledTimes(1);
+    expect(authState.bootstrap.refetch).not.toHaveBeenCalled();
+    expect(globalIndicesState.refetch).not.toHaveBeenCalled();
+    expect(fundDataState.fetchData).not.toHaveBeenCalled();
   });
 });

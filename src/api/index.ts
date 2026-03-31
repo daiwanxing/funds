@@ -20,6 +20,19 @@ export const fetchIndexSnapshots = async (
   return data?.data?.diff ?? [];
 };
 
+const createEmptyTrendItem = (
+  code: string,
+  config: MarketSessionConfig,
+): GlobalIndexTrendItem => {
+  return {
+    code,
+    prePrice: 0,
+    points: [],
+    sessionMinutes: getTotalSessionMinutes(config.sessions),
+    isTodayData: false,
+  };
+};
+
 interface ParsedTrendPoint {
   marketDate: string;
   marketTime: string;
@@ -145,18 +158,20 @@ export const fetchIndexTrends = async (
   const responses = await Promise.all(
     secids.map(async (code) => {
       const config = MARKET_SESSION_CONFIG[code] ?? MARKET_SESSION_CONFIG["1.000001"];
-      const url = `/api/kline/api/qt/stock/trends2/get?secid=${code}&fields1=f1,f2&fields2=f51,f53&ndays=2&_=${Date.now()}`;
-      const { data } = await axios.get<GlobalIndexTrendApiResponse>(url);
+      const url = `/api/index/api/qt/stock/trends2/get?secid=${code}&fields1=f1,f2&fields2=f51,f53&ndays=2&_=${Date.now()}`;
+      let data: GlobalIndexTrendApiResponse | undefined;
+
+      try {
+        const response = await axios.get<GlobalIndexTrendApiResponse>(url);
+        data = response.data;
+      } catch {
+        return createEmptyTrendItem(code, config);
+      }
+
       const trendData = data?.data;
 
       if (!trendData) {
-        return {
-          code,
-          prePrice: 0,
-          points: [],
-          sessionMinutes: getTotalSessionMinutes(config.sessions),
-          isTodayData: false,
-        };
+        return createEmptyTrendItem(code, config);
       }
 
       const currentMarket = getDateTimePartsInTimeZone(new Date(), config.timeZone);

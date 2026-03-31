@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from "vue";
+import { ref, computed, onMounted, watch, toValue } from "vue";
 import type { FundListItem } from "@/types/fund";
 import { usePreferences } from "@/composables/preferences";
 import { useFundData } from "@/composables/fund";
@@ -52,19 +52,40 @@ const persistWatchlist = async (watchlist: FundListItem[]) => {
   guestWatchlist.replaceAll(nextWatchlist);
 };
 
+const authBootstrapPending = computed(() => toValue(auth.bootstrap.isPending));
 const fundData = useFundData(
   watchlistState,
   preferences.userId,
   preferences.sortTypeObj,
   {
     persistWatchlist,
+    enabled: computed(() => {
+      return preferences.isReady.value && !authBootstrapPending.value;
+    }),
   },
 );
 const globalIndices = useGlobalIndices();
+const authSourceReady = computed(() => !authBootstrapPending.value);
+const watchlistReady = computed(() => preferences.isReady.value && authSourceReady.value);
+const fundListPhase = computed(() => {
+  if (!watchlistReady.value) return "booting";
+  if (watchlistState.value.length === 0) return "empty";
+  if (fundData.loadingList.value) return "loadingQuotes";
+  return "loaded";
+});
+const savedListLoading = computed(() => {
+  return fundListPhase.value === "booting" || fundListPhase.value === "loadingQuotes";
+});
+const visibleSavedCount = computed(() => {
+  return watchlistReady.value ? watchlistState.value.length : 0;
+});
 
 /** 是否有自选基金（控制 Zone C 显示和 FAB 显示） */
-const hasFunds = computed(() => watchlistState.value.length > 0);
+const hasFunds = computed(() => watchlistReady.value && watchlistState.value.length > 0);
 const addedFundCodes = computed(() => watchlistState.value.map((item) => item.code));
+const showSummaryBar = computed(() => {
+  return !searchQuery.value && hasFunds.value && fundListPhase.value === "loaded";
+});
 
 /** Zone D AI 抽屉 */
 const aiDrawerOpen = ref(false);
@@ -120,11 +141,12 @@ watch(
 
 watch(
   [
+    () => watchlistReady.value,
     () => watchlistState.value.map((item) => item.code),
     () => preferences.RealtimeFundcode.value,
   ],
   () => {
-    if (!preferences.isReady.value) return;
+    if (!watchlistReady.value) return;
     normalizeSelectedFundCode();
   },
 );
@@ -141,25 +163,20 @@ const handleDismissImportPrompt = () => {
   auth.dismissImportPrompt();
 };
 
-onMounted(async () => {
-  await preferences.load();
-  await auth.bootstrap.refetch();
-
-  globalIndices.refetch();
-  fundData.fetchData();
-  normalizeSelectedFundCode();
+onMounted(() => {
+  void preferences.load();
 });
 </script>
 
 <template>
-  <div
-    v-if="preferences.isReady.value"
-    class="dashboard"
-  >
+  <div class="dashboard">
     <!-- ── Zone A: 全景走马灯 ────────────────────── -->
     <header class="market-ticker">
       <!-- Phase 2: <GlobalTicker /> -->
-      <GlobalTicker :data-list="globalIndices.dataList.value" :is-loading="globalIndices.isLoading.value" />
+      <GlobalTicker
+        :data-list="globalIndices.dataList.value"
+        :is-loading="globalIndices.isLoading.value"
+      />
     </header>
 
     <!-- ── Zone B: 自选核心控制台 ─────────────────── -->
@@ -167,7 +184,7 @@ onMounted(async () => {
       <WatchlistHeader 
         v-model:query="searchQuery"
         :is-searching="isSearching"
-        :saved-count="watchlistState.length"
+        :saved-count="visibleSavedCount"
         :result-count="searchOptions?.length"
       />
 
@@ -184,7 +201,7 @@ onMounted(async () => {
       <template v-else>
         <FundSavedList 
           :items="fundData.dataList.value"
-          :loading="fundData.loadingList.value"
+          :loading="savedListLoading"
           :active-code="selectedFundCode"
           @select="selectFund"
         />
@@ -192,7 +209,7 @@ onMounted(async () => {
 
       <!-- 汇总栏 (仅在未搜索且有持仓时显示) -->
       <div
-        v-if="!searchQuery && hasFunds"
+        v-if="showSummaryBar"
         class="h-10 flex items-center justify-between px-4 border-t border-white/5 shrink-0 bg-[#121213]"
       >
         <div class="flex items-center gap-1.5 text-white/40 text-[11px] font-sans">

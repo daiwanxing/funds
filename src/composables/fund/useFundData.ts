@@ -1,4 +1,4 @@
-import { ref, computed, watch, type Ref } from "vue";
+import { ref, computed, watch, type ComputedRef, type Ref } from "vue";
 import { useQuery } from "@tanstack/vue-query";
 import { resolveFundQuote } from "./quote";
 import { usePreferences } from "@/composables/preferences";
@@ -14,6 +14,7 @@ import type { SortDirection, SortPreferenceState } from "@/types/preferences";
 
 interface UseFundDataOptions {
   persistWatchlist?: (watchlist: FundListItem[]) => void | Promise<void>;
+  enabled?: Ref<boolean> | ComputedRef<boolean>;
 }
 
 const calculateMoney = (val: { dwjz: number | null; num: number }): number => {
@@ -68,6 +69,17 @@ export const useFundData = (
   const dataList = ref<FundItem[]>([]);
   const dataListDft = ref<FundItem[]>([]);
   const loading = ref(false);
+  const watchlistCodes = computed(() => fundListM.value.map((item) => item.code).join(","));
+  const queryEnabled = computed(() => {
+    const baseEnabled = options.enabled?.value ?? true;
+    return (
+      baseEnabled &&
+      preferences.isReady.value &&
+      watchlistCodes.value.length > 0 &&
+      userId.value.trim().length > 0
+    );
+  });
+  const queryKey = computed(() => ["fundData", watchlistCodes.value, userId.value.trim()]);
 
   const persistWatchlist = (watchlist: FundListItem[]): void => {
     void options.persistWatchlist?.(
@@ -80,11 +92,9 @@ export const useFundData = (
   };
 
   const fundListQuery = useQuery({
-    queryKey: ["fundData", computed(() => fundListM.value.map(f => f.code).join(",")), userId],
+    queryKey,
+    enabled: queryEnabled,
     queryFn: async () => {
-      const fundlist = fundListM.value.map((v) => v.code).join(",");
-      if (!fundlist) return [];
-
       const rawData = await fetchFundQuotes(
         fundListM.value.map((item) => item.code),
         userId.value,
@@ -129,9 +139,10 @@ export const useFundData = (
     refetchInterval: computed(() => 
       preferences.isLiveUpdate.value && isDuringDate() && !preferences.isEdit.value ? 60_000 : false
     ),
+    retry: false,
   });
 
-  const loadingList = computed(() => fundListQuery.isLoading.value);
+  const loadingList = computed(() => queryEnabled.value && fundListQuery.isPending.value);
 
   watch(() => fundListQuery.data.value, (newList: FundItem[] | undefined) => {
     if (!newList) return;

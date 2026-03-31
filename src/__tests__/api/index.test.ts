@@ -52,7 +52,7 @@ describe("fetchIndexTrends", () => {
     ]);
 
     expect(mockedAxiosGet).toHaveBeenCalledWith(
-      expect.stringContaining("/api/kline/api/qt/stock/trends2/get?secid=1.000001"),
+      expect.stringContaining("/api/index/api/qt/stock/trends2/get?secid=1.000001"),
     );
     expect(mockedAxiosGet).toHaveBeenCalledWith(
       expect.stringContaining("ndays=2"),
@@ -153,6 +153,43 @@ describe("fetchIndexTrends", () => {
           { price: 20980, elapsedMinutes: 330, time: "03:00" },
         ],
         sessionMinutes: 390,
+        isTodayData: true,
+      },
+    ]);
+  });
+
+  it("keeps successful trend payloads when one index request fails", async () => {
+    vi.setSystemTime(new Date("2026-03-30T09:48:00+08:00"));
+    mockedAxiosGet
+      .mockRejectedValueOnce(new Error("upstream failed"))
+      .mockResolvedValueOnce({
+        data: {
+          data: {
+            prePrice: 13500,
+            trends: [
+              "2026-03-30 09:30,13510.00",
+              "2026-03-30 09:48,13600.00",
+            ],
+          },
+        },
+      });
+
+    await expect(fetchIndexTrends(["1.000001", "0.399001"])).resolves.toEqual([
+      {
+        code: "1.000001",
+        prePrice: 0,
+        points: [],
+        sessionMinutes: 240,
+        isTodayData: false,
+      },
+      {
+        code: "0.399001",
+        prePrice: 13500,
+        points: [
+          { price: 13510, elapsedMinutes: 0, time: "09:30" },
+          { price: 13600, elapsedMinutes: 18, time: "09:48" },
+        ],
+        sessionMinutes: 240,
         isTodayData: true,
       },
     ]);

@@ -8,6 +8,7 @@ export interface UseGlobalIndexSnapshotsOptions {
   refetchInterval?: MaybeRefOrGetter<number | false | undefined>;
   refetchOnWindowFocus?: boolean;
   refetchOnReconnect?: boolean;
+  retry?: boolean | number;
 }
 
 export const useGlobalIndexSnapshots = (
@@ -21,6 +22,7 @@ export const useGlobalIndexSnapshots = (
     refetchInterval: computed(() => toValue(options.refetchInterval) ?? false),
     refetchOnWindowFocus: options.refetchOnWindowFocus ?? false,
     refetchOnReconnect: options.refetchOnReconnect ?? false,
+    retry: options.retry ?? false,
   });
 
   const dataList = computed<GlobalIndexSnapshot[]>(() => query.data.value ?? []);

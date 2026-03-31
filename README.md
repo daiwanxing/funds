@@ -42,8 +42,8 @@
 | `/api/fund/*` | `fundmobapi.eastmoney.com`（基金估值主接口） |
 | `/api/fundgz/*` | `fundgz.1234567.com.cn`（估值补全接口） |
 | `/api/search/*` | `fundsuggest.eastmoney.com`（基金搜索） |
-| `/api/index/*` | `push2.eastmoney.com`（大盘指数） |
-| `/api/kline/*` | `push2his.eastmoney.com`（历史 K 线） |
+| `/api/index/*` | `push2delay.eastmoney.com`（大盘指数快照与分时趋势） |
+| `/api/kline/*` | `push2his.eastmoney.com`（历史 K 线，预留给详情图表） |
 
 ## 运行开发
 

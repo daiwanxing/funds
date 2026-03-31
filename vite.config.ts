@@ -30,7 +30,7 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api\/search/, ""),
       },
       "/api/index": {
-        target: "https://push2.eastmoney.com",
+        target: "https://push2delay.eastmoney.com",
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/index/, ""),
       },

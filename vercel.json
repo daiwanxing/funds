@@ -19,7 +19,7 @@
     },
     {
       "source": "/api/index/(.*)",
-      "destination": "https://push2.eastmoney.com/$1"
+      "destination": "https://push2delay.eastmoney.com/$1"
     },
     {
       "source": "/api/kline/(.*)",

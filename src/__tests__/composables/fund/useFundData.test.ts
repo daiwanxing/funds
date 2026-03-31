@@ -3,6 +3,7 @@ import { defineComponent, ref } from "vue";
 import { mount, flushPromises } from "@vue/test-utils";
 import { QueryClient, VueQueryPlugin } from "@tanstack/vue-query";
 import { useFundData } from "@/composables/fund/useFundData";
+import type { FundListItem } from "@/types/fund";
 
 vi.mock("@/api/fund", () => ({
   fetchFundQuotes: vi.fn(),
@@ -10,6 +11,7 @@ vi.mock("@/api/fund", () => ({
 }));
 
 const settingsState = {
+  isReady: ref(true),
   isLiveUpdate: ref(false),
   isEdit: ref(false),
 };
@@ -42,9 +44,17 @@ const fundQuoteResponse = {
   },
 };
 
-const mountUseFundData = (options?: Parameters<typeof useFundData>[3]) => {
-  const fundListM = ref([{ code: "005827", num: 100, cost: 1.7 }]);
-  const userId = ref("test-user");
+const mountUseFundData = ({
+  fundList = [{ code: "005827", num: 100, cost: 1.7 }],
+  userIdValue = "test-user",
+  options,
+}: {
+  fundList?: FundListItem[];
+  userIdValue?: string;
+  options?: Parameters<typeof useFundData>[3];
+} = {}) => {
+  const fundListM = ref(fundList);
+  const userId = ref(userIdValue);
   const sortTypeObj = ref({ name: null, type: null });
   const queryClient = new QueryClient({
     defaultOptions: {
@@ -69,12 +79,13 @@ const mountUseFundData = (options?: Parameters<typeof useFundData>[3]) => {
     },
   });
 
-  return { exposed, wrapper, queryClient };
+  return { exposed, wrapper, queryClient, fundListM, userId };
 };
 
 describe("useFundData", () => {
   beforeEach(() => {
     mockedFetchFundQuotes.mockReset();
+    settingsState.isReady.value = true;
     settingsState.isLiveUpdate.value = false;
     settingsState.isEdit.value = false;
   });
@@ -167,7 +178,9 @@ describe("useFundData", () => {
     const persistWatchlist = vi.fn();
 
     const { exposed, wrapper, queryClient } = mountUseFundData({
-      persistWatchlist,
+      options: {
+        persistWatchlist,
+      },
     });
 
     await flushPromises();
@@ -178,6 +191,60 @@ describe("useFundData", () => {
       { code: "005827", num: 100, cost: 1.7 },
       { code: "000001", num: 0, cost: 0 },
     ]);
+
+    wrapper.unmount();
+    queryClient.clear();
+  });
+
+  it("does not request quotes until preferences are ready", async () => {
+    settingsState.isReady.value = false;
+    mockedFetchFundQuotes.mockResolvedValueOnce(fundQuoteResponse.data.Datas);
+
+    const { wrapper, queryClient } = mountUseFundData();
+
+    await flushPromises();
+    expect(mockedFetchFundQuotes).not.toHaveBeenCalled();
+
+    settingsState.isReady.value = true;
+    await flushPromises();
+
+    expect(mockedFetchFundQuotes).toHaveBeenCalledTimes(1);
+
+    wrapper.unmount();
+    queryClient.clear();
+  });
+
+  it("does not request quotes when the watchlist is empty", async () => {
+    const { wrapper, queryClient } = mountUseFundData({
+      fundList: [],
+    });
+
+    await flushPromises();
+
+    expect(mockedFetchFundQuotes).not.toHaveBeenCalled();
+
+    wrapper.unmount();
+    queryClient.clear();
+  });
+
+  it("does not request quotes until the user id is available", async () => {
+    mockedFetchFundQuotes.mockResolvedValueOnce(fundQuoteResponse.data.Datas);
+
+    const { wrapper, queryClient, userId } = mountUseFundData({
+      userIdValue: "",
+    });
+
+    await flushPromises();
+    expect(mockedFetchFundQuotes).not.toHaveBeenCalled();
+
+    userId.value = "test-user";
+    await flushPromises();
+
+    expect(mockedFetchFundQuotes).toHaveBeenCalledTimes(1);
+    expect(mockedFetchFundQuotes).toHaveBeenLastCalledWith(
+      ["005827"],
+      "test-user",
+    );
 
     wrapper.unmount();
     queryClient.clear();
