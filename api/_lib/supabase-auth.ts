@@ -1,7 +1,7 @@
-import type { VercelRequest, VercelResponse } from "@vercel/node";
+import type { VercelRequest } from "@vercel/node";
 import { createClient, type SupabaseClient, type Session, type User } from "@supabase/supabase-js";
 import { getEnv } from "./env.js";
-import { createPkceCookieStorage } from "./oauth-pkce-cookie.js";
+import { createPkceChallenge, createPkceVerifier, readPkceVerifier } from "./oauth-pkce-cookie.js";
 
 let _authClient: SupabaseClient | null = null;
 
@@ -31,21 +31,6 @@ export const getAuthClient = (): SupabaseClient => {
   return _authClient;
 };
 
-const getOAuthAuthClient = (
-  req: Pick<VercelRequest, "headers">,
-  res?: VercelResponse,
-): SupabaseClient => {
-  const env = getEnv();
-  return createClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY, {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-      flowType: "pkce",
-      storage: createPkceCookieStorage(req, res),
-    },
-  });
-};
-
 export interface SignUpResult {
   user: User | null;
   error: string | null;
@@ -60,6 +45,7 @@ export interface SignInResult {
 
 export interface OAuthAuthorizationResult {
   url: string | null;
+  verifier: string | null;
   error: string | null;
 }
 
@@ -125,23 +111,17 @@ export const signIn = async (
 export const getOAuthAuthorizationUrl = async (
   provider: OAuthProvider,
   redirectTo: string,
-  req?: Pick<VercelRequest, "headers">,
-  res?: VercelResponse,
 ): Promise<OAuthAuthorizationResult> => {
-  const client = req ? getOAuthAuthClient(req, res) : getAuthClient();
-  const { data, error } = await client.auth.signInWithOAuth({
-    provider,
-    options: {
-      redirectTo,
-      skipBrowserRedirect: true,
-    },
-  });
+  const env = getEnv();
+  const verifier = createPkceVerifier();
+  const challenge = createPkceChallenge(verifier);
+  const authorizeUrl = new URL("/auth/v1/authorize", env.SUPABASE_URL);
+  authorizeUrl.searchParams.set("provider", provider);
+  authorizeUrl.searchParams.set("redirect_to", redirectTo);
+  authorizeUrl.searchParams.set("code_challenge", challenge);
+  authorizeUrl.searchParams.set("code_challenge_method", "s256");
 
-  if (error) {
-    return { url: null, error: error.message };
-  }
-
-  return { url: data.url, error: null };
+  return { url: authorizeUrl.toString(), verifier, error: null };
 };
 
 /**
@@ -149,23 +129,53 @@ export const getOAuthAuthorizationUrl = async (
  */
 export const exchangeOAuthCodeForSession = async (
   code: string,
-  req?: Pick<VercelRequest, "headers">,
-  res?: VercelResponse,
+  req: Pick<VercelRequest, "headers">,
 ): Promise<OAuthExchangeResult> => {
-  const client = req ? getOAuthAuthClient(req, res) : getAuthClient();
-  const { data, error } = await client.auth.exchangeCodeForSession(code);
-
-  if (error) {
+  const verifier = readPkceVerifier(req);
+  if (!verifier) {
     return {
       session: null,
       user: null,
-      error: error.message,
+      error: "missing pkce verifier",
+    };
+  }
+
+  const env = getEnv();
+  const response = await fetch(`${env.SUPABASE_URL}/auth/v1/token?grant_type=pkce`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      apikey: env.SUPABASE_ANON_KEY,
+    },
+    body: JSON.stringify({
+      auth_code: code,
+      code_verifier: verifier,
+    }),
+  });
+
+  const payload = await response.json() as {
+    access_token?: string;
+    refresh_token?: string;
+    user?: User;
+    msg?: string;
+    error_description?: string;
+    error?: string;
+  };
+
+  if (!response.ok || !payload.access_token || !payload.refresh_token || !payload.user) {
+    return {
+      session: null,
+      user: null,
+      error: payload.error_description ?? payload.msg ?? payload.error ?? "oauth exchange failed",
     };
   }
 
   return {
-    session: data.session,
-    user: data.user,
+    session: {
+      access_token: payload.access_token,
+      refresh_token: payload.refresh_token,
+    } as Session,
+    user: payload.user,
     error: null,
   };
 };

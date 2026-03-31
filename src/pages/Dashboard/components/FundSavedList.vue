@@ -130,7 +130,7 @@ const emit = defineEmits<{
         自选列表为空
       </p>
       <p class="text-[12px] text-white/30 text-center mx-6 leading-relaxed font-sans mb-6">
-        通过上方搜索框<br>添加基金至自选
+        通过上方搜索框，添加基金至自选
       </p>
       
       <div class="w-8 h-[1px] bg-white/5 mb-6" />

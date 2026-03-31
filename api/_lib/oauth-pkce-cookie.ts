@@ -1,8 +1,8 @@
+import { createHash, randomBytes } from "node:crypto";
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { getRequestAppUrl } from "./app-url.js";
 
 const PKCE_COOKIE_NAME = "fs_pkce_code_verifier";
-const PKCE_CODE_VERIFIER_SUFFIX = "-code-verifier";
 const PKCE_MAX_AGE = 60 * 10;
 
 const parseCookies = (req: Pick<VercelRequest, "headers">): Record<string, string> => {
@@ -16,8 +16,6 @@ const parseCookies = (req: Pick<VercelRequest, "headers">): Record<string, strin
   return result;
 };
 
-const isPkceVerifierKey = (key: string): boolean => key.endsWith(PKCE_CODE_VERIFIER_SUFFIX);
-
 const isSecureRequest = (req: Pick<VercelRequest, "headers">): boolean => {
   return getRequestAppUrl(req).startsWith("https://");
 };
@@ -27,7 +25,7 @@ const appendSetCookie = (res: VercelResponse, value: string) => {
     ? res.getHeader("Set-Cookie")
     : (res as VercelResponse & { headers?: Record<string, string | string[]> }).headers?.["Set-Cookie"];
   if (!current) {
-    res.setHeader("Set-Cookie", value);
+    res.setHeader("Set-Cookie", [value]);
     return;
   }
 
@@ -62,23 +60,29 @@ const serializeExpiredCookie = (req: Pick<VercelRequest, "headers">) => {
   return `${PKCE_COOKIE_NAME}=; HttpOnly${secureAttr}; SameSite=Lax; Path=/; Max-Age=0`;
 };
 
-export const createPkceCookieStorage = (
+export const createPkceVerifier = (): string => {
+  return randomBytes(32).toString("base64url");
+};
+
+export const createPkceChallenge = (verifier: string): string => {
+  return createHash("sha256").update(verifier).digest("base64url");
+};
+
+export const readPkceVerifier = (req: Pick<VercelRequest, "headers">): string | null => {
+  return parseCookies(req)[PKCE_COOKIE_NAME] ?? null;
+};
+
+export const setPkceVerifierCookie = (
   req: Pick<VercelRequest, "headers">,
-  res?: VercelResponse,
-) => {
-  return {
-    isServer: true,
-    getItem: async (key: string) => {
-      if (!isPkceVerifierKey(key)) return null;
-      return parseCookies(req)[PKCE_COOKIE_NAME] ?? null;
-    },
-    setItem: async (key: string, value: string) => {
-      if (!isPkceVerifierKey(key) || !res) return;
-      appendSetCookie(res, serializeCookie(req, value, PKCE_MAX_AGE));
-    },
-    removeItem: async (key: string) => {
-      if (!isPkceVerifierKey(key) || !res) return;
-      appendSetCookie(res, serializeExpiredCookie(req));
-    },
-  };
+  res: VercelResponse,
+  verifier: string,
+): void => {
+  appendSetCookie(res, serializeCookie(req, verifier, PKCE_MAX_AGE));
+};
+
+export const clearPkceVerifierCookie = (
+  req: Pick<VercelRequest, "headers">,
+  res: VercelResponse,
+): void => {
+  appendSetCookie(res, serializeExpiredCookie(req));
 };

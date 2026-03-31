@@ -1,6 +1,7 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { setAuthCookies } from "../../_lib/auth-cookie.js";
 import { buildRequestAppUrl } from "../../_lib/app-url.js";
+import { clearPkceVerifierCookie } from "../../_lib/oauth-pkce-cookie.js";
 import { getAdminClient } from "../../_lib/supabase-admin.js";
 import { exchangeOAuthCodeForSession, isOAuthProvider } from "../../_lib/supabase-auth.js";
 
@@ -19,9 +20,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return;
   }
 
-  const result = await exchangeOAuthCodeForSession(code, req, res);
+  const result = await exchangeOAuthCodeForSession(code, req);
 
   if (result.error || !result.session || !result.user) {
+    clearPkceVerifierCookie(req, res);
     res
       .status(302)
       .setHeader(
@@ -33,6 +35,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   setAuthCookies(res, result.session.access_token, result.session.refresh_token);
+  clearPkceVerifierCookie(req, res);
 
   const adminClient = getAdminClient();
   await adminClient.from("user_profiles").upsert(

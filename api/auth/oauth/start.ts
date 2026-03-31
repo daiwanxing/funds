@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { buildRequestAppUrl, getRequestAppUrl } from "../../_lib/app-url.js";
+import { setPkceVerifierCookie } from "../../_lib/oauth-pkce-cookie.js";
 import { getOAuthAuthorizationUrl, isOAuthProvider } from "../../_lib/supabase-auth.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -16,9 +17,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   const redirectTo = `${getRequestAppUrl(req)}/api/auth/oauth/callback?provider=${provider}`;
-  const result = await getOAuthAuthorizationUrl(provider, redirectTo, req, res);
+  const result = await getOAuthAuthorizationUrl(provider, redirectTo);
 
-  if (result.error || !result.url) {
+  if (result.error || !result.url || !result.verifier) {
     res
       .status(302)
       .setHeader(
@@ -29,5 +30,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return;
   }
 
+  setPkceVerifierCookie(req, res, result.verifier);
   res.status(302).setHeader("Location", result.url).end();
 }

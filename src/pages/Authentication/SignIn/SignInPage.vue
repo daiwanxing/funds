@@ -11,7 +11,17 @@ const { error: toastError } = useToast();
 
 const router = useRouter();
 const route = useRoute();
-const { signIn, signUp, forgotPassword, resendVerification, startOAuthSignIn } = useAuthStore();
+const auth = useAuthStore();
+const { signIn, signUp, forgotPassword, resendVerification, startOAuthSignIn } = auth;
+
+// 兜底：bootstrap 缓存已是登录态时（守卫异步期间）立即跳回首页
+watch(
+  () => auth.isAuthenticated,
+  (authenticated) => {
+    if (authenticated) router.replace("/");
+  },
+  { immediate: true },
+);
 
 // ─── Mode toggle ─────────────────────────────────────────────────────────────
 type AuthMode = "login" | "register" | "forgot";
@@ -274,7 +284,7 @@ watch(currentMode, (_newMode, oldMode) => {
           </div>
           <div
             class="flex justify-center"
-            :style="{ gap: '20px' }"
+            :style="{ gap: '40px' }"
           >
             <button
               data-test="oauth-google"
@@ -626,8 +636,8 @@ watch(currentMode, (_newMode, oldMode) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   background-color: #ffffff;
   border: 1px solid rgba(255, 255, 255, 0.1);

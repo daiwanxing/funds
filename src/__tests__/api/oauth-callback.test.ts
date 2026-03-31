@@ -1,25 +1,16 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const exchangeCodeForSession = vi.fn();
-let latestAuthOptions: Record<string, unknown> | undefined;
 const upsert = vi.fn();
 const from = vi.fn(() => ({
   upsert,
 }));
-const createClient = vi.fn((_: string, key: string, options?: { auth?: Record<string, unknown> }) => {
+const createClient = vi.fn((_: string, key: string) => {
   if (key === process.env.SUPABASE_SERVICE_ROLE_KEY) {
     return {
       from,
     };
   }
-
-  latestAuthOptions = options?.auth;
-
-  return {
-    auth: {
-      exchangeCodeForSession,
-    },
-  };
+  return {};
 });
 
 vi.mock("@supabase/supabase-js", () => ({
@@ -29,10 +20,9 @@ vi.mock("@supabase/supabase-js", () => ({
 beforeEach(() => {
   vi.resetModules();
   createClient.mockClear();
-  exchangeCodeForSession.mockReset();
-  latestAuthOptions = undefined;
   from.mockClear();
   upsert.mockReset();
+  vi.restoreAllMocks();
   process.env.APP_URL = "https://funds.example";
   process.env.SUPABASE_URL = "https://supabase.example";
   process.env.SUPABASE_ANON_KEY = "anon-key";
@@ -65,23 +55,25 @@ const createResponse = () => {
 
 describe("OAuth callback helpers", () => {
   it("exchanges an OAuth code for a Supabase session", async () => {
-    exchangeCodeForSession.mockResolvedValue({
-      data: {
-        session: {
-          access_token: "access-token",
-          refresh_token: "refresh-token",
-        },
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        access_token: "access-token",
+        refresh_token: "refresh-token",
         user: {
           id: "user-1",
           email: "user@example.com",
         },
-      },
-      error: null,
-    });
+      }),
+    } as Response);
 
     const supabaseAuth = await import("../../../api/_lib/supabase-auth.ts");
 
-    await expect(supabaseAuth.exchangeOAuthCodeForSession?.("oauth-code")).resolves.toEqual({
+    await expect(
+      supabaseAuth.exchangeOAuthCodeForSession?.("oauth-code", {
+        headers: { cookie: "fs_pkce_code_verifier=pkce-verifier" },
+      } as never),
+    ).resolves.toEqual({
       session: {
         access_token: "access-token",
         refresh_token: "refresh-token",
@@ -93,37 +85,30 @@ describe("OAuth callback helpers", () => {
       error: null,
     });
 
-    expect(exchangeCodeForSession).toHaveBeenCalledWith("oauth-code");
+    expect(fetchSpy).toHaveBeenCalledWith(
+      "https://supabase.example/auth/v1/token?grant_type=pkce",
+      expect.objectContaining({
+        method: "POST",
+        body: JSON.stringify({
+          auth_code: "oauth-code",
+          code_verifier: "pkce-verifier",
+        }),
+      }),
+    );
   });
 
   it("reads the stored PKCE verifier from cookies when exchanging the callback code", async () => {
-    exchangeCodeForSession.mockImplementationOnce(async () => {
-      const storage = latestAuthOptions?.storage as
-        | { getItem?: (key: string) => Promise<string | null> | string | null }
-        | undefined;
-      const verifier = await storage?.getItem?.("sb-test-auth-token-code-verifier");
-
-      if (!verifier) {
-        return {
-          data: { session: null, user: null },
-          error: { message: "missing pkce verifier" },
-        };
-      }
-
-      return {
-        data: {
-          session: {
-            access_token: "access-token",
-            refresh_token: "refresh-token",
-          },
-          user: {
-            id: "user-1",
-            email: "user@example.com",
-          },
+    vi.spyOn(globalThis, "fetch").mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        access_token: "access-token",
+        refresh_token: "refresh-token",
+        user: {
+          id: "user-1",
+          email: "user@example.com",
         },
-        error: null,
-      };
-    });
+      }),
+    } as Response);
 
     const { default: handler } = await import("../../../api/auth/oauth/callback.ts");
     const res = createResponse();
@@ -136,7 +121,7 @@ describe("OAuth callback helpers", () => {
           provider: "google",
         },
         headers: {
-          cookie: "fs_pkce_code_verifier=pkce-verifier%2F",
+          cookie: "fs_pkce_code_verifier=pkce-verifier",
         },
       } as never,
       res as never,
@@ -158,19 +143,17 @@ describe("OAuth callback helpers", () => {
   });
 
   it("exchanges the callback code, writes auth cookies, and redirects back to the app", async () => {
-    exchangeCodeForSession.mockResolvedValue({
-      data: {
-        session: {
-          access_token: "access-token",
-          refresh_token: "refresh-token",
-        },
+    vi.spyOn(globalThis, "fetch").mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        access_token: "access-token",
+        refresh_token: "refresh-token",
         user: {
           id: "user-1",
           email: "user@example.com",
         },
-      },
-      error: null,
-    });
+      }),
+    } as Response);
 
     const { default: handler } = await import("../../../api/auth/oauth/callback.ts");
     const res = createResponse();
@@ -182,11 +165,13 @@ describe("OAuth callback helpers", () => {
           code: "oauth-code",
           provider: "google",
         },
+        headers: {
+          cookie: "fs_pkce_code_verifier=pkce-verifier",
+        },
       } as never,
       res as never,
     );
 
-    expect(exchangeCodeForSession).toHaveBeenCalledWith("oauth-code");
     expect(from).toHaveBeenCalledWith("user_profiles");
     expect(upsert).toHaveBeenCalledWith(
       {
@@ -198,6 +183,7 @@ describe("OAuth callback helpers", () => {
     expect(res.headers["Set-Cookie"]).toEqual([
       expect.stringContaining("fs_access_token=access-token"),
       expect.stringContaining("fs_refresh_token=refresh-token"),
+      expect.stringContaining("fs_pkce_code_verifier="),
     ]);
     expect(res.statusCode).toBe(302);
     expect(res.headers.Location).toBe(
@@ -206,15 +192,12 @@ describe("OAuth callback helpers", () => {
   });
 
   it("redirects back to the auth callback page without cookies when the code exchange fails", async () => {
-    exchangeCodeForSession.mockResolvedValue({
-      data: {
-        session: null,
-        user: null,
-      },
-      error: {
-        message: "exchange failed",
-      },
-    });
+    vi.spyOn(globalThis, "fetch").mockResolvedValueOnce({
+      ok: false,
+      json: async () => ({
+        error_description: "exchange failed",
+      }),
+    } as Response);
 
     const { default: handler } = await import("../../../api/auth/oauth/callback.ts");
     const res = createResponse();
@@ -226,11 +209,16 @@ describe("OAuth callback helpers", () => {
           code: "oauth-code",
           provider: "github",
         },
+        headers: {
+          cookie: "fs_pkce_code_verifier=pkce-verifier",
+        },
       } as never,
       res as never,
     );
 
-    expect(res.headers["Set-Cookie"]).toBeUndefined();
+    expect(res.headers["Set-Cookie"]).toEqual([
+      expect.stringContaining("fs_pkce_code_verifier="),
+    ]);
     expect(res.statusCode).toBe(302);
     expect(res.headers.Location).toBe(
       "https://funds.example/#/auth/callback?status=error&reason=oauth_callback_failed",
@@ -238,19 +226,17 @@ describe("OAuth callback helpers", () => {
   });
 
   it("redirects back to the current request origin after a successful local OAuth callback", async () => {
-    exchangeCodeForSession.mockResolvedValue({
-      data: {
-        session: {
-          access_token: "access-token",
-          refresh_token: "refresh-token",
-        },
+    vi.spyOn(globalThis, "fetch").mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        access_token: "access-token",
+        refresh_token: "refresh-token",
         user: {
           id: "user-1",
           email: "user@example.com",
         },
-      },
-      error: null,
-    });
+      }),
+    } as Response);
 
     const { default: handler } = await import("../../../api/auth/oauth/callback.ts");
     const res = createResponse();
@@ -265,6 +251,7 @@ describe("OAuth callback helpers", () => {
         headers: {
           host: "localhost:3000",
           "x-forwarded-proto": "http",
+          cookie: "fs_pkce_code_verifier=pkce-verifier",
         },
       } as never,
       res as never,

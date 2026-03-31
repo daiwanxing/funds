@@ -1,20 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-let latestAuthOptions: Record<string, unknown> | undefined;
-
-const signInWithOAuth = vi.fn<
-  (payload: unknown) => Promise<{ data: { url: string | null }; error: { message: string } | null }>
->();
 const createClient = vi.fn();
-
-createClient.mockImplementation((_url: string, _key: string, options?: { auth?: Record<string, unknown> }) => {
-  latestAuthOptions = options?.auth;
-  return {
-    auth: {
-      signInWithOAuth,
-    },
-  };
-});
 
 vi.mock("@supabase/supabase-js", () => ({
   createClient,
@@ -23,12 +9,6 @@ vi.mock("@supabase/supabase-js", () => ({
 beforeEach(() => {
   vi.resetModules();
   createClient.mockClear();
-  signInWithOAuth.mockReset();
-  latestAuthOptions = undefined;
-  signInWithOAuth.mockResolvedValue({
-    data: { url: "https://supabase.example/oauth/default" },
-    error: null,
-  });
   process.env.APP_URL = "https://funds.example";
   process.env.SUPABASE_URL = "https://supabase.example";
   process.env.SUPABASE_ANON_KEY = "anon-key";
@@ -94,45 +74,25 @@ describe("OAuth start helpers", () => {
   });
 
   it("requests an OAuth authorization URL from Supabase for a supported provider", async () => {
-    signInWithOAuth.mockResolvedValue({
-      data: { url: "https://supabase.example/oauth/google" },
-      error: null,
-    });
-
     const supabaseAuth = await import("../../../api/_lib/supabase-auth.ts");
 
-    await expect(
-      supabaseAuth.getOAuthAuthorizationUrl?.(
-        "google",
-        "https://funds.example/api/auth/oauth/callback",
-      ),
-    ).resolves.toEqual({
-      url: "https://supabase.example/oauth/google",
-      error: null,
-    });
+    const result = await supabaseAuth.getOAuthAuthorizationUrl?.(
+      "google",
+      "https://funds.example/api/auth/oauth/callback",
+    );
 
-    expect(signInWithOAuth).toHaveBeenCalledWith({
-      provider: "google",
-      options: {
-        redirectTo: "https://funds.example/api/auth/oauth/callback",
-        skipBrowserRedirect: true,
-      },
-    });
+    expect(result?.error).toBeNull();
+    expect(result?.verifier).toEqual(expect.any(String));
+    expect(result?.url).toContain("https://supabase.example/auth/v1/authorize?");
+    expect(result?.url).toContain("provider=google");
+    expect(result?.url).toContain(
+      "redirect_to=https%3A%2F%2Ffunds.example%2Fapi%2Fauth%2Foauth%2Fcallback",
+    );
+    expect(result?.url).toContain("code_challenge=");
+    expect(result?.url).toContain("code_challenge_method=s256");
   });
 
   it("stores the PKCE code verifier in a response cookie before redirecting to Supabase", async () => {
-    signInWithOAuth.mockImplementationOnce(async () => {
-      const storage = latestAuthOptions?.storage as
-        | { setItem?: (key: string, value: string) => Promise<void> | void }
-        | undefined;
-      await storage?.setItem?.("sb-test-auth-token-code-verifier", "pkce-verifier/");
-
-      return {
-        data: { url: "https://supabase.example/oauth/google/start" },
-        error: null,
-      };
-    });
-
     const { default: handler } = await import("../../../api/auth/oauth/start.ts");
     const res = createResponse();
 
@@ -144,9 +104,9 @@ describe("OAuth start helpers", () => {
       res as never,
     );
 
-    expect(res.headers["Set-Cookie"]).toEqual(
+    expect(res.headers["Set-Cookie"]).toEqual([
       expect.stringContaining("fs_pkce_code_verifier="),
-    );
+    ]);
   });
 
   it("exports an OAuth start handler", async () => {
@@ -180,11 +140,6 @@ describe("OAuth start helpers", () => {
   });
 
   it("redirects supported providers to the Supabase authorization URL", async () => {
-    signInWithOAuth.mockResolvedValue({
-      data: { url: "https://supabase.example/oauth/google/start" },
-      error: null,
-    });
-
     const { default: handler } = await import("../../../api/auth/oauth/start.ts");
     const res = createResponse();
 
@@ -196,23 +151,15 @@ describe("OAuth start helpers", () => {
       res as never,
     );
 
-    expect(signInWithOAuth).toHaveBeenCalledWith({
-      provider: "google",
-      options: {
-        redirectTo: "https://funds.example/api/auth/oauth/callback?provider=google",
-        skipBrowserRedirect: true,
-      },
-    });
     expect(res.statusCode).toBe(302);
-    expect(res.headers.Location).toBe("https://supabase.example/oauth/google/start");
+    expect(res.headers.Location).toContain("https://supabase.example/auth/v1/authorize?");
+    expect(res.headers.Location).toContain("provider=google");
+    expect(res.headers.Location).toContain(
+      "redirect_to=https%3A%2F%2Ffunds.example%2Fapi%2Fauth%2Foauth%2Fcallback%3Fprovider%3Dgoogle",
+    );
   });
 
   it("prefers the current request origin over APP_URL when building the OAuth callback", async () => {
-    signInWithOAuth.mockResolvedValue({
-      data: { url: "https://supabase.example/oauth/google/start" },
-      error: null,
-    });
-
     const { default: handler } = await import("../../../api/auth/oauth/start.ts");
     const res = createResponse();
 
@@ -228,21 +175,18 @@ describe("OAuth start helpers", () => {
       res as never,
     );
 
-    expect(signInWithOAuth).toHaveBeenCalledWith({
-      provider: "google",
-      options: {
-        redirectTo: "http://localhost:3000/api/auth/oauth/callback?provider=google",
-        skipBrowserRedirect: true,
-      },
-    });
     expect(res.statusCode).toBe(302);
-    expect(res.headers.Location).toBe("https://supabase.example/oauth/google/start");
+    expect(res.headers.Location).toContain(
+      "redirect_to=http%3A%2F%2Flocalhost%3A3000%2Fapi%2Fauth%2Foauth%2Fcallback%3Fprovider%3Dgoogle",
+    );
   });
 
   it("redirects back to the callback page with an error when Supabase cannot start OAuth", async () => {
-    signInWithOAuth.mockResolvedValue({
-      data: { url: null },
-      error: { message: "provider unavailable" },
+    const supabaseAuth = await import("../../../api/_lib/supabase-auth.ts");
+    const spy = vi.spyOn(supabaseAuth, "getOAuthAuthorizationUrl").mockResolvedValueOnce({
+      url: null,
+      verifier: null,
+      error: "provider unavailable",
     });
 
     const { default: handler } = await import("../../../api/auth/oauth/start.ts");
@@ -260,5 +204,6 @@ describe("OAuth start helpers", () => {
     expect(res.headers.Location).toBe(
       "https://funds.example/#/auth/callback?status=error&reason=provider_unavailable",
     );
+    spy.mockRestore();
   });
 });
