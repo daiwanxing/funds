@@ -10,6 +10,7 @@ import { useGuestWatchlist } from "@/composables/watchlist/useGuestWatchlist";
 import { GlobalTicker } from "./components/GlobalTicker";
 import { StatusBar } from "./components/StatusBar";
 import GuestImportDialog from "./components/Auth/GuestImportDialog.vue";
+import { AuthDialog } from "@/components/biz/AuthDialog";
 import WatchlistHeader from "./components/WatchlistHeader.vue";
 import FundSavedList from "./components/FundSavedList.vue";
 import FundSearchList from "./components/FundSearchList.vue";
@@ -89,6 +90,9 @@ const showSummaryBar = computed(() => {
 
 /** Zone D AI 抽屉 */
 const aiDrawerOpen = ref(false);
+
+/** 登录弹窗 */
+const authDialogOpen = ref(false);
 
 /** 当前选中基金（Zone B → Zone C 联动） */
 const selectedFundCode = computed(() => preferences.RealtimeFundcode.value);
@@ -269,7 +273,7 @@ onMounted(() => {
 
     <!-- ── Zone E: 状态栏 ────────────────────────── -->
     <footer class="status-bar">
-      <StatusBar />
+      <StatusBar @login="authDialogOpen = true" />
     </footer>
 
     <GuestImportDialog
@@ -278,6 +282,8 @@ onMounted(() => {
       @confirm="handleImportGuestWatchlist"
       @cancel="handleDismissImportPrompt"
     />
+
+    <AuthDialog v-model:open="authDialogOpen" />
 
     <!-- ── Zone D: AI FAB（有基金时显示）────────── -->
     <button

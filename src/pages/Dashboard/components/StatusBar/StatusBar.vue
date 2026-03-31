@@ -2,12 +2,16 @@
 import { ref } from "vue";
 import { isDuringDate } from "@/utils/marketStatus";
 import { useIntervalFn } from "@vueuse/core";
-import { Settings2 } from "lucide-vue-next";
+import { Settings2, UserCircle2 } from "lucide-vue-next";
+import { useAuthStore } from "@/stores/auth";
 import packageJson from "../../../../../package.json";
 
 const emit = defineEmits<{
   (e: "settings"): void;
+  (e: "login"): void;
 }>();
+
+const auth = useAuthStore();
 
 // 市场开市休市状态感知（每分钟复查一次）
 const isMarketOpen = ref(isDuringDate());
@@ -38,28 +42,65 @@ const appVersion = `v${packageJson.version}`;
 
     <!-- 右侧区域 -->
     <div class="flex items-center gap-3">
-      <span class="tracking-wide text-white/50">
-        {{ appVersion }}
-      </span>
+      <!-- 游客模式标识（仅未登录时展示） -->
+      <button
+        v-if="!auth.isAuthenticated"
+        class="guest-badge"
+        @click="emit('login')"
+      >
+        <UserCircle2
+          class="w-3.5 h-3.5"
+          :stroke-width="2"
+        />
+        游客模式
+      </button>
+
+      <!-- 设置入口（仅登录用户展示） -->
+      <template v-if="auth.isAuthenticated">
+        <span class="w-[1px] h-3 bg-white/6 mx-1" />
+        <button
+          class="flex items-center gap-1.5 hover:text-p transition-colors cursor-pointer"
+          @click="emit('settings')"
+        >
+          <Settings2
+            class="w-3.5 h-3.5"
+            :stroke-width="2"
+          />
+          设置
+        </button>
+      </template>
 
       <!-- 分隔线 -->
       <span class="w-[1px] h-3 bg-white/6 mx-1" />
 
-      <!-- 设置入口 -->
-      <button 
-        class="flex items-center gap-1.5 hover:text-p transition-colors cursor-pointer ml-1"
-        @click="emit('settings')"
-      >
-        <Settings2
-          class="w-3.5 h-3.5"
-          :stroke-width="2"
-        />
-        设置
-      </button>
+      <!-- 版本号（始终在最右侧） -->
+      <span class="tracking-wide text-white/50">
+        {{ appVersion }}
+      </span>
     </div>
   </div>
 </template>
 
 <style scoped>
-/* 由于组件独立，部分样式我们直接使用了原子化 CSS 类定义 */
+.guest-badge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  border-radius: 4px;
+  background: rgba(245, 158, 11, 0.08);
+  color: rgb(251, 191, 36);
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.guest-badge:hover {
+  background: rgba(245, 158, 11, 0.14);
+  border-color: rgba(245, 158, 11, 0.4);
+  color: rgb(253, 224, 71);
+}
 </style>

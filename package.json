@@ -27,6 +27,7 @@
     "supabase:db:push": "npx supabase db push"
   },
   "dependencies": {
+    "@floating-ui/vue": "^1.1.11",
     "@supabase/supabase-js": "^2.100.1",
     "@tanstack/vue-query": "^5.95.2",
     "@vueuse/core": "^14.2.1",
