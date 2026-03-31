@@ -20,7 +20,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Fetch or create user profile
   const { data: profile } = await adminClient
     .from("user_profiles")
-    .select("email, first_login_completed")
+    .select("email, first_login_completed, nickname, avatar_url")
     .eq("id", user.id)
     .single();
 
@@ -36,6 +36,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     profile: {
       email: profile?.email ?? user.email,
       isFirstLogin: profile ? !profile.first_login_completed : true,
+      nickname: profile?.nickname,
+      avatarUrl: profile?.avatar_url,
     },
     watchlist: (watchlist ?? []).map((item) => ({
       fundCode: item.fund_code,

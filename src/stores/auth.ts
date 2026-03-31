@@ -1,6 +1,7 @@
 import { computed, ref, watch } from "vue";
 import { defineStore } from "pinia";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/vue-query";
+import { useRouter } from "vue-router";
 import { fetchBootstrap, putWatchlist, importGuestWatchlist } from "@/api/user";
 import * as authApi from "@/api/auth";
 import type { BootstrapResponse, OAuthProvider, WatchlistItemDTO } from "@/types/auth";
@@ -39,6 +40,12 @@ export const useAuthStore = defineStore("auth", () => {
 
   /** 是否为首次登录 */
   const isFirstLogin = computed(() => profile.value?.isFirstLogin ?? false);
+
+  /** 用户昵称 */
+  const nickname = computed(() => profile.value?.nickname ?? null);
+
+  /** 用户头像 */
+  const avatarUrl = computed(() => profile.value?.avatarUrl ?? null);
 
   /** 云端自选基金列表（登录态下有效） */
   const cloudWatchlist = computed<FundListItem[]>(() => {
@@ -108,8 +115,11 @@ export const useAuthStore = defineStore("auth", () => {
     mutationFn: ({ email }: { email: string }) => authApi.resendVerification(email),
   });
 
+  const router = useRouter();
+
   const startOAuthSignIn = (provider: OAuthProvider) => {
-    authApi.startOAuthSignIn(provider);
+    const redirectUrl = router.currentRoute.value.fullPath;
+    authApi.startOAuthSignIn(provider, redirectUrl);
   };
 
   // ── Watchlist mutations ────────────────────────────────────────
@@ -136,6 +146,8 @@ export const useAuthStore = defineStore("auth", () => {
     profile,
     email,
     isFirstLogin,
+    nickname,
+    avatarUrl,
     cloudWatchlist,
 
     // ── Import dialog ──────────────────────────────────────────

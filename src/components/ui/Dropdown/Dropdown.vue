@@ -179,7 +179,7 @@ watch(
     <AnimatePresence>
       <motion.div
         v-if="open"
-        ref="floatingRef"
+        :ref="(el: any) => { floatingRef = el ? (el.$el || el) : null }"
         key="dropdown-panel"
         class="dropdown-panel"
         role="menu"
@@ -214,14 +214,13 @@ watch(
 .dropdown-panel {
   /* z-index 高于 Dialog(1000) */
   z-index: 1100;
+  position: absolute;
   display: flex;
   flex-direction: column;
   padding: 4px 0;
   border-radius: 10px;
   background: var(--bg-2);
   border: 1px solid var(--border-default);
-  /* 顶部蓝色强调线，与 Dialog.vue 保持一致 */
-  border-top: 2px solid var(--accent-primary);
   max-height: 320px;
   overflow-y: auto;
   overflow-x: hidden;

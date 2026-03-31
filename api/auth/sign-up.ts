@@ -25,7 +25,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Build the redirect URL for email verification
   const emailRedirectTo = buildRequestAppUrl(req, "/auth/callback");
 
-  const { user, error } = await supabaseSignUp(email, password, emailRedirectTo);
+  // Generate random nickname and default avatar
+  const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
+  const nickname = `User_${randomSuffix}`;
+  const avatar_url = `https://ui-avatars.com/api/?name=${nickname.charAt(0)}&background=1D4ED8&color=fff`;
+
+  const { user, error } = await supabaseSignUp(email, password, emailRedirectTo, {
+    nickname,
+    avatar_url,
+  });
 
   if (error) {
     // Handle "already registered" case

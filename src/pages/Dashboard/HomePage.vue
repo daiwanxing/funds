@@ -334,7 +334,7 @@ onMounted(() => {
 <style scoped>
 .dashboard {
   display: grid;
-  grid-template-rows: 48px 1fr 36px;
+  grid-template-rows: 48px 1fr 48px;
   grid-template-columns: 380px 1fr;
   grid-template-areas:
     "ticker  ticker"
@@ -373,14 +373,13 @@ onMounted(() => {
 .status-bar {
   grid-area: status;
   background-color: var(--bg-0);
-  border-top: 1px solid var(--border-subtle);
 }
 
 /* ── Zone D FAB ─────────────────────────────── */
 .ai-fab {
   position: fixed;
   right: 24px;
-  bottom: 56px;
+  bottom: 68px; /* 根据 48px statusBar 高度预留 20px 间距 */
   width: 48px;
   height: 48px;
   border-radius: 50%;
@@ -414,7 +413,7 @@ onMounted(() => {
   position: fixed;
   top: 48px;
   right: 0;
-  bottom: 36px;
+  bottom: 48px; /* 修改为 48px，贴合新的 statusBar 高度 */
   width: 400px;
   z-index: 300;
 }

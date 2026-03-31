@@ -38,19 +38,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Set HttpOnly auth cookies
   setAuthCookies(res, result.session.access_token, result.session.refresh_token);
 
-  // Ensure user_profiles row exists
-  const adminClient = getAdminClient();
-  await adminClient
-    .from("user_profiles")
-    .upsert(
-      {
-        id: result.user!.id,
-        email: result.user!.email,
-      },
-      { onConflict: "id" },
-    );
-
   // Check if this is a first login
+  const adminClient = getAdminClient();
   const { data: profile } = await adminClient
     .from("user_profiles")
     .select("first_login_completed")

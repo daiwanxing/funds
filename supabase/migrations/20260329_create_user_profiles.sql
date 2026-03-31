@@ -11,9 +11,21 @@ create table if not exists public.user_profiles (
 alter table public.user_profiles enable row level security;
 
 -- Allow users to read their own profile
-create policy "Users can read own profile"
-  on public.user_profiles for select
-  using (auth.uid() = id);
+do $$
+begin
+  if not exists (
+    select 1
+    from pg_policies
+    where schemaname = 'public'
+      and tablename = 'user_profiles'
+      and policyname = 'Users can read own profile'
+  ) then
+    create policy "Users can read own profile"
+      on public.user_profiles for select
+      using (auth.uid() = id);
+  end if;
+end
+$$;
 
 -- Allow service role full access (via rls bypass) — no explicit policy needed
 -- Auto-update updated_at on modification
@@ -24,6 +36,8 @@ begin
   return new;
 end;
 $$ language plpgsql;
+
+drop trigger if exists set_user_profiles_updated_at on public.user_profiles;
 
 create trigger set_user_profiles_updated_at
   before update on public.user_profiles

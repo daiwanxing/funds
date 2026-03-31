@@ -62,12 +62,16 @@ export const signUp = async (
   email: string,
   password: string,
   emailRedirectTo: string,
+  userData?: Record<string, string>,
 ): Promise<SignUpResult> => {
   const client = getAuthClient();
   const { data, error } = await client.auth.signUp({
     email,
     password,
-    options: { emailRedirectTo },
+    options: { 
+      emailRedirectTo,
+      data: userData,
+    },
   });
 
   if (error) {

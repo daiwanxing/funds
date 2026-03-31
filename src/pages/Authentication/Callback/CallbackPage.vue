@@ -19,15 +19,31 @@ onMounted(() => {
 
   if (query.get("source") === "oauth" || query.get("reason") === "oauth_callback_failed") {
     const provider = query.get("provider");
+    const redirectUrl = query.get("redirectUrl") ?? "/";
     const providerLabel =
       provider === "google" ? "Google" : provider === "github" ? "GitHub" : "第三方账号";
 
     if (query.get("status") === "success") {
       status.value = "success";
       title.value = "登录成功";
-      message.value = `${providerLabel} 登录成功，您现在可以进入首页了。`;
+      message.value = `${providerLabel} 登录成功，正在为您跳转…`;
       actionLabel.value = "进入首页";
-      actionTarget.value = "/";
+      actionTarget.value = redirectUrl;
+
+      // 通知原 tab 刷新登录态并跳转
+      try {
+        const channel = new BroadcastChannel("auth-sync");
+        channel.postMessage({ type: "login_success", redirectUrl });
+        channel.close();
+      } catch {
+        // BroadcastChannel 不可用时降级
+      }
+
+      // 尝试关闭新 tab，给用户一点时间看到成功提示
+      setTimeout(() => {
+        window.close();
+      }, 800);
+
       return;
     }
 

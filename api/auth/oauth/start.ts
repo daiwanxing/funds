@@ -1,6 +1,7 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { buildRequestAppUrl, getRequestAppUrl } from "../../_lib/app-url.js";
 import { setPkceVerifierCookie } from "../../_lib/oauth-pkce-cookie.js";
+import { setOAuthStateCookie } from "../../_lib/oauth-state-cookie.js";
 import { getOAuthAuthorizationUrl, isOAuthProvider } from "../../_lib/supabase-auth.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -16,8 +17,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return;
   }
 
-  const redirectTo = `${getRequestAppUrl(req)}/api/auth/oauth/callback?provider=${provider}`;
-  const result = await getOAuthAuthorizationUrl(provider, redirectTo);
+  const redirectUrl = typeof req.query.redirectUrl === "string" ? req.query.redirectUrl : "/";
+
+  // Store provider & redirectUrl in a cookie so the callback can read them
+  // without needing query params in the redirect_to URL.
+  // Supabase's redirect URL matching can reject URLs with unexpected query params,
+  // falling back to the Site URL (production domain) instead.
+  setOAuthStateCookie(req, res, { provider, redirectUrl });
+
+  // redirect_to MUST be a clean URL without custom query params to match
+  // the Supabase Redirect URLs whitelist exactly.
+  const callbackUrl = `${getRequestAppUrl(req)}/api/auth/oauth/callback`;
+  const result = await getOAuthAuthorizationUrl(provider, callbackUrl);
 
   if (result.error || !result.url || !result.verifier) {
     res

@@ -66,6 +66,7 @@ pnpm test:run     # 运行测试
 | 设计令牌、样式约定 | `src/styles/tokens.css` · `uno.config.ts` |
 | API 数据获取与缓存策略 | `src/composables/fund/useFundData.ts` |
 | 基金/指数数据源知识库与走马灯接源评估 | `docs/market-data-sources.md` |
+| Supabase migration 规范与历史维护 | `docs/supabase-migration-guidelines.md` |
 | 全局状态结构 | `src/stores/fund.ts` · `src/stores/auth.ts` |
 | 交易时间判断逻辑 | `src/utils/marketStatus.ts` |
 | 路由定义 | `src/router.ts` |

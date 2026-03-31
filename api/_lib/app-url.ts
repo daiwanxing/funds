@@ -37,6 +37,14 @@ export const getAppUrl = (): string => {
 };
 
 export const getRequestAppUrl = (req: Pick<VercelRequest, "headers">): string => {
+  // When APP_URL is explicitly configured (e.g. .env.local for local dev), always
+  // use it. This prevents vercel dev from injecting x-forwarded-host with the
+  // production deployment URL and sending OAuth callbacks to the wrong origin.
+  const { APP_URL } = getEnv();
+  if (APP_URL) {
+    return APP_URL.replace(/\/$/, "");
+  }
+
   const headers = req.headers ?? {};
   const forwardedHost = getHeaderValue(headers["x-forwarded-host"]);
   const host = forwardedHost ?? getHeaderValue(headers.host);

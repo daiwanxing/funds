@@ -1,5 +1,5 @@
 # Supabase CLI local/project configuration for auth and remote migration workflows.
-project_id = "Funds Assistant"
+project_id = "Funds_Assistant"
 
 [db.migrations]
 enabled = true

@@ -16,6 +16,8 @@ export interface WatchlistItemDTO {
 export interface ProfileDTO {
   email: string;
   isFirstLogin: boolean;
+  nickname?: string;
+  avatarUrl?: string;
 }
 
 /** GET /api/me/bootstrap 返回体 */

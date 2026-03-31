@@ -199,7 +199,6 @@ const sizeMap = {
 }
 
 .dialog-close-btn:hover {
-  background: var(--bg-3);
   opacity: 0.7;
 }
 

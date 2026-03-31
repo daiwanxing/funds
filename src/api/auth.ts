@@ -53,7 +53,9 @@ export const resendVerification = async (email: string): Promise<AuthSuccessResp
   return data;
 };
 
-/** 发起第三方 OAuth 登录 */
-export const startOAuthSignIn = (provider: OAuthProvider): void => {
-  window.location.assign(`/api/auth/oauth/start?provider=${provider}`);
+/** 发起第三方 OAuth 登录（在新 Tab 中打开，登录完成后通过 BroadcastChannel 通知原 Tab） */
+export const startOAuthSignIn = (provider: OAuthProvider, redirectUrl = "/"): void => {
+  const url = `/api/auth/oauth/start?provider=${provider}&redirectUrl=${encodeURIComponent(redirectUrl)}`;
+  window.open(url, "_blank", "noopener,noreferrer");
 };
+
