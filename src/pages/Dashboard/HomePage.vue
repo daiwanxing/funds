@@ -8,7 +8,7 @@ import { useHoliday } from "@/composables/holiday";
 import { useAuthStore } from "@/stores/auth";
 import { useGuestWatchlist } from "@/composables/watchlist/useGuestWatchlist";
 import { GlobalTicker } from "./components/GlobalTicker";
-import { StatusBar } from "./components/StatusBar";
+import { UserBar } from "./components/StatusBar";
 import GuestImportDialog from "./components/Auth/GuestImportDialog.vue";
 import { AuthDialog } from "@/components/biz/AuthDialog";
 import WatchlistHeader from "./components/WatchlistHeader.vue";
@@ -273,7 +273,7 @@ onMounted(() => {
 
     <!-- ── Zone E: 状态栏 ────────────────────────── -->
     <footer class="status-bar">
-      <StatusBar @login="authDialogOpen = true" />
+      <UserBar @login="authDialogOpen = true" />
     </footer>
 
     <GuestImportDialog

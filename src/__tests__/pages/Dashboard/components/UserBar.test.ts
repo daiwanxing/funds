@@ -1,12 +1,12 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { mount } from "@vue/test-utils";
-import StatusBar from "@/pages/Dashboard/components/StatusBar/StatusBar.vue";
+import UserBar from "@/pages/Dashboard/components/StatusBar/UserBar.vue";
 
 vi.mock("@/utils/marketStatus", () => ({
   isDuringDate: () => false,
 }));
 
-describe("StatusBar", () => {
+describe("UserBar", () => {
   afterEach(() => {
     vi.restoreAllMocks();
   });
@@ -15,7 +15,7 @@ describe("StatusBar", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-03-28T16:35:12+08:00"));
 
-    const wrapper = mount(StatusBar);
+    const wrapper = mount(UserBar);
 
     expect(wrapper.text()).toContain("股市已收盘");
     expect(wrapper.text()).not.toContain("最后更新");

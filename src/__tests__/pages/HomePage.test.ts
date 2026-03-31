@@ -189,6 +189,7 @@ const mountPage = async () => {
       stubs: {
         GlobalTicker: { template: "<div />" },
         StatusBar: { template: "<div />" },
+        UserBar: { template: "<div />" },
         WatchlistHeader: WatchlistHeaderStub,
         FundSearchList: FundSearchListStub,
         GuestImportDialog: GuestImportDialogStub,
