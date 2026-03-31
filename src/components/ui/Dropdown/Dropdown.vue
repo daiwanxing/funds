@@ -45,7 +45,7 @@ const open = defineModel<boolean>("open", { default: false });
 const triggerRef = ref<HTMLElement | null>(null);
 const floatingRef = ref<HTMLElement | null>(null);
 
-const { floatingStyles } = useFloating(triggerRef, floatingRef, {
+const { x, y } = useFloating(triggerRef, floatingRef, {
   placement: props.placement,
   whileElementsMounted: autoUpdate,
   middleware: [
@@ -183,7 +183,12 @@ watch(
         key="dropdown-panel"
         class="dropdown-panel"
         role="menu"
-        :style="floatingStyles"
+        :style="{
+          position: 'absolute',
+          top: y != null ? `${y}px` : '0px',
+          left: x != null ? `${x}px` : '0px',
+          margin: 0
+        }"
         :initial="{ opacity: 0, y: -6, scale: 0.97 }"
         :animate="{ opacity: 1, y: 0, scale: 1 }"
         :exit="{ opacity: 0, y: -4, scale: 0.98 }"

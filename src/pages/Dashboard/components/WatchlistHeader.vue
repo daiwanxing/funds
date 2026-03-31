@@ -22,7 +22,7 @@ const clearQuery = () => {
 </script>
 
 <template>
-  <div class="px-3 pt-3 pb-3 flex flex-col gap-3 shrink-0 bg-[#161618]">
+  <div class="px-3 pt-3 pb-3 flex flex-col gap-3 shrink-0 bg-[var(--bg-0)]">
     <!-- Header Title -->
     <div class="flex items-center justify-between px-1 min-h[24px]">
       <div class="flex items-center gap-2 text-t text-[13px] font-medium transition-colors">

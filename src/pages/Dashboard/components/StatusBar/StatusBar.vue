@@ -31,15 +31,12 @@ const confirmLogout = async () => {
 
 <template>
   <div class="h-full w-full flex text-xs font-mono select-none text-white/60">
-    <!-- 🟢 第一部分：个人入口 (固定 380px，对应上方自选板块) -->
-    <div class="w-[380px] h-full shrink-0 flex items-center px-4 border-r border-white/5">
-      <!-- 仅作为展示容器，移除 cursor-pointer 和 hover 样式 -->
+    <div class="w-[380px] h-full shrink-0 flex items-center px-4 border-r border-white/5 border-t">
       <div 
         v-if="auth.isAuthenticated"
         class="w-full h-full flex items-center justify-between"
       >
         <div class="flex items-center gap-2.5">
-          <!-- 头像恢复为 w-8 h-8 (32px) -->
           <div class="w-8 h-8 rounded-full overflow-hidden bg-white/10 shrink-0 border border-white/5">
             <img 
               v-if="auth.avatarUrl" 

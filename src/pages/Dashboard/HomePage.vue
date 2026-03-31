@@ -84,9 +84,9 @@ const visibleSavedCount = computed(() => {
 /** 是否有自选基金（控制 Zone C 显示和 FAB 显示） */
 const hasFunds = computed(() => watchlistReady.value && watchlistState.value.length > 0);
 const addedFundCodes = computed(() => watchlistState.value.map((item) => item.code));
-const showSummaryBar = computed(() => {
-  return !searchQuery.value && hasFunds.value && fundListPhase.value === "loaded";
-});
+// const showSummaryBar = computed(() => {
+//   return !searchQuery.value && hasFunds.value && fundListPhase.value === "loaded";
+// });
 
 /** Zone D AI 抽屉 */
 const aiDrawerOpen = ref(false);
@@ -184,7 +184,7 @@ onMounted(() => {
     </header>
 
     <!-- ── Zone B: 自选核心控制台 ─────────────────── -->
-    <main class="watchlist-panel flex flex-col h-full overflow-hidden bg-[#161618]">
+    <main class="watchlist-panel flex flex-col h-full overflow-hidden">
       <WatchlistHeader 
         v-model:query="searchQuery"
         :is-searching="isSearching"
@@ -212,9 +212,9 @@ onMounted(() => {
       </template>
 
       <!-- 汇总栏 (仅在未搜索且有持仓时显示) -->
-      <div
+      <!-- <div
         v-if="showSummaryBar"
-        class="h-10 flex items-center justify-between px-4 border-t border-white/5 shrink-0 bg-[#121213]"
+        class="h-10 flex items-center justify-between px-4 border-t border-white/5 shrink-0 bg-[var(--bg-0)]"
       >
         <div class="flex items-center gap-1.5 text-white/40 text-[11px] font-sans">
           <svg
@@ -246,7 +246,7 @@ onMounted(() => {
             {{ fundData.allCostGains.value[0] > 0 ? '+¥' + fundData.allCostGains.value[0].toFixed(2) : fundData.allCostGains.value[0] < 0 ? '-¥' + Math.abs(fundData.allCostGains.value[0]).toFixed(2) : '¥0' }}
           </span>
         </div>
-      </div>
+      </div> -->
     </main>
 
     <!-- ── Zone C: 基金详情面板（全局常驻）────── -->
