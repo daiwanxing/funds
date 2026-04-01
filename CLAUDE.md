@@ -76,11 +76,66 @@ pnpm test:run     # 运行测试
 
 ```
 src/
-├── pages/        # 页面（多单词命名，Page 后缀）
-├── components/   # 纯展示 UI 组件
-├── composables/  # 业务逻辑（按领域分目录）
-├── stores/       # Pinia 状态（fund.ts · auth.ts）
-├── types/        # 类型定义（按领域分文件）
-├── utils/        # 工具函数
-└── styles/       # 全局 CSS 令牌
+├── api/                        # 纯请求层（axios，不含 Vue 状态）
+│   ├── auth.ts                 # 登录 / 注册 / OAuth 接口
+│   ├── fund.ts                 # 基金行情接口
+│   ├── holiday.ts              # 节假日接口
+│   ├── http.ts                 # createHttp 工厂（统一拦截器）
+│   ├── user.ts                 # 用户 bootstrap / watchlist 接口
+│   └── index.ts
+├── components/
+│   ├── biz/                    # 业务组合组件（含逻辑）
+│   │   ├── AuthDialog/         # 登录弹窗（AuthDialog.vue）
+│   │   └── AuthForm/           # 登录表单（Login / Register / Forgot / OAuth 子面板）
+│   └── ui/                     # 纯展示原子组件
+│       ├── BrandLogo/          # 品牌 Logo（支持尺寸 / 变体 props）
+│       ├── Dialog/             # 通用弹窗（Dialog.vue + types.ts）
+│       ├── Dropdown/           # 下拉菜单（Dropdown / Item / Group / Divider）
+│       └── Toast/              # 全局提示（Toast / ToastContainer）
+├── composables/                # 业务 Composable（按领域分目录）
+│   ├── drag/                   # useDragSort — 拖拽排序
+│   ├── fund/                   # useFundData · useFundSearch · quote.ts
+│   ├── holiday/                # useHoliday
+│   ├── index/                  # useGlobalIndices · useIndexData · snapshots
+│   ├── preferences/            # usePreferences
+│   └── useToast.ts             # 全局 Toast 触发器
+├── constants/                  # 应用级常量
+│   ├── auth.ts                 # OAuth provider 列表等
+│   ├── cache.ts                # TanStack Query key 常量
+│   ├── market.ts               # 交易时间段等
+│   └── preferences.ts          # 偏好设置默认值
+├── layouts/
+│   └── AuthLayout.vue          # 认证页公共布局
+├── pages/
+│   ├── Authentication/         # 认证流程页面
+│   │   ├── Callback/           # OAuth 回调页（CallbackPage.vue）
+│   │   ├── ResetPassword/      # 重置密码页
+│   │   ├── SignIn/             # 登录页（SignInPage.vue）
+│   │   ├── components/Globe/   # 认证页 3D 地球装饰
+│   │   └── composables/        # useAuthGlobeMarkets
+│   └── Dashboard/              # 主面板页面
+│       ├── HomePage.vue        # 入口页（路由根组件）
+│       └── components/
+│           ├── ActionBar/      # 顶部操作栏（搜索 / 刷新）
+│           ├── Auth/           # GuestImportDialog — 游客导入弹窗
+│           ├── FundTable/      # 自选基金表格
+│           ├── GlobalTicker/   # 全球指数走马灯
+│           ├── StatusBar/      # 底部状态栏（UserBar.vue）
+│           ├── FundSavedList.vue
+│           ├── FundSearchList.vue
+│           └── WatchlistHeader.vue
+├── stores/                     # Pinia 全局状态
+│   ├── auth.ts                 # 用户 / 会话状态
+│   └── watchlist.ts            # 自选列表状态
+├── types/                      # TypeScript 类型定义（按领域分文件）
+│   ├── auth.ts · fund.ts · globe.ts
+│   ├── holiday.ts · market.ts · preferences.ts
+│   └── index.ts
+├── utils/
+│   ├── formatters.ts           # 数字 / 日期格式化
+│   ├── marketStatus.ts         # 交易时间判断
+│   └── storage.ts              # sessionStorage / localStorage 封装
+├── styles/
+│   └── tokens.css              # 全局 CSS 设计令牌
+└── main.ts                     # 应用入口
 ```
