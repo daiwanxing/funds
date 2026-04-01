@@ -137,7 +137,7 @@ onMounted(() => {
         :result-count="searchOptions?.length"
       />
 
-      <!-- 搜索列表或自选列表切换 -->
+
       <template v-if="searchQuery">
         <FundSearchList 
           :query="searchQuery"
@@ -161,7 +161,6 @@ onMounted(() => {
     <aside class="fund-detail">
       <!-- Phase 3: <FundDetail :code="selectedFundCode" /> -->
       <div class="h-full flex flex-col">
-        <!-- Tab 栏占位 -->
         <div class="flex border-b border-white/6 shrink-0">
           <button
             v-for="tab in ['实时走势', '历史净值', '新闻·题材']"
@@ -172,7 +171,7 @@ onMounted(() => {
             {{ tab }}
           </button>
         </div>
-        <!-- 内容占位 -->
+
         <div class="flex-1 flex items-center justify-center text-t text-sm">
           基金详情占位（Phase 3 实现）
         </div>

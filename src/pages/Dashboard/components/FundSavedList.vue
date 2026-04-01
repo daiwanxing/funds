@@ -16,7 +16,6 @@ const emit = defineEmits<{
 
 <template>
   <div class="flex-1 flex flex-col h-full overflow-hidden bg-[var(--bg-0)]">
-    <!-- Normal List Header -->
     <div class="px-4 py-2 border-b border-y border-white/5 bg-[var(--bg-0)] flex items-center justify-between text-[11px] text-white/40 sticky top-0 z-10 shrink-0 font-sans tracking-wide">
       <div class="flex-1">
         基金名称
@@ -41,7 +40,6 @@ const emit = defineEmits<{
         class="relative px-4 py-3 flex items-start gap-[20px] justify-between border-b border-white/[0.04] cursor-pointer"
         :class="item.fundcode === activeCode ? 'bg-white/[0.04]' : 'hover:bg-white/[0.02]'"
       >
-        <!-- Blue active indicator -->
         <div
           v-if="item.fundcode === activeCode"
           class="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-[14px] bg-[#3B82F6] rounded-r shadow-[0_0_8px_rgba(59,130,246,0.6)]"
@@ -55,10 +53,9 @@ const emit = defineEmits<{
         
 
         <div class="flex items-start gap-[6px] shrink-0 font-mono tracking-tight pt-0.5">
-          <!-- Valuation -->
           <span class="w-11 text-right text-white/90 text-[12px]">{{ item.gsz != null ? item.gsz : '--' }}</span>
            
-          <!-- Change Badge -->
+
           <span class="w-14 flex justify-end">
             <span
               class="px-1.5 py-[1px] rounded text-[11px] font-semibold tracking-tighter shadow-sm"
@@ -68,7 +65,7 @@ const emit = defineEmits<{
             </span>
           </span>
            
-          <!-- 估算收益 -->
+
           <span
             class="w-[52px] text-right text-[12px] font-bold"
             :class="item.gains > 0 ? 'text-up' : item.gains < 0 ? 'text-down' : 'text-white/30'"
@@ -76,7 +73,7 @@ const emit = defineEmits<{
             {{ item.gains > 0 ? '+¥' + item.gains.toFixed(2) : item.gains < 0 ? '-¥' + Math.abs(item.gains).toFixed(2) : '¥0' }}
           </span>
 
-          <!-- 更新时间 -->
+
           <span class="w-[52px] text-right text-[11px] text-white/30">
             {{ formatQuoteTime(item.gztime) }}
           </span>

@@ -106,7 +106,6 @@ const sizeMap = {
             v-if="!hideHeader" 
             class="dialog-header"
           >
-            <!-- Close button on the LEFT (user-specified) -->
             <button
               id="dialog-close-btn"
               class="dialog-close-btn"

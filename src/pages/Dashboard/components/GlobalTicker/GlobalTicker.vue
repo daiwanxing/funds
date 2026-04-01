@@ -61,7 +61,6 @@ watch(
 
 <template>
   <div class="ticker-wrapper border-b border-white/6 h-12 flex items-center relative bg-[#0d0f12]">
-    <!-- LIVE 标识区 -->
     <div class="shrink-0 w-[60px] h-full flex flex-col items-center justify-center relative z-20 bg-[#0d0f12]">
       <div
         class="w-1.5 h-1.5 rounded-full bg-blue-500 mb-0.5 animate-pulse"
@@ -72,16 +71,15 @@ watch(
       </div>
     </div>
 
-    <!-- 滚动展示区 -->
+
     <div
       ref="wrapperRef"
       class="flex-1 h-full relative overflow-hidden whitespace-nowrap"
     >
-      <!-- 左右两侧沉浸式渐变蒙层 (z-index: 10) -->
       <div class="absolute left-0 top-0 bottom-0 w-16 z-10 pointer-events-none bg-gradient-to-r from-[#0d0f12] to-transparent" />
       <div class="absolute right-0 top-0 bottom-0 w-16 z-10 pointer-events-none bg-gradient-to-l from-[#0d0f12] to-transparent" />
 
-      <!-- 加载骨架屏 -->
+
       <div
         v-if="isLoading || !isDataReady"
         class="ticker-skeleton flex items-center h-full gap-4 px-4"
@@ -99,7 +97,7 @@ watch(
         </div>
       </div>
 
-      <!-- 跑马灯轨道（数据就绪后淡入） -->
+
       <div
         v-else
         class="ticker-track flex items-center h-full"

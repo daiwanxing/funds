@@ -34,7 +34,6 @@ const handleAdd = (code: string) => {
 
 <template>
   <div class="flex-1 flex flex-col h-full overflow-hidden bg-[#161618]">
-    <!-- Status Text: 仅在搜索有结果且不在加载时展示这个容器 -->
     <div
       v-if="!loading && options && options.length > 0"
       class="px-4 border-y border-white/5 shrink-0 h-[30px] flex items-center box-border overflow-hidden"
@@ -44,10 +43,9 @@ const handleAdd = (code: string) => {
       </div>
     </div>
 
-    <!-- Scrollable Body -->
+
     <div class="flex-1 overflow-y-auto relative">
       <template v-if="loading">
-        <!-- SVG Advanced Motion Loader -->
         <div class="absolute inset-0 flex flex-col items-center justify-center -mt-10">
           <svg
             width="240"
@@ -88,7 +86,7 @@ const handleAdd = (code: string) => {
                   <feMergeNode in="SourceGraphic" />
                 </feMerge>
               </filter>
-              <!-- 渐变底纹面积区域 -->
+
               <linearGradient
                 id="areaGradient"
                 x1="0%"
@@ -109,12 +107,12 @@ const handleAdd = (code: string) => {
               </linearGradient>
             </defs>
 
-            <!-- 幽灵底边面积曲线 (常驻展示区) -->
+
             <path
               d="M 0 60 C 15 45 25 65 40 55 C 55 45 65 30 80 40 C 95 50 110 65 130 45 C 150 25 165 15 185 25 C 205 35 220 10 240 15 L 240 80 L 0 80 Z" 
               fill="url(#areaGradient)"
             />
-            <!-- 微弱发光的幽灵背线 -->
+
             <path
               d="M 0 60 C 15 45 25 65 40 55 C 55 45 65 30 80 40 C 95 50 110 65 130 45 C 150 25 165 15 185 25 C 205 35 220 10 240 15" 
               fill="none"
@@ -150,8 +148,8 @@ const handleAdd = (code: string) => {
               />
             </path>
 
-            <!-- Moving Core Layers -->
-            <!-- 1. Outer Glow -->
+
+
             <circle
               r="9"
               fill="#3B82F6"
@@ -170,7 +168,7 @@ const handleAdd = (code: string) => {
               </animateMotion>
             </circle>
 
-            <!-- 2. Mid Glow -->
+
             <circle
               r="4"
               fill="#60A5FA"
@@ -189,7 +187,7 @@ const handleAdd = (code: string) => {
               </animateMotion>
             </circle>
 
-            <!-- 3. White Core -->
+
             <circle
               r="2"
               fill="#FFFFFF"
@@ -241,12 +239,10 @@ const handleAdd = (code: string) => {
             
 
             <div class="flex gap-[6px] items-start shrink-0">
-              <!-- 估算净值 -->
               <span class="text-white/80 text-[12px] tracking-tight w-11 pt-0.5 text-right font-mono">
                 {{ item.gsz ?? '--' }}
               </span>
               <div class="flex flex-col items-end w-20 gap-2">
-                <!-- 涨跌幅 Badge：有数据时按正负着色，无数据置灰 -->
                 <template v-if="item.gszzl !== undefined">
                   <span
                     class="font-mono text-[12px] font-semibold px-1.5 rounded w-fit tracking-tight"
@@ -260,7 +256,7 @@ const handleAdd = (code: string) => {
                   class="text-white/30 font-mono text-[12px] px-1.5"
                 >--</span>
 
-                <!-- Action Button -->
+
                 <button 
                   v-if="addedKeys.has(item.value)"
                   class="flex items-center justify-center gap-1 w-16 py-1 border border-[#10B981]/30 rounded text-[#10B981] text-[11px] bg-transparent cursor-default"

@@ -43,7 +43,6 @@ const handleClick = (e: MouseEvent) => {
     :aria-current="active ? 'true' : undefined"
     @click="handleClick"
   >
-    <!-- Leading icon -->
     <span
       v-if="icon || $slots.icon"
       class="dropdown-item__icon"
@@ -57,12 +56,12 @@ const handleClick = (e: MouseEvent) => {
       </slot>
     </span>
 
-    <!-- Label / default slot -->
+
     <span class="dropdown-item__label">
       <slot>{{ label }}</slot>
     </span>
 
-    <!-- Suffix: badge / shortcut / custom -->
+
     <span
       v-if="badge || shortcut || $slots.suffix"
       class="dropdown-item__suffix"

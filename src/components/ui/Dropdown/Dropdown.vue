@@ -174,7 +174,7 @@ watch(
     <slot name="trigger" />
   </div>
 
-  <!-- Floating panel，通过 Teleport 挂载到 body -->
+
   <Teleport to="body">
     <AnimatePresence>
       <motion.div

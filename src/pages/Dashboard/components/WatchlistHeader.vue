@@ -44,7 +44,7 @@ const clearQuery = () => {
       </div>
     </div>
     
-    <!-- Search Input Box -->
+
     <div class="relative w-full h-[36px] bg-[#1a1a1c] border border-white/5 rounded-lg flex items-center shadow-inner overflow-hidden focus-within:border-[#3B82F6]/50 transition-colors group">
       <Search
         class="w-4 h-4 ml-3 shrink-0 text-white/30 group-focus-within:text-[#3B82F6] transition-colors"
@@ -64,7 +64,7 @@ const clearQuery = () => {
       >
         <X class="w-3 h-3" />
       </button>
-      <!-- suffix 占位，防止输入框文字贴边 -->
+
       <div
         v-else
         class="w-5 h-5 mr-2"
