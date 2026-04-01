@@ -33,7 +33,7 @@ const handleAdd = (code: string) => {
 </script>
 
 <template>
-  <div class="flex-1 flex flex-col h-full overflow-hidden bg-[#161618]">
+  <div class="flex-1 flex flex-col h-full overflow-hidden bg-[var(--bg-0)]">
     <div
       v-if="!loading && options && options.length > 0"
       class="px-4 border-y border-white/5 shrink-0 h-[30px] flex items-center box-border overflow-hidden"

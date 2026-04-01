@@ -89,10 +89,36 @@ const confirmLogout = async () => {
 
       <button
         v-else
-        class="guest-badge hover:bg-white/5 px-2 py-1 w-full text-left rounded-md"
+        class="-mx-4 w-[380px] h-full flex items-center justify-between px-4 relative cursor-pointer border-none overflow-hidden"
         @click="emit('login')"
       >
-        游客模式入口
+        <!-- 底部深蓝星海流转动态背景 -->
+        <div
+          class="absolute inset-0 pointer-events-none gradient-flow-bg"
+          style="mask-image: linear-gradient(to right, black 40%, transparent 100%); -webkit-mask-image: linear-gradient(to right, black 40%, transparent 100%);"
+        />
+        
+        <!-- 左侧 Logo 处散发的品牌色微光晕，带轻微呼吸感 -->
+        <div class="absolute -left-4 top-1/2 -translate-y-1/2 w-[90px] h-[70px] bg-accent-primary/20 blur-[20px] rounded-full pointer-events-none mix-blend-screen animate-breathe" />
+        
+        <!-- 顶部极其克制的质感发光细线 (高光边缘) -->
+        <div class="absolute top-0 left-0 w-[65%] h-[1px] bg-gradient-to-r from-accent-primary/30 to-transparent pointer-events-none" />
+
+        <!-- 左侧仅仅包含产品Logo和一行纯净文案 -->
+        <div class="flex items-center gap-3 relative z-10">
+          <BrandLogo
+            :size="24"
+            class="text-white/90"
+          />
+          <span class="text-[13px] font-sans text-white/60 tracking-wide mt-[1px]">登录解锁全部功能</span>
+        </div>
+
+        <!-- 右侧无悬停态的纯净项目登录按钮 -->
+        <div
+          class="min-w-[56px] h-[28px] flex items-center justify-center rounded-md bg-accent-primary text-white text-[12px] font-medium relative z-10 font-sans tracking-wide"
+        >
+          登录
+        </div>
       </button>
     </div>
 
@@ -148,19 +174,31 @@ const confirmLogout = async () => {
 </template>
 
 <style scoped>
-.guest-badge {
+.guest-banner {
   padding: 0;
   border: none;
   background: transparent;
-  color: rgba(255, 255, 255, 0.4);
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 400;
-  cursor: pointer;
-  transition: all 0.2s ease;
+  outline: none;
 }
 
-.guest-badge:hover {
-  color: rgba(255, 255, 255, 0.8);
+@keyframes gradient-flow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.gradient-flow-bg {
+  background: linear-gradient(-60deg, #0d1326, #1b284c, #111a30, #0d1326);
+  background-size: 300% 300%;
+  animation: gradient-flow 12s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  0%, 100% { transform: translateY(-50%) scale(1); opacity: 0.6; }
+  50% { transform: translateY(-50%) scale(1.15); opacity: 0.85; }
+}
+
+.animate-breathe {
+  animation: breathe 6s ease-in-out infinite;
 }
 </style>

@@ -216,7 +216,7 @@ watch(
     0 24px 48px rgba(0, 0, 0, 0.4);
   /* 内部滚动条样式 */
   scrollbar-width: thin;
-  scrollbar-color: var(--bg-4) transparent;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
 }
 
 .dropdown-panel::-webkit-scrollbar {
@@ -228,7 +228,11 @@ watch(
 }
 
 .dropdown-panel::-webkit-scrollbar-thumb {
-  background: var(--bg-4);
+  background: var(--scrollbar-thumb);
   border-radius: 999px;
+}
+
+.dropdown-panel::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
 }
 </style>
