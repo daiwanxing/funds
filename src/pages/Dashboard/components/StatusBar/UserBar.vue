@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { useAuthStore } from "@/stores/auth";
-import { Ellipsis, User, LogOut } from "lucide-vue-next";
+import { Ellipsis, User, LogOut, LoaderCircle } from "lucide-vue-next";
 import { Dropdown, DropdownItem } from "@/components/ui/Dropdown";
 import { Dialog } from "@/components/ui/Dialog";
 import BrandLogo from "@/components/BrandLogo.vue";
@@ -13,6 +13,8 @@ const emit = defineEmits<{
 const auth = useAuthStore();
 
 const showLogoutDialog = ref(false);
+
+const isLoggingOut = computed(() => auth.signOut.isPending);
 
 const handleProfileClick = () => {
   console.error("Navigate to profile...");
@@ -121,13 +123,21 @@ const confirmLogout = async () => {
 
       <div class="w-full flex flex-col gap-5">
         <button
-          class="w-full h-10 border-none rounded-lg bg-white text-[#0a0b0d] font-sans text-sm font-600 cursor-pointer tracking-wide transition-[background,opacity] duration-[180ms] hover:bg-white/90 flex items-center justify-center"
+          class="w-full h-10 border-none rounded-lg bg-white text-[#0a0b0d] font-sans text-sm font-600 cursor-pointer tracking-wide transition-[background,opacity] duration-[180ms] hover:bg-white/90 flex items-center justify-center disabled:opacity-60 disabled:cursor-not-allowed"
+          :disabled="isLoggingOut"
           @click="confirmLogout"
         >
-          登出
+          <LoaderCircle
+            v-if="isLoggingOut"
+            :size="18"
+            class="animate-spin"
+          />
+          <span v-else>登出</span>
         </button>
         <button
-          class="w-full h-10 border-none rounded-lg bg-white/10 text-white font-sans text-sm font-600 cursor-pointer tracking-wide transition-[background,opacity] duration-[180ms] hover:bg-white/20 flex items-center justify-center"
+          class="w-full h-10 border-none rounded-lg bg-white/10 text-white font-sans text-sm font-600 tracking-wide transition-[background,opacity] duration-[180ms] flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed"
+          :class="isLoggingOut ? '' : 'cursor-pointer hover:bg-white/20'"
+          :disabled="isLoggingOut"
           @click="showLogoutDialog = false"
         >
           取消

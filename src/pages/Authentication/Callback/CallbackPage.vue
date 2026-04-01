@@ -30,18 +30,9 @@ onMounted(() => {
       actionLabel.value = "进入首页";
       actionTarget.value = redirectUrl;
 
-      // 通知原 tab 刷新登录态并跳转
-      try {
-        const channel = new BroadcastChannel("auth-sync");
-        channel.postMessage({ type: "login_success", redirectUrl });
-        channel.close();
-      } catch {
-        // BroadcastChannel 不可用时降级
-      }
-
-      // 尝试关闭新 tab，给用户一点时间看到成功提示
+      // 同 Tab 跳转到目标页面
       setTimeout(() => {
-        window.close();
+        router.push(redirectUrl);
       }, 800);
 
       return;

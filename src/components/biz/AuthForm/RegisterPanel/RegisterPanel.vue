@@ -15,7 +15,6 @@ const email = ref("");
 const password = ref("");
 const confirmPassword = ref("");
 const showPassword = ref(false);
-const error = ref("");
 const success = ref("");
 const isRegistered = ref(false);
 
@@ -37,7 +36,6 @@ const passwordMismatch = computed(
 );
 
 const handleSubmit = async () => {
-  error.value = "";
   success.value = "";
   try {
     await signUp.mutateAsync({
@@ -46,10 +44,8 @@ const handleSubmit = async () => {
     });
     success.value = "注册成功！请前往邮箱完成验证后再登录。";
     isRegistered.value = true;
-  } catch (err: unknown) {
-    const axiosError = err as { response?: { data?: { error?: { message?: string } } } };
-    error.value =
-      axiosError.response?.data?.error?.message ?? "注册失败，请稍后重试";
+  } catch {
+    // 错误已由 http 拦截器统一 toast 处理
   }
 };
 
@@ -58,7 +54,7 @@ const handleResend = async () => {
     await resendVerification.mutateAsync({ email: email.value.trim() });
     success.value = "验证邮件已重新发送，请检查您的邮箱。";
   } catch {
-    error.value = "重发失败，请稍后重试";
+    // 错误已由 http 拦截器统一 toast 处理
   }
 };
 
@@ -68,7 +64,6 @@ const reset = () => {
   password.value = "";
   confirmPassword.value = "";
   showPassword.value = false;
-  error.value = "";
   success.value = "";
   isRegistered.value = false;
 };

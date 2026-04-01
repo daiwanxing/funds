@@ -10,29 +10,24 @@ const emit = defineEmits<{
 const { forgotPassword } = useAuthStore();
 
 const email = ref("");
-const error = ref("");
 const success = ref("");
 
 const isLoading = computed(() => forgotPassword.isPending);
 const isValid = computed(() => email.value.trim() !== "");
 
 const handleSubmit = async () => {
-  error.value = "";
   success.value = "";
   try {
     const result = await forgotPassword.mutateAsync({ email: email.value.trim() });
     success.value = result.message ?? "如果该邮箱已注册，您将收到重置密码邮件";
-  } catch (err: unknown) {
-    const axiosError = err as { response?: { data?: { error?: { message?: string } } } };
-    error.value =
-      axiosError.response?.data?.error?.message ?? "发送失败，请稍后重试";
+  } catch {
+    // 错误已由 http 拦截器统一 toast 处理
   }
 };
 
 /** 父组件切走时调用，重置内部状态 */
 const reset = () => {
   email.value = "";
-  error.value = "";
   success.value = "";
 };
 
@@ -54,13 +49,6 @@ defineExpose({ reset });
       class="flex flex-col gap-5"
       @submit.prevent="handleSubmit"
     >
-      <div
-        v-if="error"
-        class="py-2.5 px-3.5 rounded-lg bg-danger/14 text-danger text-[13px] font-sans border border-danger/20"
-      >
-        {{ error }}
-      </div>
-
       <div
         v-if="success"
         class="py-2.5 px-3.5 rounded-lg bg-fall/14 text-fall text-[13px] font-sans border border-fall/20"

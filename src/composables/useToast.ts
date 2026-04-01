@@ -80,3 +80,23 @@ export const useToast = () => ({
   /** Resume the auto-dismiss timer (call on mouseleave) */
   resume,
 });
+
+/**
+ * 命令式 Toast — 可在任意 .ts 文件中直接调用，无需 Vue setup 上下文。
+ *
+ * @example
+ * ```ts
+ * import { toast } from "@/composables/useToast";
+ * toast.success("操作成功");
+ * toast.error("网络异常，请稍后重试");
+ * ```
+ */
+export const toast = {
+  default: (message: string, duration?: number) => add("default", message, duration),
+  success: (message: string, duration?: number) => add("success", message, duration),
+  error: (message: string, duration?: number) => add("error", message, duration),
+  info: (message: string, duration?: number) => add("info", message, duration),
+  warning: (message: string, duration?: number) => add("warning", message, duration),
+  dismiss: remove,
+} as const;
+

@@ -2,7 +2,6 @@
 import { ref, computed } from "vue";
 import { useAuthStore } from "@/stores/auth";
 import { Mail, Lock, Eye, EyeOff, LoaderCircle } from "lucide-vue-next";
-import { useToast } from "@/composables/useToast";
 import { OAuthButtons } from "../OAuthButtons";
 
 const emit = defineEmits<{
@@ -11,7 +10,7 @@ const emit = defineEmits<{
   "go-forgot": [];
 }>();
 
-const { error: toastError } = useToast();
+
 const { signIn } = useAuthStore();
 
 const email = ref("");
@@ -30,9 +29,8 @@ const handleSubmit = async () => {
       password: password.value,
     });
     emit("success");
-  } catch (err: unknown) {
-    const axiosError = err as { response?: { data?: { error?: { message?: string } } } };
-    toastError(axiosError.response?.data?.error?.message ?? "登录失败，请稍后重试");
+  } catch {
+    // 错误已由 http 拦截器统一处理（401 → toast）
   }
 };
 </script>
