@@ -1,8 +1,5 @@
 <script setup lang="ts">
-export interface DropdownGroupProps {
-  /** 分组标题，显示在组顶部。不传则无标题。 */
-  label?: string;
-}
+import type { DropdownGroupProps } from "./types";
 
 defineProps<DropdownGroupProps>();
 </script>

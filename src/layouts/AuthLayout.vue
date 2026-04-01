@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import BrandLogo from "@/components/BrandLogo.vue";
+import BrandLogo from "@/components/ui/BrandLogo/BrandLogo.vue";
 import Globe from "@/pages/Authentication/components/Globe/Globe.vue";
 import { useAuthGlobeMarkets } from "@/pages/Authentication/composables/useAuthGlobeMarkets";
 

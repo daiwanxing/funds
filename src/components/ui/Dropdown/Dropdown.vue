@@ -9,28 +9,9 @@ import {
   shift,
   size,
 } from "@floating-ui/vue";
-import type { Placement } from "@floating-ui/vue";
 import { AnimatePresence, motion } from "motion-v";
 
-export interface DropdownProps {
-  /**
-   * 弹出位置，透传给 floating-ui
-   * @default 'bottom-start'
-   */
-  placement?: Placement;
-  /**
-   * 触发方式
-   * @default 'click'
-   */
-  trigger?: "click" | "hover";
-  /** 禁用，trigger 不响应事件 */
-  disabled?: boolean;
-  /**
-   * 选择菜单项后是否自动关闭面板
-   * @default true
-   */
-  closeOnSelect?: boolean;
-}
+import type { DropdownProps } from "./types";
 
 const props = withDefaults(defineProps<DropdownProps>(), {
   placement: "bottom-start",

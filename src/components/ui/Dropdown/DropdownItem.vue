@@ -1,22 +1,5 @@
 <script setup lang="ts">
-import type { Component } from "vue";
-
-export interface DropdownItemProps {
-  /** 菜单项文字（也可用 default slot 覆盖） */
-  label?: string;
-  /** 左侧图标，传入 lucide-vue-next 等 Component */
-  icon?: Component;
-  /** 右侧徽章文字，如 "New" / "Live" */
-  badge?: string;
-  /** 右侧快捷键提示，如 "⌘K" */
-  shortcut?: string;
-  /** 禁用此项 */
-  disabled?: boolean;
-  /** 危险操作样式（红色） */
-  danger?: boolean;
-  /** 选中态（左侧蓝色竖线高亮） */
-  active?: boolean;
-}
+import type { DropdownItemProps } from "./types";
 
 const props = defineProps<DropdownItemProps>();
 

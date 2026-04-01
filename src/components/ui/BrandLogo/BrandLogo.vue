@@ -1,8 +1,7 @@
 <script setup lang="ts">
-defineProps<{
-  size?: number | string;
-  color?: string;
-}>();
+import type { BrandLogoProps } from "./types";
+
+defineProps<BrandLogoProps>();
 </script>
 
 <template>

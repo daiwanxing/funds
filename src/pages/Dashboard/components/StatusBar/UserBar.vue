@@ -4,7 +4,7 @@ import { useAuthStore } from "@/stores/auth";
 import { Ellipsis, User, LogOut, LoaderCircle } from "lucide-vue-next";
 import { Dropdown, DropdownItem } from "@/components/ui/Dropdown";
 import { Dialog } from "@/components/ui/Dialog";
-import BrandLogo from "@/components/BrandLogo.vue";
+import BrandLogo from "@/components/ui/BrandLogo/BrandLogo.vue";
 
 const emit = defineEmits<{
   (e: "login"): void;
