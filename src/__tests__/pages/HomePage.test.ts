@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { mount, flushPromises } from "@vue/test-utils";
-import { defineComponent, ref, nextTick } from "vue";
+import { defineComponent, ref, nextTick, reactive } from "vue";
 import HomePage from "@/pages/Dashboard/HomePage.vue";
 import FundSavedList from "@/pages/Dashboard/components/FundSavedList.vue";
 import type { FundItem, FundListItem } from "@/types/fund";
@@ -30,41 +30,39 @@ const fundDataState = {
 };
 
 const authIsAuthenticated = ref(false);
-const authCloudWatchlist = ref<FundListItem[]>([]);
-const authIsFirstLogin = ref(false);
-const authShouldShowImportPrompt = ref(false);
+const authBootstrapIsPending = ref(false);
 
 const authState = {
   bootstrap: {
     refetch: vi.fn(),
-    isPending: ref(false),
+    isPending: authBootstrapIsPending,
   },
   get isAuthenticated() {
     return authIsAuthenticated.value;
   },
-  get cloudWatchlist() {
-    return authCloudWatchlist.value;
-  },
-  get isFirstLogin() {
-    return authIsFirstLogin.value;
-  },
-  get shouldShowImportPrompt() {
-    return authShouldShowImportPrompt.value;
-  },
-  saveWatchlist: {
-    mutateAsync: vi.fn(),
-  },
-  importGuest: {
-    mutateAsync: vi.fn(),
-  },
-  dismissImportPrompt: vi.fn(),
 };
 
-const guestWatchlistState = {
-  items: ref<FundListItem[]>([]),
+const watchlistItems = ref<FundListItem[]>([]);
+const watchlistShouldShowImportPrompt = ref(false);
+const watchlistGuestItemsBeforeLogin = ref<FundListItem[]>([]);
+
+const watchlistState = reactive({
+  get items() {
+    return watchlistItems.value;
+  },
+  get shouldShowImportPrompt() {
+    return watchlistShouldShowImportPrompt.value;
+  },
+  get guestItemsBeforeLogin() {
+    return watchlistGuestItemsBeforeLogin.value;
+  },
   replaceAll: vi.fn(),
-  clear: vi.fn(),
-};
+  addFund: vi.fn(),
+  removeFund: vi.fn(),
+  updateFund: vi.fn(),
+  importGuestFunds: vi.fn(),
+  dismissImportPrompt: vi.fn(),
+});
 
 const globalIndicesState = {
   dataList: ref([]),
@@ -99,8 +97,8 @@ vi.mock("@/stores/auth", () => ({
   useAuthStore: () => authState,
 }));
 
-vi.mock("@/composables/watchlist/useGuestWatchlist", () => ({
-  useGuestWatchlist: () => guestWatchlistState,
+vi.mock("@/stores/watchlist", () => ({
+  useWatchlistStore: () => watchlistState,
 }));
 
 vi.mock("@/composables/fund/useFundSearch", () => ({
@@ -229,22 +227,24 @@ describe("HomePage selection behavior", () => {
     globalIndicesState.refetch.mockReset();
     holidayState.loadFromStorage.mockReset();
     authState.bootstrap.refetch.mockReset();
-    authState.bootstrap.isPending.value = false;
+    authBootstrapIsPending.value = false;
     authIsAuthenticated.value = false;
-    authCloudWatchlist.value = [];
-    authIsFirstLogin.value = false;
-    authShouldShowImportPrompt.value = false;
-    authState.saveWatchlist.mutateAsync.mockReset();
-    authState.importGuest.mutateAsync.mockReset();
-    authState.dismissImportPrompt.mockReset();
-    guestWatchlistState.items.value = [];
-    guestWatchlistState.replaceAll.mockReset();
-    guestWatchlistState.clear.mockReset();
+
+    watchlistItems.value = [];
+    watchlistShouldShowImportPrompt.value = false;
+    watchlistGuestItemsBeforeLogin.value = [];
+    watchlistState.replaceAll.mockReset();
+    watchlistState.addFund.mockReset();
+    watchlistState.removeFund.mockReset();
+    watchlistState.updateFund.mockReset();
+    watchlistState.importGuestFunds.mockReset();
+    watchlistState.dismissImportPrompt.mockReset();
+
     capturedWatchlistRef = undefined;
   });
 
-  it("uses guest watchlist as the active source when unauthenticated", async () => {
-    guestWatchlistState.items.value = [
+  it("uses watchlist store items as the active source", async () => {
+    watchlistItems.value = [
       { code: "000001", num: 0 },
       { code: "000002", num: 0 },
     ];
@@ -254,8 +254,8 @@ describe("HomePage selection behavior", () => {
     const wrapper = await mountPage();
 
     expect(capturedWatchlistRef?.value).toEqual([
-      { code: "000001", num: 0, cost: 0 },
-      { code: "000002", num: 0, cost: 0 },
+      { code: "000001", num: 0 },
+      { code: "000002", num: 0 },
     ]);
     expect(wrapper.get("[data-test='saved-count']").text()).toBe("2");
 
@@ -264,7 +264,7 @@ describe("HomePage selection behavior", () => {
   });
 
   it("shows loading state instead of empty state while the first saved-fund request is pending", async () => {
-    guestWatchlistState.items.value = [{ code: "000001", num: 0 }];
+    watchlistItems.value = [{ code: "000001", num: 0 }];
     fundDataState.loadingList.value = true;
     fundDataState.dataList.value = [];
     fundDataState.dataListDft.value = [];
@@ -278,7 +278,7 @@ describe("HomePage selection behavior", () => {
   it("keeps the dashboard shell visible while preferences are still booting", async () => {
     settingsState.load.mockImplementation(() => new Promise(() => {}));
     settingsState.isReady.value = false;
-    authState.bootstrap.isPending.value = true;
+    authBootstrapIsPending.value = true;
 
     const wrapper = await mountPage();
 
@@ -289,26 +289,25 @@ describe("HomePage selection behavior", () => {
 
   it("switches to cloud watchlist when authenticated", async () => {
     authIsAuthenticated.value = true;
-    authCloudWatchlist.value = [
+    watchlistItems.value = [
       { code: "000001", num: 0 },
       { code: "000002", num: 0 },
     ];
-    guestWatchlistState.items.value = [{ code: "000003", num: 0 }];
     fundDataState.dataList.value = [createFundItem("000001"), createFundItem("000002")];
     fundDataState.dataListDft.value = [createFundItem("000001"), createFundItem("000002")];
 
     const wrapper = await mountPage();
 
     expect(capturedWatchlistRef?.value).toEqual([
-      { code: "000001", num: 0, cost: 0 },
-      { code: "000002", num: 0, cost: 0 },
+      { code: "000001", num: 0 },
+      { code: "000002", num: 0 },
     ]);
     expect(wrapper.get("[data-test='saved-count']").text()).toBe("2");
     expect(wrapper.getComponent(FundSavedList).props("activeCode")).toBe("000001");
   });
 
   it("falls back to the first remaining fund when the current selection disappears", async () => {
-    guestWatchlistState.items.value = [
+    watchlistItems.value = [
       { code: "000001", num: 0 },
       { code: "000002", num: 0 },
     ];
@@ -318,7 +317,7 @@ describe("HomePage selection behavior", () => {
 
     const wrapper = await mountPage();
 
-    guestWatchlistState.items.value = [{ code: "000001", num: 0 }];
+    watchlistItems.value = [{ code: "000001", num: 0 }];
     fundDataState.dataList.value = [createFundItem("000001")];
     fundDataState.dataListDft.value = [createFundItem("000001")];
     await nextTick();
@@ -329,14 +328,14 @@ describe("HomePage selection behavior", () => {
   it("selects the first fund when the list transitions from empty to non-empty and clears when emptied", async () => {
     const wrapper = await mountPage();
 
-    guestWatchlistState.items.value = [{ code: "000003", num: 0 }];
+    watchlistItems.value = [{ code: "000003", num: 0 }];
     fundDataState.dataList.value = [createFundItem("000003")];
     fundDataState.dataListDft.value = [createFundItem("000003")];
     await nextTick();
 
     expect(wrapper.getComponent(FundSavedList).props("activeCode")).toBe("000003");
 
-    guestWatchlistState.items.value = [];
+    watchlistItems.value = [];
     fundDataState.dataList.value = [];
     fundDataState.dataListDft.value = [];
     await nextTick();
@@ -345,11 +344,8 @@ describe("HomePage selection behavior", () => {
   });
 
   it("opens the guest import dialog for first-login users with local guest funds", async () => {
-    authIsAuthenticated.value = true;
-    authIsFirstLogin.value = true;
-    authShouldShowImportPrompt.value = true;
-    authCloudWatchlist.value = [];
-    guestWatchlistState.items.value = [
+    watchlistShouldShowImportPrompt.value = true;
+    watchlistGuestItemsBeforeLogin.value = [
       { code: "000001", num: 0 },
       { code: "000002", num: 0 },
     ];
@@ -359,12 +355,9 @@ describe("HomePage selection behavior", () => {
     expect(wrapper.get("[data-test='confirm-import']").text()).toContain("2");
   });
 
-  it("imports guest watchlist on confirmation and clears the guest session", async () => {
-    authIsAuthenticated.value = true;
-    authIsFirstLogin.value = true;
-    authShouldShowImportPrompt.value = true;
-    authCloudWatchlist.value = [];
-    guestWatchlistState.items.value = [
+  it("imports guest watchlist on confirmation and dismisses prompt", async () => {
+    watchlistShouldShowImportPrompt.value = true;
+    watchlistGuestItemsBeforeLogin.value = [
       { code: "005827", num: 10, cost: 1.7 },
       { code: "000001", num: 5, cost: 0 },
     ];
@@ -373,28 +366,19 @@ describe("HomePage selection behavior", () => {
 
     await wrapper.get("[data-test='confirm-import']").trigger("click");
 
-    expect(authState.importGuest.mutateAsync).toHaveBeenCalledWith([
-      { fundCode: "005827", num: 10, cost: 1.7, sortOrder: 0 },
-      { fundCode: "000001", num: 5, cost: 0, sortOrder: 1 },
-    ]);
-    expect(guestWatchlistState.clear).toHaveBeenCalledTimes(1);
-    expect(authState.dismissImportPrompt).toHaveBeenCalledTimes(1);
+    expect(watchlistState.importGuestFunds).toHaveBeenCalledTimes(1);
   });
 
   it("dismisses the guest import dialog without importing when canceled", async () => {
-    authIsAuthenticated.value = true;
-    authIsFirstLogin.value = true;
-    authShouldShowImportPrompt.value = true;
-    authCloudWatchlist.value = [];
-    guestWatchlistState.items.value = [{ code: "005827", num: 10, cost: 1.7 }];
+    watchlistShouldShowImportPrompt.value = true;
+    watchlistGuestItemsBeforeLogin.value = [{ code: "005827", num: 10, cost: 1.7 }];
 
     const wrapper = await mountPage();
 
     await wrapper.get("[data-test='cancel-import']").trigger("click");
 
-    expect(authState.importGuest.mutateAsync).not.toHaveBeenCalled();
-    expect(guestWatchlistState.clear).not.toHaveBeenCalled();
-    expect(authState.dismissImportPrompt).toHaveBeenCalledTimes(1);
+    expect(watchlistState.importGuestFunds).not.toHaveBeenCalled();
+    expect(watchlistState.dismissImportPrompt).toHaveBeenCalledTimes(1);
   });
 
   it("does not manually refetch dashboard queries on mount", async () => {

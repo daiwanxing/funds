@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch, toValue } from "vue";
-import type { FundListItem } from "@/types/fund";
 import { usePreferences } from "@/composables/preferences";
 import { useFundData } from "@/composables/fund";
 import { useGlobalIndices } from "@/composables/index";
 import { useHoliday } from "@/composables/holiday";
 import { useAuthStore } from "@/stores/auth";
-import { useGuestWatchlist } from "@/composables/watchlist/useGuestWatchlist";
+import { useWatchlistStore } from "@/stores/watchlist";
 import { GlobalTicker } from "./components/GlobalTicker";
 import { UserBar } from "./components/StatusBar";
 import GuestImportDialog from "./components/Auth/GuestImportDialog.vue";
@@ -15,51 +14,20 @@ import WatchlistHeader from "./components/WatchlistHeader.vue";
 import FundSavedList from "./components/FundSavedList.vue";
 import FundSearchList from "./components/FundSearchList.vue";
 import { useFundSearch } from "@/composables/fund/useFundSearch";
-import { mapFundListToWatchlist } from "@/types/auth";
 import { Bot, X } from "lucide-vue-next";
 
 const preferences = usePreferences();
 useHoliday();
 const auth = useAuthStore();
-const guestWatchlist = useGuestWatchlist();
-
-const cloneFundList = (items: FundListItem[]): FundListItem[] => {
-  return items.map((item) => ({
-    code: item.code,
-    num: item.num ?? 0,
-    cost: item.cost ?? 0,
-  }));
-};
-
-const watchlistState = ref<FundListItem[]>([]);
-const activeWatchlistSource = computed(() => {
-  return auth.isAuthenticated
-    ? auth.cloudWatchlist
-    : guestWatchlist.items.value;
-});
-
-const syncWatchlistState = (items: FundListItem[]) => {
-  watchlistState.value = cloneFundList(items);
-};
-
-const persistWatchlist = async (watchlist: FundListItem[]) => {
-  const nextWatchlist = cloneFundList(watchlist);
-
-  if (auth.isAuthenticated) {
-    await auth.saveWatchlist.mutateAsync(mapFundListToWatchlist(nextWatchlist));
-    return;
-  }
-
-  guestWatchlist.replaceAll(nextWatchlist);
-};
+const watchlist = useWatchlistStore();
 
 const authBootstrapPending = computed(() => toValue(auth.bootstrap.isPending));
 const fundData = useFundData(
-  watchlistState,
+  computed(() => watchlist.items),
   preferences.userId,
   preferences.sortTypeObj,
   {
-    persistWatchlist,
+    persistWatchlist: (items) => watchlist.replaceAll(items),
     enabled: computed(() => {
       return preferences.isReady.value && !authBootstrapPending.value;
     }),
@@ -70,7 +38,7 @@ const authSourceReady = computed(() => !authBootstrapPending.value);
 const watchlistReady = computed(() => preferences.isReady.value && authSourceReady.value);
 const fundListPhase = computed(() => {
   if (!watchlistReady.value) return "booting";
-  if (watchlistState.value.length === 0) return "empty";
+  if (watchlist.items.length === 0) return "empty";
   if (fundData.loadingList.value) return "loadingQuotes";
   return "loaded";
 });
@@ -78,15 +46,12 @@ const savedListLoading = computed(() => {
   return fundListPhase.value === "booting" || fundListPhase.value === "loadingQuotes";
 });
 const visibleSavedCount = computed(() => {
-  return watchlistReady.value ? watchlistState.value.length : 0;
+  return watchlistReady.value ? watchlist.items.length : 0;
 });
 
 /** 是否有自选基金（控制 Zone C 显示和 FAB 显示） */
-const hasFunds = computed(() => watchlistReady.value && watchlistState.value.length > 0);
-const addedFundCodes = computed(() => watchlistState.value.map((item) => item.code));
-// const showSummaryBar = computed(() => {
-//   return !searchQuery.value && hasFunds.value && fundListPhase.value === "loaded";
-// });
+const hasFunds = computed(() => watchlistReady.value && watchlist.items.length > 0);
+const addedFundCodes = computed(() => watchlist.items.map((item) => item.code));
 
 /** Zone D AI 抽屉 */
 const aiDrawerOpen = ref(false);
@@ -110,12 +75,8 @@ const selectFund = (code: string) => {
 const searchQuery = ref("");
 const { searchOptions, loading: isSearching } = useFundSearch(searchQuery);
 
-const shouldShowImportDialog = computed(() => {
-  return auth.shouldShowImportPrompt && guestWatchlist.items.value.length > 0;
-});
-
 const normalizeSelectedFundCode = () => {
-  const codes = watchlistState.value.map((item) => item.code);
+  const codes = watchlist.items.map((item) => item.code);
   const current = preferences.RealtimeFundcode.value;
 
   if (codes.length === 0) {
@@ -133,20 +94,9 @@ const normalizeSelectedFundCode = () => {
 };
 
 watch(
-  activeWatchlistSource,
-  (items) => {
-    syncWatchlistState(items);
-  },
-  {
-    immediate: true,
-    deep: true,
-  },
-);
-
-watch(
   [
     () => watchlistReady.value,
-    () => watchlistState.value.map((item) => item.code),
+    () => watchlist.items.map((item) => item.code),
     () => preferences.RealtimeFundcode.value,
   ],
   () => {
@@ -156,15 +106,11 @@ watch(
 );
 
 const handleImportGuestWatchlist = async () => {
-  await auth.importGuest.mutateAsync(
-    mapFundListToWatchlist(guestWatchlist.items.value),
-  );
-  guestWatchlist.clear();
-  auth.dismissImportPrompt();
+  await watchlist.importGuestFunds();
 };
 
 const handleDismissImportPrompt = () => {
-  auth.dismissImportPrompt();
+  watchlist.dismissImportPrompt();
 };
 
 onMounted(() => {
@@ -210,43 +156,6 @@ onMounted(() => {
           @select="selectFund"
         />
       </template>
-
-      <!-- 汇总栏 (仅在未搜索且有持仓时显示) -->
-      <!-- <div
-        v-if="showSummaryBar"
-        class="h-10 flex items-center justify-between px-4 border-t border-white/5 shrink-0 bg-[var(--bg-0)]"
-      >
-        <div class="flex items-center gap-1.5 text-white/40 text-[11px] font-sans">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="12"
-            height="12"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="lucide lucide-trending-up"
-          ><polyline points="22 7 13.5 15.5 8.5 10.5 2 17" /><polyline points="16 7 22 7 22 13" /></svg>
-          今日
-          <span
-            class="font-bold font-mono text-[13px] ml-0.5 opacity-90"
-            :class="fundData.allGains.value[0] > 0 ? 'text-up' : fundData.allGains.value[0] < 0 ? 'text-down' : 'text-white/30'"
-          >
-            {{ fundData.allGains.value[0] > 0 ? '+¥' + fundData.allGains.value[0].toFixed(2) : fundData.allGains.value[0] < 0 ? '-¥' + Math.abs(fundData.allGains.value[0]).toFixed(2) : '¥0' }}
-          </span>
-        </div>
-        <div class="flex items-center gap-1.5 text-white/40 text-[11px] font-sans">
-          累计
-          <span
-            class="font-bold font-mono text-[13px] ml-0.5 opacity-90"
-            :class="fundData.allCostGains.value[0] > 0 ? 'text-up' : fundData.allCostGains.value[0] < 0 ? 'text-down' : 'text-white/30'"
-          >
-            {{ fundData.allCostGains.value[0] > 0 ? '+¥' + fundData.allCostGains.value[0].toFixed(2) : fundData.allCostGains.value[0] < 0 ? '-¥' + Math.abs(fundData.allCostGains.value[0]).toFixed(2) : '¥0' }}
-          </span>
-        </div>
-      </div> -->
     </main>
 
     <!-- ── Zone C: 基金详情面板（全局常驻）────── -->
@@ -277,8 +186,8 @@ onMounted(() => {
     </footer>
 
     <GuestImportDialog
-      :open="shouldShowImportDialog"
-      :guest-count="guestWatchlist.items.value.length"
+      :open="watchlist.shouldShowImportPrompt"
+      :guest-count="watchlist.guestItemsBeforeLogin.length"
       @confirm="handleImportGuestWatchlist"
       @cancel="handleDismissImportPrompt"
     />

@@ -1,5 +1,5 @@
-import { ref, computed, watch, type ComputedRef, type Ref } from "vue";
-import { useQuery } from "@tanstack/vue-query";
+import { computed, type ComputedRef, type Ref } from "vue";
+import { useQuery, useQueryClient } from "@tanstack/vue-query";
 import { resolveFundQuote } from "./quote";
 import { usePreferences } from "@/composables/preferences";
 import { isDuringDate } from "@/utils/marketStatus";
@@ -66,9 +66,8 @@ export const useFundData = (
   options: UseFundDataOptions = {},
 ) => {
   const preferences = usePreferences();
-  const dataList = ref<FundItem[]>([]);
-  const dataListDft = ref<FundItem[]>([]);
-  const loading = ref(false);
+  const queryClient = useQueryClient();
+
   const watchlistCodes = computed(() => fundListM.value.map((item) => item.code).join(","));
   const queryEnabled = computed(() => {
     const baseEnabled = options.enabled?.value ?? true;
@@ -144,22 +143,32 @@ export const useFundData = (
 
   const loadingList = computed(() => queryEnabled.value && fundListQuery.isPending.value);
 
-  watch(() => fundListQuery.data.value, (newList: FundItem[] | undefined) => {
-    if (!newList) return;
-    dataListDft.value = [...newList];
+  // ── Derived display data (computed, not ref) ──────────────────
+  // dataListDft: 原始顺序（未排序），直接派生自 query 缓存
+  // dataList: 排序后的视图，派生自 dataListDft + sortTypeObj
+  // 当 watchlistCodes 为空时，两者自动返回 []，无需额外 watcher
 
+  const dataListDft = computed<FundItem[]>(() => {
+    if (watchlistCodes.value.length === 0) return [];
+    return fundListQuery.data.value ?? [];
+  });
+
+  const dataList = computed<FundItem[]>(() => {
+    const raw = dataListDft.value;
+    if (raw.length === 0) return [];
     if (
       sortTypeObj.value.type &&
       sortTypeObj.value.type !== "none" &&
       sortTypeObj.value.name
     ) {
-      dataList.value = [...newList].sort(
+      return [...raw].sort(
         compareFn(sortTypeObj.value.name, sortTypeObj.value.type),
       );
-    } else {
-      dataList.value = [...newList];
     }
-  }, { immediate: true });
+    return [...raw];
+  });
+
+  // ── Mutations (optimistic via query cache) ────────────────────
 
   const fetchData = async (): Promise<void> => {
     await fundListQuery.refetch();
@@ -178,31 +187,60 @@ export const useFundData = (
   };
 
   const deleteFund = (id: string): void => {
+    // 先拿到旧 query key 对应的缓存数据
+    const oldKey = queryKey.value;
+    const oldData = queryClient.getQueryData<FundItem[]>(oldKey);
+
+    // 更新源列表（会导致 queryKey 变化）
     fundListM.value = fundListM.value.filter((f) => f.code !== id);
     persistWatchlist(fundListM.value);
-    dataList.value = dataList.value.filter((f) => f.fundcode !== id);
-    dataListDft.value = dataListDft.value.filter((f) => f.fundcode !== id);
+
+    // 乐观更新：把过滤后的数据写入新的 queryKey 缓存
+    if (oldData) {
+      const filtered = oldData.filter((f) => f.fundcode !== id);
+      queryClient.setQueryData(queryKey.value, filtered);
+    }
   };
 
   const updateFundNum = (item: FundItem): void => {
     const fund = fundListM.value.find((f) => f.code === item.fundcode);
-    if (fund) {
-      fund.num = item.num;
-      persistWatchlist(fundListM.value);
-      item.amount = calculateMoney(item);
-      item.gains = calculate(item, item.hasReplace);
-      item.costGains = calculateCost(item);
-    }
+    if (!fund) return;
+
+    fund.num = item.num;
+    persistWatchlist(fundListM.value);
+
+    // 乐观更新 query 缓存中的对应条目
+    queryClient.setQueryData<FundItem[]>(queryKey.value, (old) => {
+      if (!old) return old;
+      return old.map((f) => {
+        if (f.fundcode !== item.fundcode) return f;
+        const updated = { ...f, num: item.num };
+        updated.amount = calculateMoney(updated);
+        updated.gains = calculate(updated, updated.hasReplace);
+        updated.costGains = calculateCost(updated);
+        return updated;
+      });
+    });
   };
 
   const updateFundCost = (item: FundItem): void => {
     const fund = fundListM.value.find((f) => f.code === item.fundcode);
-    if (fund) {
-      fund.cost = item.cost;
-      persistWatchlist(fundListM.value);
-      item.costGains = calculateCost(item);
-      item.costGainsRate = calculateCostRate(item);
-    }
+    if (!fund) return;
+
+    fund.cost = item.cost;
+    persistWatchlist(fundListM.value);
+
+    // 乐观更新 query 缓存中的对应条目
+    queryClient.setQueryData<FundItem[]>(queryKey.value, (old) => {
+      if (!old) return old;
+      return old.map((f) => {
+        if (f.fundcode !== item.fundcode) return f;
+        const updated = { ...f, cost: item.cost };
+        updated.costGains = calculateCost(updated);
+        updated.costGainsRate = calculateCostRate(updated);
+        return updated;
+      });
+    });
   };
 
   const allGains = computed(() => {
@@ -234,7 +272,6 @@ export const useFundData = (
   return {
     dataList,
     dataListDft,
-    loading,
     loadingList,
     allGains,
     allCostGains,

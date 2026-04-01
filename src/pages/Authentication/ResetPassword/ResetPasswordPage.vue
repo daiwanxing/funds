@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
-import { useAuth } from "@/composables/auth/useAuth";
+import { useAuthStore } from "@/stores/auth";
 import { ShieldCheck, Lock, Eye, EyeOff } from "lucide-vue-next";
 
 const router = useRouter();
-const { resetPassword } = useAuth();
+const { resetPassword } = useAuthStore();
 
 const password = ref("");
 const confirmPassword = ref("");
@@ -31,7 +31,7 @@ onMounted(() => {
   }
 });
 
-const isLoading = computed(() => resetPassword.isPending.value);
+const isLoading = computed(() => resetPassword.isPending);
 const isFormValid = computed(
   () => password.value.length >= 6 && password.value === confirmPassword.value,
 );

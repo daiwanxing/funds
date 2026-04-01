@@ -1,10 +1,10 @@
-import { computed, ref, watch } from "vue";
+import { computed } from "vue";
 import { defineStore } from "pinia";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/vue-query";
 import { useRouter } from "vue-router";
-import { fetchBootstrap, putWatchlist, importGuestWatchlist } from "@/api/user";
+import { fetchBootstrap } from "@/api/user";
 import * as authApi from "@/api/auth";
-import type { BootstrapResponse, OAuthProvider, WatchlistItemDTO } from "@/types/auth";
+import type { BootstrapResponse, OAuthProvider } from "@/types/auth";
 import { mapWatchlistToFundList } from "@/types/auth";
 import type { FundListItem } from "@/types/fund";
 
@@ -15,7 +15,7 @@ export { BOOTSTRAP_QUERY_KEY };
  * Auth store — 全局单例，持有登录态与用户信息。
  *
  * 服务端数据（bootstrap）通过 TanStack Query 管理缓存与失效；
- * 客户端 UI 状态（importPromptDismissed）由 Pinia 持有，保证全局唯一。
+ * 自选基金相关状态已迁移至 watchlist store。
  */
 export const useAuthStore = defineStore("auth", () => {
   const queryClient = useQueryClient();
@@ -47,31 +47,10 @@ export const useAuthStore = defineStore("auth", () => {
   /** 用户头像 */
   const avatarUrl = computed(() => profile.value?.avatarUrl ?? null);
 
-  /** 云端自选基金列表（登录态下有效） */
+  /** 云端自选基金列表（登录态下有效，供 watchlist store 读取） */
   const cloudWatchlist = computed<FundListItem[]>(() => {
     const items = bootstrap.data.value?.watchlist;
     return items ? mapWatchlistToFundList(items) : [];
-  });
-
-  // ── Import dialog state ────────────────────────────────────────
-  const importPromptDismissed = ref(false);
-
-  /** 是否应显示「导入游客自选」提示（需配合 guestWatchlist.items.length > 0 判断） */
-  const shouldShowImportPrompt = computed(() => {
-    if (importPromptDismissed.value) return false;
-    if (!isAuthenticated.value) return false;
-    if (!isFirstLogin.value) return false;
-    if (cloudWatchlist.value.length > 0) return false;
-    return true;
-  });
-
-  const dismissImportPrompt = () => {
-    importPromptDismissed.value = true;
-  };
-
-  // 账号切换时重置弹窗状态
-  watch(email, () => {
-    importPromptDismissed.value = false;
   });
 
   // ── Auth mutations ─────────────────────────────────────────────
@@ -122,21 +101,6 @@ export const useAuthStore = defineStore("auth", () => {
     authApi.startOAuthSignIn(provider, redirectUrl);
   };
 
-  // ── Watchlist mutations ────────────────────────────────────────
-  const saveWatchlistMutation = useMutation({
-    mutationFn: (watchlist: WatchlistItemDTO[]) => putWatchlist(watchlist),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [...BOOTSTRAP_QUERY_KEY] });
-    },
-  });
-
-  const importGuestMutation = useMutation({
-    mutationFn: (watchlist: WatchlistItemDTO[]) => importGuestWatchlist(watchlist),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [...BOOTSTRAP_QUERY_KEY] });
-    },
-  });
-
   return {
     // ── Bootstrap ──────────────────────────────────────────────
     bootstrap,
@@ -150,10 +114,6 @@ export const useAuthStore = defineStore("auth", () => {
     avatarUrl,
     cloudWatchlist,
 
-    // ── Import dialog ──────────────────────────────────────────
-    shouldShowImportPrompt,
-    dismissImportPrompt,
-
     // ── Auth mutations ─────────────────────────────────────────
     signUp: signUpMutation,
     signIn: signInMutation,
@@ -162,9 +122,5 @@ export const useAuthStore = defineStore("auth", () => {
     resetPassword: resetPasswordMutation,
     resendVerification: resendVerificationMutation,
     startOAuthSignIn,
-
-    // ── Watchlist mutations ────────────────────────────────────
-    saveWatchlist: saveWatchlistMutation,
-    importGuest: importGuestMutation,
   };
 });
