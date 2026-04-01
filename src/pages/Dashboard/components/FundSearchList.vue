@@ -216,14 +216,12 @@ const handleAdd = (code: string) => {
       </template>
       
       <template v-else-if="options.length > 0">
-        <!-- Data List -->
         <ul class="pb-10 font-sans">
           <li
             v-for="item in options"
             :key="item.value"
             class="px-4 py-3.5 flex items-start gap-[20px] justify-between border-b border-white/5 hover:bg-white/[0.02] transition-colors"
           >
-            <!-- Left Info -->
             <div class="flex flex-col overflow-hidden pr-2 flex-1">
               <div class="flex items-center gap-2 overflow-hidden mb-1.5">
                 <span class="text-white/90 text-[12px] font-medium truncate block">
@@ -241,7 +239,7 @@ const handleAdd = (code: string) => {
               </span>
             </div>
             
-            <!-- Right Action Area -->
+
             <div class="flex gap-[6px] items-start shrink-0">
               <!-- 估算净值 -->
               <span class="text-white/80 text-[12px] tracking-tight w-11 pt-0.5 text-right font-mono">
@@ -282,7 +280,7 @@ const handleAdd = (code: string) => {
         </ul>
       </template>
 
-      <!-- Empty State for Search -->
+
       <div
         v-else-if="!loading"
         class="pt-16 flex flex-col items-center opacity-30"

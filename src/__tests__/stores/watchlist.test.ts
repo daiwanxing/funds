@@ -3,7 +3,7 @@ import { setActivePinia, createPinia } from "pinia";
 import { ref, nextTick } from "vue";
 import type { FundListItem } from "@/types/fund";
 
-// ── Mock: auth store ────────────────────────────────────────────
+
 
 const authIsAuthenticated = ref(false);
 const authIsFirstLogin = ref(false);
@@ -53,7 +53,7 @@ vi.mock("@/api/user", () => ({
   importGuestWatchlist: importGuestMutateAsync,
 }));
 
-// ── sessionStorage mock ─────────────────────────────────────────
+
 
 const sessionStorageMap = new Map<string, string>();
 const sessionStorageMock = {
@@ -66,7 +66,7 @@ Object.defineProperty(globalThis, "sessionStorage", {
   writable: true,
 });
 
-// ── Import the store under test (after mocks) ───────────────────
+
 
 // We dynamically import to ensure mocks are in place
 let useWatchlistStore: typeof import("@/stores/watchlist").useWatchlistStore;
@@ -91,7 +91,7 @@ beforeEach(async () => {
   useWatchlistStore = mod.useWatchlistStore;
 });
 
-// ── Tests ───────────────────────────────────────────────────────
+
 
 describe("useWatchlistStore", () => {
   describe("guest mode (unauthenticated)", () => {

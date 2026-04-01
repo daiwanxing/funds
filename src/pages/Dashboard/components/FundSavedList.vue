@@ -29,7 +29,7 @@ const emit = defineEmits<{
       </div>
     </div>
 
-    <!-- Body -->
+
     <ul
       v-if="items.length > 0"
       class="flex-1 overflow-y-auto pb-10"
@@ -47,13 +47,13 @@ const emit = defineEmits<{
           class="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-[14px] bg-[#3B82F6] rounded-r shadow-[0_0_8px_rgba(59,130,246,0.6)]"
         />
 
-        <!-- Left Names -->
+
         <div class="flex-1 flex flex-col gap-1 overflow-hidden">
           <span class="text-[12px] text-white/90 font-medium truncate font-sans tracking-wide">{{ item.name }}</span>
           <span class="text-[11px] text-white/30 font-sans tracking-tight">{{ item.fundcode }} · {{ Number(item.num) > 0 ? item.num + '份' : '0份' }}</span>
         </div>
         
-        <!-- Right Columns -->
+
         <div class="flex items-start gap-[6px] shrink-0 font-mono tracking-tight pt-0.5">
           <!-- Valuation -->
           <span class="w-11 text-right text-white/90 text-[12px]">{{ item.gsz != null ? item.gsz : '--' }}</span>
@@ -84,7 +84,7 @@ const emit = defineEmits<{
       </li>
     </ul>
 
-    <!-- Empty State -->
+
     <div
       v-else-if="loading"
       class="flex-1 px-4 py-4 flex flex-col gap-3 overflow-hidden"

@@ -139,7 +139,7 @@ watch(
   width: 100%;
 }
 
-/* ── 骨架屏 ──────────────────────────── */
+
 .ticker-skeleton {
   width: max-content;
 }
@@ -181,7 +181,7 @@ watch(
   100% { background-position: -200% 0; }
 }
 
-/* ── 轨道 ────────────────────────────── */
+
 .ticker-track {
   width: max-content;
   opacity: 0;

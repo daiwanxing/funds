@@ -74,7 +74,6 @@ const chartAreaPath = computed(() => {
 
 <template>
   <div class="ticker-card flex items-center h-full px-5 cursor-default transition-colors relative">
-    <!-- 左侧：微型图表（SVG） -->
     <div class="mr-3 shrink-0 flex items-center mt-1">
       <svg
         :width="WIDTH"
@@ -82,7 +81,7 @@ const chartAreaPath = computed(() => {
         class="overflow-visible"
       >
         <defs>
-          <!-- 通过 style 把 CSS variables 直接传入 stop-color 以获取正确的涨跌色 -->
+
           <linearGradient
             :id="gradientId"
             x1="0"
@@ -103,7 +102,7 @@ const chartAreaPath = computed(() => {
           </linearGradient>
         </defs>
 
-        <!-- 走势折线：使用 motion pathLength 实现从左至右绘制动画 -->
+
         <Motion
           as="path"
           :d="chartPath"
@@ -116,7 +115,7 @@ const chartAreaPath = computed(() => {
           :animate="{ pathLength: 1, opacity: 1 }"
           :transition="{ pathLength: { duration: 1.2, ease: 'easeOut' }, opacity: { duration: 0.3 } }"
         />
-        <!-- 填充区域：延迟淡入，等线条绘制完再显示 -->
+
         <Motion
           as="path"
           :d="chartAreaPath"
@@ -128,7 +127,7 @@ const chartAreaPath = computed(() => {
       </svg>
     </div>
 
-    <!-- 右侧：数值信息（随图表一起淡入） -->
+
     <Motion
       as="div"
       class="flex flex-col justify-center min-w-[76px]"

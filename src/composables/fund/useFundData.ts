@@ -143,7 +143,7 @@ export const useFundData = (
 
   const loadingList = computed(() => queryEnabled.value && fundListQuery.isPending.value);
 
-  // ── Derived display data (computed, not ref) ──────────────────
+
   // dataListDft: 原始顺序（未排序），直接派生自 query 缓存
   // dataList: 排序后的视图，派生自 dataListDft + sortTypeObj
   // 当 watchlistCodes 为空时，两者自动返回 []，无需额外 watcher
@@ -168,7 +168,7 @@ export const useFundData = (
     return [...raw];
   });
 
-  // ── Mutations (optimistic via query cache) ────────────────────
+
 
   const fetchData = async (): Promise<void> => {
     await fundListQuery.refetch();

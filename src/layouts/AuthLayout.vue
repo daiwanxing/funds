@@ -8,7 +8,6 @@ const authGlobeMarkets = useAuthGlobeMarkets();
 
 <template>
   <div class="min-h-screen flex flex-col bg-bg-0 text-p font-sans overflow-hidden">
-    <!-- 极简 Logo 浮动区 -->
     <header class="absolute top-0 left-0 w-full h-20 flex items-center px-8 bg-transparent z-10 pointer-events-none">
       <div class="flex items-center gap-3 pointer-events-auto">
         <BrandLogo
@@ -19,9 +18,8 @@ const authGlobeMarkets = useAuthGlobeMarkets();
       </div>
     </header>
 
-    <!-- 主体两栏布局 -->
+
     <main class="flex-1 flex relative">
-      <!-- 左侧：3D 地球展示区 -->
       <section class="hidden md:flex flex-[6] relative bg-[radial-gradient(circle_at_center,var(--bg-1)_0%,var(--bg-0)_100%)] items-center justify-center border-r border-white/6 overflow-hidden">
         <div class="relative w-full h-full flex items-center justify-center">
           <div class="absolute top-[116px] left-[92px] z-1 w-[min(56%,420px)] text-left">
@@ -39,7 +37,7 @@ const authGlobeMarkets = useAuthGlobeMarkets();
         </div>
       </section>
 
-      <!-- 右侧：表单区 -->
+
       <section class="flex-[4] flex items-center justify-center p-8 bg-transparent relative">
         <div class="w-full max-w-[400px] relative z-1">
           <slot />

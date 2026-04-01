@@ -120,7 +120,6 @@ onMounted(() => {
 
 <template>
   <div class="dashboard">
-    <!-- ── Zone A: 全景走马灯 ────────────────────── -->
     <header class="market-ticker">
       <!-- Phase 2: <GlobalTicker /> -->
       <GlobalTicker
@@ -129,7 +128,7 @@ onMounted(() => {
       />
     </header>
 
-    <!-- ── Zone B: 自选核心控制台 ─────────────────── -->
+
     <main class="watchlist-panel flex flex-col h-full overflow-hidden">
       <WatchlistHeader 
         v-model:query="searchQuery"
@@ -158,7 +157,7 @@ onMounted(() => {
       </template>
     </main>
 
-    <!-- ── Zone C: 基金详情面板（全局常驻）────── -->
+
     <aside class="fund-detail">
       <!-- Phase 3: <FundDetail :code="selectedFundCode" /> -->
       <div class="h-full flex flex-col">
@@ -180,7 +179,7 @@ onMounted(() => {
       </div>
     </aside>
 
-    <!-- ── Zone E: 状态栏 ────────────────────────── -->
+
     <footer class="status-bar">
       <UserBar @login="authDialogOpen = true" />
     </footer>
@@ -194,7 +193,7 @@ onMounted(() => {
 
     <AuthDialog v-model:open="authDialogOpen" />
 
-    <!-- ── Zone D: AI FAB（有基金时显示）────────── -->
+
     <button
       v-if="hasFunds"
       class="ai-fab"
@@ -204,7 +203,7 @@ onMounted(() => {
       <Bot class="w-6 h-6" />
     </button>
 
-    <!-- ── Zone D: AI 抽屉 ───────────────────────── -->
+
     <Transition name="drawer">
       <div
         v-if="aiDrawerOpen"
@@ -284,7 +283,7 @@ onMounted(() => {
   background-color: var(--bg-0);
 }
 
-/* ── Zone D FAB ─────────────────────────────── */
+
 .ai-fab {
   position: fixed;
   right: 24px;
@@ -308,7 +307,7 @@ onMounted(() => {
   transform: scale(1.05);
 }
 
-/* ── Zone D Overlay ─────────────────────────── */
+
 .ai-drawer-overlay {
   position: fixed;
   inset: 0;
@@ -317,7 +316,7 @@ onMounted(() => {
   z-index: 299;
 }
 
-/* ── AI Drawer ──────────────────────────── */
+
 .ai-drawer {
   position: fixed;
   top: 48px;
@@ -327,7 +326,7 @@ onMounted(() => {
   z-index: 300;
 }
 
-/* ── Drawer transitions ─────────────────────── */
+
 .drawer-enter-active,
 .drawer-leave-active {
   transition: opacity 0.25s ease, transform 0.25s ease;

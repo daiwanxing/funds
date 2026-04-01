@@ -9,7 +9,7 @@ const emit = defineEmits<{
   success: [];
 }>();
 
-// ─── Mode ────────────────────────────────────────────────────────────────────
+// Mode
 type AuthMode = "login" | "register" | "forgot";
 
 const currentMode = ref<AuthMode>("login");
@@ -28,7 +28,7 @@ const goToForgot = () => {
   currentMode.value = "forgot";
 };
 
-// ─── Child refs (for reset) ─────────────────────────────────────────────────
+// Child refs (for reset)
 const registerRef = useTemplateRef<InstanceType<typeof RegisterPanel>>("registerPanel");
 const forgotRef = useTemplateRef<InstanceType<typeof ForgotPanel>>("forgotPanel");
 
@@ -70,7 +70,7 @@ watch(currentMode, (_next, prev) => {
 </template>
 
 <style scoped>
-/* ── Vue Transition animation classes (cannot be replaced by UnoCSS) ── */
+/* Vue Transition animation classes (cannot be replaced by UnoCSS) */
 .slide-left-enter-active,
 .slide-left-leave-active,
 .slide-right-enter-active,

@@ -1,4 +1,4 @@
-// ─── 偏好领域类型 ────────────────────────────────────────────────
+
 
 import type { FundSortableField } from "./fund";
 import type { HolidayData } from "./holiday";

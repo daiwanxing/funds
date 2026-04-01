@@ -82,7 +82,7 @@ const handleClick = (e: MouseEvent) => {
 </template>
 
 <style scoped>
-/* ── Base ──────────────────────────────────────────────── */
+
 .dropdown-item {
   display: flex;
   align-items: center;
@@ -108,13 +108,13 @@ const handleClick = (e: MouseEvent) => {
   background: var(--bg-3);
 }
 
-/* ── Active (selected) ─────────────────────────────────── */
+
 .dropdown-item.is-active {
   background: var(--bg-3);
   box-shadow: inset 2px 0 0 var(--accent-primary);
 }
 
-/* ── Danger ────────────────────────────────────────────── */
+
 .dropdown-item.is-danger {
   color: var(--danger-primary);
 }
@@ -123,14 +123,14 @@ const handleClick = (e: MouseEvent) => {
   background: var(--danger-soft-bg);
 }
 
-/* ── Disabled ──────────────────────────────────────────── */
+
 .dropdown-item.is-disabled {
   color: var(--text-disabled);
   cursor: not-allowed;
   pointer-events: none;
 }
 
-/* ── Icon ──────────────────────────────────────────────── */
+
 .dropdown-item__icon {
   display: flex;
   align-items: center;
@@ -148,7 +148,7 @@ const handleClick = (e: MouseEvent) => {
   color: var(--text-secondary);
 }
 
-/* ── Label ─────────────────────────────────────────────── */
+
 .dropdown-item__label {
   flex: 1;
   min-width: 0;
@@ -157,7 +157,7 @@ const handleClick = (e: MouseEvent) => {
   white-space: nowrap;
 }
 
-/* ── Suffix area ───────────────────────────────────────── */
+
 .dropdown-item__suffix {
   flex-shrink: 0;
   display: flex;
@@ -166,7 +166,7 @@ const handleClick = (e: MouseEvent) => {
   margin-left: auto;
 }
 
-/* ── Badge ─────────────────────────────────────────────── */
+
 .dropdown-item__badge {
   display: inline-flex;
   align-items: center;
@@ -181,7 +181,7 @@ const handleClick = (e: MouseEvent) => {
   line-height: 1.6;
 }
 
-/* ── Shortcut (kbd) ────────────────────────────────────── */
+
 .dropdown-item__shortcut {
   display: inline-flex;
   align-items: center;

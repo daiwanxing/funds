@@ -6,7 +6,7 @@ import { defineComponent } from "vue";
 import type { FundItem, FundListItem, FundQuoteResponseItem } from "@/types/fund";
 import type { SortPreferenceState } from "@/types/preferences";
 
-// ── Mocks ───────────────────────────────────────────────────────
+
 
 vi.mock("@/composables/preferences", () => ({
   usePreferences: () => ({
@@ -35,7 +35,7 @@ vi.mock("@/composables/fund/quote", () => ({
   }),
 }));
 
-// ── Helpers ─────────────────────────────────────────────────────
+
 
 const makeQuoteResponse = (code: string, name: string): FundQuoteResponseItem => ({
   FCODE: code,
@@ -104,7 +104,7 @@ const mountUseFundData = async (opts: {
   return { captured, wrapper, queryClient };
 };
 
-// ── Tests ───────────────────────────────────────────────────────
+
 
 describe("useFundData — derived dataList", () => {
   beforeEach(() => {

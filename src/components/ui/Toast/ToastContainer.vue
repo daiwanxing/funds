@@ -42,11 +42,11 @@ const onBeforeLeave = (el: Element) => {
 </template>
 
 <style scoped>
-/* ── Fixed top-center viewport — NO transform ──────────── *
+/* Fixed top-center viewport — NO transform
  * Using left:0 right:0 + justify-content avoids transform
  * containment, which would corrupt position:absolute offsets
  * for the leaving element and break the exit animation.
- * ─────────────────────────────────────────────────────── */
+ */
 .toast-viewport {
   position: fixed;
   top: 20px;
@@ -64,7 +64,6 @@ const onBeforeLeave = (el: Element) => {
   pointer-events: all;
 }
 
-/* ── Enter ─────────────────────────────────────────────── */
 .v-enter-from {
   opacity: 0;
   transform: translateY(-20px) scale(0.88);
@@ -79,7 +78,7 @@ const onBeforeLeave = (el: Element) => {
   transform: translateY(0) scale(1);
 }
 
-/* ── Leave — absolute takes element out of flow (→ v-move) ─ */
+/* Leave — absolute takes element out of flow (→ v-move) */
 .v-leave-from {
   opacity: 1;
   transform: translateY(0) scale(1);
@@ -95,7 +94,7 @@ const onBeforeLeave = (el: Element) => {
   transform: translateY(-8px) scale(0.94);
 }
 
-/* ── Move: siblings fill gap smoothly ─────────────────── */
+/* Move: siblings fill gap smoothly */
 .v-move {
   transition: transform 0.38s cubic-bezier(0.34, 1.56, 0.64, 1);
 }

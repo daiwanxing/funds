@@ -41,7 +41,7 @@ const props = withDefaults(defineProps<DropdownProps>(), {
 
 const open = defineModel<boolean>("open", { default: false });
 
-// ── floating-ui refs ─────────────────────────────────────
+
 const triggerRef = ref<HTMLElement | null>(null);
 const floatingRef = ref<HTMLElement | null>(null);
 
@@ -66,7 +66,7 @@ const { x, y } = useFloating(triggerRef, floatingRef, {
   ],
 });
 
-// ── Hover: delay timer ───────────────────────────────────
+
 let hoverCloseTimer: ReturnType<typeof setTimeout> | null = null;
 
 const clearHoverTimer = () => {
@@ -76,7 +76,7 @@ const clearHoverTimer = () => {
   }
 };
 
-// ── Trigger 事件处理 ─────────────────────────────────────
+
 const onTriggerClick = () => {
   if (props.disabled || props.trigger !== "click") return;
   open.value = !open.value;
@@ -108,14 +108,14 @@ const onPanelMouseLeave = () => {
   }, 120);
 };
 
-// ── ESC 关闭 ─────────────────────────────────────────────
+
 const onKeydown = (e: KeyboardEvent) => {
   if (e.key === "Escape" && open.value) {
     open.value = false;
   }
 };
 
-// ── 点击外部关闭（click 模式） ───────────────────────────
+
 const onDocumentClick = (e: MouseEvent) => {
   if (props.trigger !== "click") return;
   const target = e.target as Node;
@@ -140,10 +140,10 @@ onUnmounted(() => {
   if (open.value) open.value = false;
 });
 
-// ── 滚动锁定（面板打开时不锁，dropdown 是轻量覆盖层） ────
+
 // 保留此注释以供扩展
 
-// ── closeOnSelect：捕获 panel 内 click 事件 ──────────────
+
 const onPanelClick = (e: MouseEvent) => {
   if (!props.closeOnSelect) return;
   // 如果点击了 button（DropdownItem），则关闭
@@ -153,7 +153,7 @@ const onPanelClick = (e: MouseEvent) => {
   }
 };
 
-// ── 监听 open，确保 disabled 时强制关闭 ──────────────────
+
 watch(
   () => props.disabled,
   (val) => {
@@ -209,13 +209,13 @@ watch(
 </template>
 
 <style scoped>
-/* ── Trigger wrapper ─────────────────────────────────────── */
+
 .dropdown-trigger-wrapper {
   display: inline-flex;
   /* 不添加额外样式，100% 透传给 slot 内容 */
 }
 
-/* ── Panel ───────────────────────────────────────────────── */
+
 .dropdown-panel {
   /* z-index 高于 Dialog(1000) */
   z-index: 1100;

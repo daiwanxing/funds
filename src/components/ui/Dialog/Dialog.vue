@@ -30,7 +30,7 @@ const props = withDefaults(defineProps<DialogProps>(), {
 
 const open = defineModel<boolean>("open", { default: false });
 
-// ── Scroll lock ─────────────────────────────────────────
+
 let savedOverflow = "";
 
 watch(open, (val) => {
@@ -42,7 +42,7 @@ watch(open, (val) => {
   }
 });
 
-// ── ESC key handler ─────────────────────────────────────
+
 const onKeydown = (e: KeyboardEvent) => {
   if (e.key === "Escape" && props.closeOnEsc && open.value) {
     open.value = false;
@@ -56,12 +56,12 @@ onUnmounted(() => {
   if (open.value) document.body.style.overflow = savedOverflow;
 });
 
-// ── Backdrop click ──────────────────────────────────────
+
 const onBackdropClick = () => {
   if (props.closeOnBackdropClick) open.value = false;
 };
 
-// ── Panel size map ──────────────────────────────────────
+
 const sizeMap = {
   sm: "360px",
   md: "480px",
@@ -102,7 +102,6 @@ const sizeMap = {
           }"
           @click.stop
         >
-          <!-- Header ─────────────────────────────────── -->
           <div 
             v-if="!hideHeader" 
             class="dialog-header"
@@ -132,7 +131,7 @@ const sizeMap = {
             </slot>
           </div>
 
-          <!-- Content ─────────────────────────────────── -->
+
           <div 
             class="dialog-content" 
             :class="{ '!p-0': hideHeader }"
@@ -140,7 +139,7 @@ const sizeMap = {
             <slot />
           </div>
 
-          <!-- Footer (optional) ──────────────────────── -->
+
           <div
             v-if="$slots.footer"
             class="dialog-footer"
@@ -154,7 +153,7 @@ const sizeMap = {
 </template>
 
 <style scoped>
-/* ── Backdrop ─────────────────────────────────────────── */
+
 .dialog-backdrop {
   position: fixed;
   inset: 0;
@@ -168,7 +167,7 @@ const sizeMap = {
   -webkit-backdrop-filter: blur(5px);
 }
 
-/* ── Panel ────────────────────────────────────────────── */
+
 .dialog-panel {
   position: relative;
   max-width: 100%;
@@ -185,7 +184,7 @@ const sizeMap = {
   overflow: hidden;
 }
 
-/* ── Header ───────────────────────────────────────────── */
+
 .dialog-header {
   display: flex;
   align-items: center;
@@ -194,7 +193,7 @@ const sizeMap = {
   flex-shrink: 0;
 }
 
-/* ── Close button (top-left) ──────────────────────────── */
+
 .dialog-close-btn {
   display: flex;
   align-items: center;
@@ -221,7 +220,7 @@ const sizeMap = {
   opacity: 0.5;
 }
 
-/* ── Title ────────────────────────────────────────────── */
+
 .dialog-title {
   font-family: var(--font-sans);
   font-size: 14px;
@@ -231,7 +230,7 @@ const sizeMap = {
   line-height: 1.4;
 }
 
-/* ── Content ──────────────────────────────────────────── */
+
 .dialog-content {
   flex: 1;
   overflow-y: auto;
@@ -242,7 +241,7 @@ const sizeMap = {
   line-height: 1.6;
 }
 
-/* ── Footer ───────────────────────────────────────────── */
+
 .dialog-footer {
   display: flex;
   align-items: center;

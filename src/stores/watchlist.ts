@@ -9,7 +9,7 @@ import type { FundListItem } from "@/types/fund";
 
 const GUEST_STORAGE_KEY = "fs_guest_watchlist";
 
-// ── sessionStorage helpers ──────────────────────────────────────
+
 
 const loadFromSession = (): FundListItem[] => {
   try {
@@ -28,7 +28,7 @@ const clearSession = (): void => {
   sessionStorage.removeItem(GUEST_STORAGE_KEY);
 };
 
-// ── Helpers ─────────────────────────────────────────────────────
+
 
 const cloneFundList = (items: FundListItem[]): FundListItem[] =>
   items.map((item) => ({
@@ -52,7 +52,7 @@ export const useWatchlistStore = defineStore("watchlist", () => {
   const auth = useAuthStore();
   const queryClient = useQueryClient();
 
-  // ── State ───────────────────────────────────────────────────
+
 
   /** 当前活跃的自选列表（唯一数据源） */
   const items = ref<FundListItem[]>(
@@ -65,7 +65,7 @@ export const useWatchlistStore = defineStore("watchlist", () => {
   /** 导入提示是否已被用户关闭 */
   const importPromptDismissed = ref(false);
 
-  // ── Derived ─────────────────────────────────────────────────
+
 
   /** auth bootstrap 是否完成 */
   const isReady = computed(() => !auth.bootstrap.isPending);
@@ -80,7 +80,7 @@ export const useWatchlistStore = defineStore("watchlist", () => {
     return true;
   });
 
-  // ── Persist routing ─────────────────────────────────────────
+
 
   const saveWatchlistMutation = useMutation({
     mutationFn: (watchlist: WatchlistItemDTO[]) => putWatchlist(watchlist),
@@ -108,7 +108,7 @@ export const useWatchlistStore = defineStore("watchlist", () => {
     }
   };
 
-  // ── Public methods ──────────────────────────────────────────
+
 
   const addFund = (codes: string[]): void => {
     let changed = false;
@@ -155,7 +155,7 @@ export const useWatchlistStore = defineStore("watchlist", () => {
     importPromptDismissed.value = true;
   };
 
-  // ── Auth state sync ─────────────────────────────────────────
+
 
   watch(
     () => auth.isAuthenticated,

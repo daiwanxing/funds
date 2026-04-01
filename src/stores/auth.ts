@@ -20,7 +20,7 @@ export { BOOTSTRAP_QUERY_KEY };
 export const useAuthStore = defineStore("auth", () => {
   const queryClient = useQueryClient();
 
-  // ── Bootstrap query ────────────────────────────────────────────
+
   const bootstrap = useQuery<BootstrapResponse>({
     queryKey: [...BOOTSTRAP_QUERY_KEY],
     queryFn: fetchBootstrap,
@@ -28,7 +28,7 @@ export const useAuthStore = defineStore("auth", () => {
     retry: 1,
   });
 
-  // ── Derived auth state ─────────────────────────────────────────
+
   /** 是否已登录 */
   const isAuthenticated = computed(() => bootstrap.data.value?.authenticated ?? false);
 
@@ -53,7 +53,7 @@ export const useAuthStore = defineStore("auth", () => {
     return items ? mapWatchlistToFundList(items) : [];
   });
 
-  // ── Auth mutations ─────────────────────────────────────────────
+
   const signUpMutation = useMutation({
     mutationFn: ({ email, password }: { email: string; password: string }) =>
       authApi.signUp(email, password),
@@ -102,10 +102,10 @@ export const useAuthStore = defineStore("auth", () => {
   };
 
   return {
-    // ── Bootstrap ──────────────────────────────────────────────
+
     bootstrap,
 
-    // ── Derived state ──────────────────────────────────────────
+
     isAuthenticated,
     profile,
     email,
@@ -114,7 +114,7 @@ export const useAuthStore = defineStore("auth", () => {
     avatarUrl,
     cloudWatchlist,
 
-    // ── Auth mutations ─────────────────────────────────────────
+
     signUp: signUpMutation,
     signIn: signInMutation,
     signOut: signOutMutation,

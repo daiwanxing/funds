@@ -9,7 +9,7 @@ export interface ToastItem {
   duration: number;
 }
 
-// ── Internal timer state (not exposed) ─────────────────
+
 interface TimerState {
   timeoutId: ReturnType<typeof setTimeout>;
   startedAt: number; // Date.now() when the timer was started or resumed
@@ -19,7 +19,7 @@ interface TimerState {
 const toasts = ref<ToastItem[]>([]);
 const timers = new Map<string, TimerState>();
 
-// ── Core helpers ────────────────────────────────────────
+
 const remove = (id: string): void => {
   timers.delete(id);
   toasts.value = toasts.value.filter((t) => t.id !== id);
@@ -37,7 +37,7 @@ const add = (type: ToastType, message: string, duration = 4000): string => {
   return id;
 };
 
-// ── Pause / resume (for hover-to-hold) ─────────────────
+
 const pause = (id: string): void => {
   const state = timers.get(id);
   if (!state) return;
@@ -55,7 +55,7 @@ const resume = (id: string): void => {
   state.startedAt = Date.now();
 };
 
-// ── Public API ──────────────────────────────────────────
+
 export const useToast = () => ({
   /** Read-only reactive list consumed by ToastContainer */
   toasts: readonly(toasts),

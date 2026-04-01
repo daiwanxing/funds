@@ -10,7 +10,7 @@ vi.mock("@/composables/useToast", () => ({
 import { http } from "@/api/http";
 import { toast } from "@/composables/useToast";
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
+
 
 /**
  * 提取 http 单例上已注册的 response 拦截器的 onRejected 回调。
@@ -35,7 +35,7 @@ const makeAxiosError = (status: number, message?: string, suppressToast?: boolea
   },
 });
 
-// ── Tests ─────────────────────────────────────────────────────────────────────
+
 
 describe("http response interceptor", () => {
   let onRejected: (e: unknown) => Promise<unknown>;

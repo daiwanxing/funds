@@ -23,14 +23,12 @@ const clearQuery = () => {
 
 <template>
   <div class="px-3 pt-3 pb-3 flex flex-col gap-3 shrink-0 bg-[var(--bg-0)]">
-    <!-- Header Title -->
     <div class="flex items-center justify-between px-1 min-h[24px]">
       <div class="flex items-center gap-2 text-t text-[13px] font-medium transition-colors">
         <BarChart2 class="w-4 h-4 text-accent" />
         <span class="text-white/80 tracking-wide font-sans">{{ query ? '搜索基金库' : '自选持仓' }}</span>
       </div>
       <div>
-        <!-- Right Badges -->
         <span
           v-if="query && resultCount !== undefined"
           class="px-2 py-0.5 rounded-full bg-white/5 text-[11px] text-white/40"

@@ -73,7 +73,7 @@ const fmtNum = (n: number): string => {
     </button>
   </div>
 
-  <!-- Summary row -->
+
   <div
     v-if="showCost || showGains"
     class="flex flex-wrap gap-1 py-1"
@@ -104,7 +104,7 @@ const fmtNum = (n: number): string => {
     </button>
   </div>
 
-  <!-- Refresh button -->
+
   <div
     class="absolute right-2 bottom-2 cursor-pointer"
     @click="$emit('refresh')"

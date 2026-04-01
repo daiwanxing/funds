@@ -180,7 +180,7 @@ const emit = defineEmits<{
   background: var(--accent-hover);
 }
 
-/* ── Transition ──────────────────────────────── */
+
 .dialog-enter-active,
 .dialog-leave-active {
   transition: opacity 0.2s ease;

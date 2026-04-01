@@ -33,7 +33,7 @@ const icon = computed(() => iconMap[props.item.type]);
 </template>
 
 <style scoped>
-/* ── White pill — goey-toast style ────────────────────── */
+
 .toast-pill {
   display: flex;
   align-items: center;
@@ -52,7 +52,7 @@ const icon = computed(() => iconMap[props.item.type]);
   white-space: nowrap;
 }
 
-/* ── Message ─────────────────────────────────────────── */
+
 .toast-message {
   font-family: var(--font-sans);
   font-size: 13.5px;
@@ -62,12 +62,12 @@ const icon = computed(() => iconMap[props.item.type]);
   text-overflow: ellipsis;
 }
 
-/* ── Icon ─────────────────────────────────────────────── */
+
 .toast-icon {
   flex-shrink: 0;
 }
 
-/* ── Type colors (tuned for white background) ─────────── */
+
 .toast-default .toast-icon,
 .toast-default .toast-message {
   color: #374151;
