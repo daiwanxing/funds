@@ -39,7 +39,7 @@ const clearQuery = () => {
           v-else-if="!query"
           class="px-2 py-0.5 rounded-full bg-white/5 text-[11px] text-white/40"
         >
-          {{ savedCount }} 只
+          {{ savedCount }}
         </span>
       </div>
     </div>

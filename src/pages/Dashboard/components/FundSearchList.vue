@@ -214,7 +214,7 @@ const handleAdd = (code: string) => {
       </template>
       
       <template v-else-if="options.length > 0">
-        <ul class="pb-10 font-sans">
+        <ul class="font-sans">
           <li
             v-for="item in options"
             :key="item.value"
